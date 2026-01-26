@@ -1,3 +1,4 @@
+"use server";
 import { admin } from "@/lib/supabase/admin";
 
 export async function getSociosCount() {
