@@ -1,10 +1,11 @@
 "use client";
 
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { useState, useEffect } from "react";
 
 const containerStyle = {
-  width: "50%",
-  height: "600px",
+  width: "100%",
+  height: "400px",
 };
 
 const center = {
@@ -13,20 +14,48 @@ const center = {
 };
 
 export default function Map() {
+  const [isMobile, setIsMobile] = useState(false);
+
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!,
   });
 
-  if (!isLoaded) return <div>Cargando mapa...</div>;
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  if (!isLoaded) {
+    return (
+      <div className="w-full h-100 flex items-center justify-center bg-gray-100">
+        <p className="text-gray-600">Cargando mapa...</p>
+      </div>
+    );
+  }
 
   return (
-    <GoogleMap
-      mapTypeId="satellite"
-      mapContainerStyle={containerStyle}
-      center={center}
-      zoom={17}
-    >
-      <Marker position={center} />
-    </GoogleMap>
+    <div className="w-full md:w-1/2 h-100">
+      <GoogleMap
+        mapTypeId="satellite"
+        mapContainerStyle={containerStyle}
+        center={center}
+        zoom={17}
+        options={{
+          gestureHandling: isMobile ? "greedy" : "cooperative",
+          zoomControl: true,
+          mapTypeControl: !isMobile,
+          streetViewControl: !isMobile,
+          fullscreenControl: true,
+        }}
+      >
+        <Marker position={center} />
+      </GoogleMap>
+    </div>
   );
 }

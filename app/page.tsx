@@ -16,7 +16,7 @@ export default function Home() {
         </Suspense>
       </section>
 
-      <section className="flex flex-row justify-evenly w-1/2 mx-auto py-8">
+      <section className="flex flex-col gap-6 md:gap-0 md:flex-row md:justify-evenly w-1/2 mx-auto py-8">
         <Suspense fallback={<IconCardSkeleton />}>
           <IconCardFromBD type="socios" icon={<Person />} />
         </Suspense>
@@ -33,8 +33,8 @@ export default function Home() {
 
       <section className="flex flex-col items-center justify-center font-bold py-8">
         <div className="flex flex-col gap-4 items-center justify-center pb-8">
-          <h2 className="text-4xl">NUESTRA CASA</h2>
-          <h6 className="opacity-80 text-sm mb-2">
+          <h2 className="text-center text-4xl">NUESTRA CASA</h2>
+          <h6 className="text-center opacity-80 text-sm mb-2">
             Bienvenidos a “La Central”, donde jugamos y entrenamos casi todos
             los días.
           </h6>

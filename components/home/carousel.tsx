@@ -28,8 +28,10 @@ export default function Carousel() {
             src={src}
             alt="Carousel image"
             fill
+            priority
             className="object-cover"
-            style={{ objectPosition: "50% 20%" }}
+            style={{ objectPosition: "50% 15%" }}
+            unoptimized
           />
         </SwiperSlide>
       ))}
