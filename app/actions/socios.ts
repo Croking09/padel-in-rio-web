@@ -1,7 +1,9 @@
 "use server";
-import { admin } from "@/lib/supabase/admin";
+import { createAdmin } from "@/lib/supabase/admin";
 
 export async function getSociosCount() {
+  const admin = createAdmin();
+
   const { count, error } = await admin
     .from("Socios")
     .select("*", { count: "exact", head: true });
