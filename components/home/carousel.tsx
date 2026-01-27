@@ -31,7 +31,6 @@ export default function Carousel() {
             priority
             className="object-cover"
             style={{ objectPosition: "50% 15%" }}
-            unoptimized
           />
         </SwiperSlide>
       ))}
