@@ -1,13 +1,20 @@
 "use server";
 import { createAdmin } from "@/lib/supabase/admin";
+import { unstable_cache } from "next/cache";
 
-export async function getTorneosCount() {
-  const admin = createAdmin();
+export const getTorneosCount = unstable_cache(
+  async () => {
+    const supabase = createAdmin();
+    const { count } = await supabase
+      .from("Torneos")
+      .select("*", { count: "exact", head: true });
+    return count;
+  },
+  ["torneos-count"],
+  {
+    revalidate: 21600, // 6 horas
+    tags: ["torneos-count"],
+  },
+);
 
-  const { count, error } = await admin
-    .from("Torneos")
-    .select("*", { count: "exact", head: true });
-
-  if (error) throw error;
-  return count;
-}
+// Al modificar datos usar revalidateTag('torneos-count') para invalidar la caché
