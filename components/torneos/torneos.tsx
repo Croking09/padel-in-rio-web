@@ -27,13 +27,14 @@ export default async function Torneos({ page = 1 }: TorneosProps) {
                 key={torneo.id}
                 className="flex flex-col md:flex-row md:gap-4 overflow-hidden"
               >
-                <div className="relative w-full h-64 md:w-64">
+                <div className="relative w-full h-120 md:h-64 md:w-64">
                   <Image
                     src={torneo.imageUrl ?? "/torneos/fallback.png"}
                     alt={torneo.name}
                     fill
                     className="object-cover"
                     unoptimized
+                    loading="eager"
                   />
                 </div>
                 <div className="flex flex-col p-4">

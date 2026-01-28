@@ -29,7 +29,7 @@ export const getTorneos = unstable_cache(
     const { data, error, count } = await supabase
       .from("Torneos")
       .select("*", { count: "exact" })
-      .order("start_date", { ascending: true })
+      .order("start_date", { ascending: false })
       .range(from, to);
 
     if (error) {
