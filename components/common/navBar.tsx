@@ -52,7 +52,7 @@ export default function NavBar() {
         >
           <li className="w-full text-center py-4 md:w-auto md:py-0">
             <Link
-              href="#"
+              href="/torneos"
               className="hover:text-secondary transition-colors"
               onClick={() => setIsOpen(false)}
             >
