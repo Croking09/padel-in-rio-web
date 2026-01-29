@@ -40,7 +40,7 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
 
-  const PUBLIC_PATHS = ["/", "/torneos"];
+  const PUBLIC_PATHS = ["/", "/auth/login", "/auth/sign-up", "/torneos", "/torneos/inscripcion"];
 
   if (!PUBLIC_PATHS.includes(request.nextUrl.pathname) && !user) {
     // no user, potentially respond by redirecting the user to the login page

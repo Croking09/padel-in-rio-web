@@ -63,3 +63,74 @@ export const getTorneos = unstable_cache(
     tags: ["torneos"],
   },
 );
+
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import { InscripcionState } from "@/components/torneos/inscripcion/types";
+
+export async function inscribirTorneo(prevState: InscripcionState, formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { error: "Debes iniciar sesión para inscribirte." };
+  }
+
+  const torneo_id = formData.get("torneo_id") as string;
+  const phone_number = formData.get("phone_number") as string;
+
+  if (!torneo_id || !phone_number) {
+    return { error: "Faltan datos requeridos." };
+  }
+
+  // Insertar en la tabla InscripcionTorneo
+  const { error } = await supabase.from("Inscripciones").insert({
+    torneo_id: torneo_id,
+    user_id: user.id,
+    phone_number: phone_number,
+  });
+
+  if (error) {
+    console.error("Error al inscribir:", error);
+    if (error.code === '23505') { // Unique violation
+        return { error: "Ya estás inscrito en este torneo." };
+    }
+    return { error: "Hubo un error al procesar tu inscripción." };
+  }
+
+  revalidatePath("/torneos/inscripcion");
+  return { success: true, message: "¡Inscripción realizada con éxito!" };
+}
+
+export const getTorneoById = unstable_cache(
+  async (id: string) => {
+    const supabase = createAdmin();
+    
+    const { data: torneo, error } = await supabase
+      .from("Torneos")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      console.error(error);
+      return null;
+    }
+
+    const imageUrl = torneo.img_path
+      ? supabase.storage
+          .from("torneos")
+          .getPublicUrl(torneo.img_path).data.publicUrl
+      : null;
+
+    return {
+      ...torneo,
+      imageUrl,
+    };
+  },
+  ["torneo-by-id"],
+  {
+    revalidate: 21600, // 6 horas
+    tags: ["torneos"],
+  },
+);

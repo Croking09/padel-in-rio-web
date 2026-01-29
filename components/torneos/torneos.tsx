@@ -1,6 +1,8 @@
 import { getTorneos } from "@/app/actions/torneos";
 import PaginationControls from "./pagination-controls";
 import Image from "next/image";
+import { Button } from "../ui/button";
+import Link from "next/link";
 
 interface TorneosProps {
   page?: number;
@@ -42,7 +44,20 @@ export default async function Torneos({ page = 1 }: TorneosProps) {
                   <p className="text-sm opacity-80">
                     {formatDate(torneo.start_date)}
                   </p>
-                  <p className="pt-2">{torneo.description}</p>
+                  <p className="py-2">{torneo.description}</p>
+                  {torneo.start_date > new Date().toISOString() && (
+                    <Button
+                      asChild
+                      className="w-fit font-bold"
+                      variant="secondary"
+                    >
+                      <Link
+                        href={`/torneos/inscripcion?id=${torneo.id}`}
+                      >
+                        INSCRIBIRSE
+                      </Link>
+                    </Button>
+                  )}
                 </div>
               </li>
             );
