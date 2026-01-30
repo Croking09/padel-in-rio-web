@@ -68,7 +68,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { InscripcionState } from "@/components/torneos/inscripcion/types";
 
-export async function inscribirTorneo(prevState: InscripcionState, formData: FormData) {
+export async function inscribirTorneo(prevState: InscripcionState, formData: FormData, categoriesNeeded: boolean) {
   const supabase = await createClient();
   const { data: { user }, error: userError } = await supabase.auth.getUser();
 
@@ -78,20 +78,24 @@ export async function inscribirTorneo(prevState: InscripcionState, formData: For
 
   const torneo_id = formData.get("torneo_id") as string;
   const phone_number = formData.get("phone_number") as string;
+  const category = formData.get("category") as string;
+  const player_1_full_name = formData.get("player_1_full_name") as string;
+  const player_2_full_name = formData.get("player_2_full_name") as string;
 
-  if (!torneo_id || !phone_number) {
+  if (!torneo_id || !phone_number || !player_1_full_name || !player_2_full_name || (categoriesNeeded && !category)) {
     return { error: "Faltan datos requeridos." };
   }
 
-  // Insertar en la tabla InscripcionTorneo
   const { error } = await supabase.from("Inscripciones").insert({
     torneo_id: torneo_id,
     user_id: user.id,
     phone_number: phone_number,
+    category: category,
+    player_1_full_name: player_1_full_name,
+    player_2_full_name: player_2_full_name,
   });
 
   if (error) {
-    console.error("Error al inscribir:", error);
     if (error.code === '23505') { // Unique violation
         return { error: "Ya estás inscrito en este torneo." };
     }
@@ -117,16 +121,7 @@ export const getTorneoById = unstable_cache(
       return null;
     }
 
-    const imageUrl = torneo.img_path
-      ? supabase.storage
-          .from("torneos")
-          .getPublicUrl(torneo.img_path).data.publicUrl
-      : null;
-
-    return {
-      ...torneo,
-      imageUrl,
-    };
+    return torneo;
   },
   ["torneo-by-id"],
   {

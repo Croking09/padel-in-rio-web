@@ -2,8 +2,13 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", request.nextUrl.pathname);
+  
   let supabaseResponse = NextResponse.next({
-    request,
+    request: {
+      headers: requestHeaders,
+    },
   });
 
   // With Fluid compute, don't put this client in a global environment
@@ -40,12 +45,20 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
 
-  const PUBLIC_PATHS = ["/", "/auth/login", "/auth/sign-up", "/torneos", "/torneos/inscripcion"];
+  const PUBLIC_PATHS = [
+    "/",
+    "/auth/login",
+    "/auth/sign-up",
+    "/auth/sign-up-success",
+    "/torneos",
+    "/torneos/inscripcion"
+  ];
 
   if (!PUBLIC_PATHS.includes(request.nextUrl.pathname) && !user) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
+    url.searchParams.set("redirectTo", request.nextUrl.pathname);
     return NextResponse.redirect(url);
   }
 

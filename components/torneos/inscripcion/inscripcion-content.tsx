@@ -2,6 +2,7 @@ import { getTorneoById } from "@/app/actions/torneos";
 import { redirect } from "next/navigation";
 import { AuthButton } from "@/components/auth/auth-button";
 import Form from "@/components/torneos/inscripcion/form";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function InscripcionContent({
   searchParams,
@@ -20,24 +21,30 @@ export default async function InscripcionContent({
     redirect("/torneos");
   }
 
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims;
+
   return (
-    <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-6">
-        Inscripción al torneo: {torneo.name}
-      </h1>
+    <>
+      <h2 className="text-center text-4xl font-bold my-8">
+        Inscripción para: {torneo.name}
+      </h2>
 
-      <div className="bg-muted/30 p-6 rounded-lg border">
-        <p className="mb-4">
-          Estás a punto de inscribirte al torneo <strong>{torneo.name}</strong>.
+      <div className="flex flex-col gap-4 items-center">
+        <div className="flex flex-col md:flex-row gap-2 items-center">
+          {!user && <p>Necesitas iniciar sesión para inscribirte.</p>}
+          <AuthButton />
+        </div>
+        <p>
+          Solo <strong className="underline">una</strong> persona por pareja
+          debe inscribirse.
         </p>
 
-        <p className="text-sm opacity-80 mb-6">
-          Necesitas iniciar sesión para inscribirte.
-        </p>
+        <hr className="border-border w-2/3 mx-auto" />
 
-        <AuthButton />
-        <Form torneo_id={torneo.id} />
+        <Form torneo_id={torneo.id} categories={torneo.categories} />
       </div>
-    </div>
+    </>
   );
 }
