@@ -8,4 +8,19 @@
   --color-border: #334155;
 
   --color-text-primary: #e5e7eb;
+
+  --color-success: #22c55e;
+  --color-error: #ef4444;
+}
+
+.shadow-bottom {
+  @apply shadow-[0_10px_10px_rgba(0,0,0,0.25)];
+}
+
+.shadow-top {
+  @apply shadow-[0_-10px_10px_rgba(0,0,0,0.25)];
+}
+
+.shadow-card {
+  @apply shadow-[10px_10px_10px_rgba(0,0,0,0.25)];
 }

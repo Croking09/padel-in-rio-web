@@ -5,6 +5,7 @@ import IconCardSkeleton from "@/components/home/iconCardSkeleton";
 import Map from "@/components/home/map";
 import { Dumbell, Medal, Person, Trophy } from "@/components/icons";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { Suspense } from "react";
 
 export default function Home() {
@@ -47,13 +48,13 @@ export default function Home() {
           variant="secondary"
           size="lg"
         >
-          <a
+          <Link
             href="https://riotorto.pistas-online.com/"
             target="_blank"
             rel="noreferrer"
           >
             RESERVA
-          </a>
+          </Link>
         </Button>
       </section>
     </>
