@@ -96,9 +96,17 @@ export async function inscribirTorneo(prevState: InscripcionState, formData: For
   });
 
   if (error) {
+
+    console.log(error);
+
     if (error.code === '23505') { // Unique violation
         return { error: "Ya estás inscrito en este torneo." };
     }
+
+    if (error.code === '42501') { // RLS violation
+        return { error: "No estás autorizado a inscribirte." };
+    }
+
     return { error: "Hubo un error al procesar tu inscripción." };
   }
 
