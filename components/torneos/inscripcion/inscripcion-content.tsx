@@ -17,7 +17,14 @@ export default async function InscripcionContent({
 
   const torneo = await getTorneoById(id);
 
-  if (!torneo || torneo.start_date < new Date().toISOString()) {
+  console.log(torneo);
+  console.log(new Date().toISOString());
+
+  if (
+    !torneo ||
+    new Date(torneo.start_date) < new Date() ||
+    new Date(torneo.inscription_end_date) < new Date()
+  ) {
     redirect("/torneos");
   }
 
