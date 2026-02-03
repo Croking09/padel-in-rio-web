@@ -64,7 +64,7 @@ export const getTorneos = unstable_cache(
   },
 );
 
-import { revalidatePath } from "next/cache";
+//import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { InscripcionState } from "@/components/torneos/inscripcion/types";
 
@@ -96,9 +96,6 @@ export async function inscribirTorneo(prevState: InscripcionState, formData: For
   });
 
   if (error) {
-
-    console.log(error);
-
     if (error.code === '23505') { // Unique violation
         return { error: "Ya estás inscrito en este torneo." };
     }
@@ -110,7 +107,7 @@ export async function inscribirTorneo(prevState: InscripcionState, formData: For
     return { error: "Hubo un error al procesar tu inscripción." };
   }
 
-  revalidatePath("/torneos/inscripcion");
+  //revalidatePath("/torneos/inscripcion");
   return { success: true, message: "¡Inscripción realizada con éxito!" };
 }
 

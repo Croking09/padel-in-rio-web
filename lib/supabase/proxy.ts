@@ -45,13 +45,22 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
 
+  if (
+    request.nextUrl.pathname.startsWith("/_next") ||
+    request.nextUrl.pathname.startsWith("/favicon") ||
+    (request.nextUrl.pathname.startsWith("/asociacion/") && request.nextUrl.pathname.endsWith(".pdf"))
+  ) {
+    return supabaseResponse;
+  }
+
   const PUBLIC_PATHS = [
     "/",
     "/auth/login",
     "/auth/sign-up",
     "/auth/sign-up-success",
     "/torneos",
-    "/torneos/inscripcion"
+    "/torneos/inscripcion",
+    "/asociacion"
   ];
 
   if (!PUBLIC_PATHS.includes(request.nextUrl.pathname) && !user) {
