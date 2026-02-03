@@ -17,6 +17,7 @@ describe("Torneos", () => {
   afterAll(() => {
     jest.useRealTimers();
   });
+  
   test("each torneo should display correct data", async () => {
     getTorneos.mockResolvedValue({
       data: [
