@@ -33,7 +33,6 @@ export const getTorneos = unstable_cache(
       .range(from, to);
 
     if (error) {
-      console.error(error);
       return { data: [], page, pageSize };
     }
 
@@ -86,6 +85,16 @@ export async function inscribirTorneo(prevState: InscripcionState, formData: For
     return { error: "Faltan datos requeridos." };
   }
 
+  const { data: torneo } = await supabase
+    .from("Torneos")
+    .select("inscription_end_date")
+    .eq("id", torneo_id)
+    .single();
+
+  if (torneo && new Date() > new Date(torneo.inscription_end_date)) {
+    return { error: "El plazo de inscripción se ha cerrado" };
+  }
+
   const { error } = await supabase.from("Inscripciones").insert({
     torneo_id: torneo_id,
     user_id: user.id,
@@ -122,7 +131,6 @@ export const getTorneoById = unstable_cache(
       .single();
 
     if (error) {
-      console.error(error);
       return null;
     }
 
