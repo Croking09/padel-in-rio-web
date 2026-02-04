@@ -2,17 +2,10 @@ import { getTorneos } from "@/app/actions/torneos";
 import PaginationControls from "./pagination-controls";
 import Image from "next/image";
 import InscripcionButton from "./inscripcion-button";
+import { formatDate } from "@/lib/utils";
 
 interface TorneosProps {
   page?: number;
-}
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  const day = date.getDate().toString().padStart(2, "0");
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
 }
 
 export default async function Torneos({ page = 1 }: TorneosProps) {
@@ -49,6 +42,7 @@ export default async function Torneos({ page = 1 }: TorneosProps) {
                     torneoId={torneo.id}
                     startDate={torneo.start_date}
                     inscriptionEndDate={torneo.inscription_end_date}
+                    manuallyClosed={torneo.manually_closed}
                   />
                 </div>
               </li>

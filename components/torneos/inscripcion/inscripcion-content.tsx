@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AuthButton } from "@/components/auth/auth-button";
 import Form from "@/components/torneos/inscripcion/form";
 import { createClient } from "@/lib/supabase/server";
+import { formatDate } from "@/lib/utils";
 
 export default async function InscripcionContent({
   searchParams,
@@ -20,7 +21,8 @@ export default async function InscripcionContent({
   if (
     !torneo ||
     new Date(torneo.start_date) < new Date() ||
-    new Date(torneo.inscription_end_date) < new Date()
+    new Date(torneo.inscription_end_date) < new Date() ||
+    torneo.manually_closed
   ) {
     redirect("/torneos");
   }
@@ -40,10 +42,19 @@ export default async function InscripcionContent({
           {!user && <p>Necesitas iniciar sesión para inscribirte.</p>}
           <AuthButton />
         </div>
-        <p>
-          Solo <strong className="underline">una</strong> persona por pareja
-          debe inscribirse.
-        </p>
+        <div className="text-center">
+          <p>
+            Solo <strong className="underline">una</strong> persona por pareja
+            debe inscribirse.
+          </p>
+          <p className="text-sm">
+            El plazo termina el{" "}
+            <strong className="underline">
+              {formatDate(torneo.inscription_end_date)}
+            </strong>
+            .
+          </p>
+        </div>
 
         <hr className="border-border w-2/3 mx-auto" />
 

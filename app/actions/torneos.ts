@@ -87,11 +87,11 @@ export async function inscribirTorneo(prevState: InscripcionState, formData: For
 
   const { data: torneo } = await supabase
     .from("Torneos")
-    .select("inscription_end_date")
+    .select("inscription_end_date, manually_closed")
     .eq("id", torneo_id)
     .single();
 
-  if (torneo && new Date() > new Date(torneo.inscription_end_date)) {
+  if (torneo && (new Date() > new Date(torneo.inscription_end_date) || torneo.manually_closed)) {
     return { error: "El plazo de inscripción se ha cerrado" };
   }
 

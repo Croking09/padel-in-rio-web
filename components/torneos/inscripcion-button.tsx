@@ -8,12 +8,14 @@ interface Props {
   torneoId: string;
   startDate: string;
   inscriptionEndDate: string;
+  manuallyClosed: boolean;
 }
 
 export default function InscripcionButton({
   torneoId,
   startDate,
   inscriptionEndDate,
+  manuallyClosed,
 }: Props) {
   const [now, setNow] = useState(new Date());
 
@@ -23,7 +25,7 @@ export default function InscripcionButton({
 
   if (new Date(startDate) <= now) return null;
 
-  const inscriptionsClosed = new Date(inscriptionEndDate) < now;
+  const inscriptionsClosed = new Date(inscriptionEndDate) < now || manuallyClosed;
 
   return inscriptionsClosed ? (
     <Button className="w-fit font-bold" variant="secondary" disabled>
