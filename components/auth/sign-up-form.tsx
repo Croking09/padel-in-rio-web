@@ -48,6 +48,9 @@ export function SignUpForm({
         },
       });
       if (error) throw error;
+
+      sessionStorage.setItem("pendingEmail", email);
+
       router.push("/auth/sign-up-success");
     } catch {
       setError("Ha ocurrido un error");
