@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 import {
@@ -20,6 +20,17 @@ export default function Page() {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (!cooldown) return;
+
+    const timer = setInterval(() => {
+      setCooldown((c) => c - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   const email =
     typeof window !== "undefined"
@@ -49,9 +60,11 @@ export default function Page() {
   };
 
   const resend = async () => {
-    if (!email) return;
+    if (!email || cooldown > 0) return;
 
     await supabase.auth.signInWithOtp({ email });
+
+    setCooldown(30);
   };
 
   return (
@@ -90,9 +103,9 @@ export default function Page() {
 
               <button
                 onClick={resend}
-                className="text-sm underline text-muted-foreground hover:cursor-pointer"
+                className="text-sm underline hover:cursor-pointer"
               >
-                Reenviar código
+                {cooldown > 0 ? `Reenviar en ${cooldown}s` : "Reenviar código"}
               </button>
             </CardContent>
           </Card>
