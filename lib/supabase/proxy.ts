@@ -58,6 +58,8 @@ export async function updateSession(request: NextRequest) {
     "/auth/login",
     "/auth/sign-up",
     "/auth/sign-up-success",
+    "/auth/forgot-password",
+    "/auth/update-password",
     "/torneos",
     "/torneos/inscripcion",
     "/asociacion"
