@@ -1,6 +1,6 @@
 "use server";
 import { createAdmin } from "@/lib/supabase/admin";
-import { unstable_cache } from "next/cache";
+import { unstable_cache, revalidateTag } from "next/cache";
 
 export const getTorneosCount = unstable_cache(
   async () => {
@@ -16,8 +16,6 @@ export const getTorneosCount = unstable_cache(
     tags: ["torneos"],
   },
 );
-
-// Al modificar datos usar revalidateTag('torneos') para invalidar la caché
 
 export const getTorneos = unstable_cache(
   async (page: number = 1, pageSize: number = 5) => {
@@ -63,7 +61,6 @@ export const getTorneos = unstable_cache(
   },
 );
 
-//import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { InscripcionState } from "@/components/torneos/inscripcion/types";
 
@@ -116,7 +113,6 @@ export async function inscribirTorneo(prevState: InscripcionState, formData: For
     return { error: "Hubo un error al procesar tu inscripción." };
   }
 
-  //revalidatePath("/torneos/inscripcion");
   return { success: true, message: "¡Inscripción realizada con éxito!" };
 }
 
@@ -142,3 +138,77 @@ export const getTorneoById = unstable_cache(
     tags: ["torneos"],
   },
 );
+
+export type TorneoCreationState = {
+  error?: string;
+  success?: boolean;
+  message?: string;
+};
+
+export async function createTorneo(
+  prevState: TorneoCreationState,
+  formData: FormData,
+): Promise<TorneoCreationState> {
+  const supabase = await createClient();
+
+  const name = formData.get("name") as string;
+  const description = formData.get("description") as string;
+  const start_date = formData.get("start_date") as string;
+  const end_date = formData.get("end_date") as string;
+  const inscription_end_date = formData.get("inscription_end_date") as string;
+  const img_path = formData.get("img_path") as string | null;
+  const categories = formData.getAll("categories") as string[];
+
+  if (!name || !start_date || !end_date || !inscription_end_date) {
+    if (img_path) {
+      await supabase.storage.from("torneos").remove([img_path]);
+    }
+
+    return { error: "Faltan campos obligatorios." };
+  }
+
+  const start = new Date(start_date);
+  const end = new Date(end_date);
+  const inscriptionEnd = new Date(inscription_end_date);
+
+  if (inscriptionEnd >= start) {
+    if (img_path) {
+      await supabase.storage.from("torneos").remove([img_path]);
+    }
+
+    return {
+      error:
+        "El cierre de inscripciones debe ser anterior al inicio del torneo.",
+    };
+  }
+
+  if (start >= end) {
+    if (img_path) {
+      await supabase.storage.from("torneos").remove([img_path]);
+    }
+
+    return { error: "La fecha de inicio debe ser anterior a la fecha de fin." };
+  }
+
+  const { error } = await supabase.from("Torneos").insert({
+    name,
+    description,
+    start_date,
+    img_path,
+    categories: categories.length > 0 ? categories : null,
+    end_date,
+    inscription_end_date,
+    manually_closed: false,
+  });
+
+  if (error) {
+    if (img_path) {
+      await supabase.storage.from("torneos").remove([img_path]);
+    }
+
+    return { error: "Error al crear el torneo. Verifica los datos." };
+  }
+
+  revalidateTag("torneos", "max");
+  return { success: true, message: "Torneo creado exitosamente." };
+}

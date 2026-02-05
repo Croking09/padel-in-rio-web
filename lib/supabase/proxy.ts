@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function updateSession(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", request.nextUrl.pathname);
-  
+
   let supabaseResponse = NextResponse.next({
     request: {
       headers: requestHeaders,
@@ -48,9 +48,20 @@ export async function updateSession(request: NextRequest) {
   if (
     request.nextUrl.pathname.startsWith("/_next") ||
     request.nextUrl.pathname.startsWith("/favicon") ||
-    (request.nextUrl.pathname.startsWith("/asociacion/") && request.nextUrl.pathname.endsWith(".pdf"))
+    (request.nextUrl.pathname.startsWith("/asociacion/") &&
+      request.nextUrl.pathname.endsWith(".pdf"))
   ) {
     return supabaseResponse;
+  }
+
+  if (request.nextUrl.pathname.startsWith("/admin")) {
+    const isAdmin = user?.app_metadata?.admin === true;
+
+    if (!isAdmin) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
   }
 
   const PUBLIC_PATHS = [
@@ -62,7 +73,7 @@ export async function updateSession(request: NextRequest) {
     "/auth/update-password",
     "/torneos",
     "/torneos/inscripcion",
-    "/asociacion"
+    "/asociacion",
   ];
 
   if (!PUBLIC_PATHS.includes(request.nextUrl.pathname) && !user) {
