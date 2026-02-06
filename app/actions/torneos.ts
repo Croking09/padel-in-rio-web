@@ -222,6 +222,31 @@ export async function createTorneo(
   }
 
   revalidatePath("/"); // <-- Count
-  revalidatePath("/torneos"); // <-- Paginated
+  revalidatePath("/torneos");
   return { success: true, message: "Torneo creado exitosamente." };
+}
+
+export async function toggleInscriptions(
+  torneoId: number,
+  shouldClose: boolean,
+) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("Torneos")
+    .update({
+      manually_closed: shouldClose,
+    })
+    .eq("id", torneoId);
+
+  if (error) {
+    if (error.code === "42501") {
+      // RLS violation
+      return { error: "No estás autorizado a modificar las inscripciones." };
+    }
+
+    return { error: "Hubo un error al modificar las inscripciones." };
+  }
+
+  revalidatePath("/torneos");
 }

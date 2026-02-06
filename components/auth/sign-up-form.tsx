@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AuthError } from "@supabase/supabase-js";
 
 export function SignUpForm({
   className,
@@ -52,8 +53,12 @@ export function SignUpForm({
       sessionStorage.setItem("pendingEmail", email);
 
       router.push("/auth/sign-up-success");
-    } catch {
-      setError("Ha ocurrido un error");
+    } catch (error) {
+      if ((error as AuthError)?.code === "user_already_exists") {
+        setError("Este correo electrónico ya está registrado.");
+      } else {
+        setError("Ha ocurrido un error");
+      }
     } finally {
       setIsLoading(false);
     }
