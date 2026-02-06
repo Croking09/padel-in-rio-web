@@ -6,7 +6,16 @@ jest.mock("@/app/actions/torneos", () => ({
   getTorneos: jest.fn(),
 }));
 
+jest.mock("@/lib/supabase/server", () => ({
+  createClient: jest.fn().mockResolvedValue({
+    auth: {
+      getUser: jest.fn().mockResolvedValue({ data: { user: null } }),
+    },
+  }),
+}));
+
 import { getTorneos } from "@/app/actions/torneos";
+import { createClient } from "@/lib/supabase/server";
 
 describe("Torneos", () => {
   beforeAll(() => {
@@ -17,7 +26,7 @@ describe("Torneos", () => {
   afterAll(() => {
     jest.useRealTimers();
   });
-  
+
   test("each torneo should display correct data", async () => {
     getTorneos.mockResolvedValue({
       data: [
@@ -87,5 +96,77 @@ describe("Torneos", () => {
 
     const html = ReactDOMServer.renderToString(await Torneos(props));
     expect(html).toContain("INSCRIPCIONES CERRADAS");
+  });
+
+  test("close inscriptions button is available if user is admin", async () => {
+    createClient.mockResolvedValueOnce({
+      auth: {
+        getUser: jest.fn().mockResolvedValue({
+          data: {
+            user: {
+              app_metadata: {
+                admin: true,
+              },
+            },
+          },
+        }),
+      },
+    });
+
+    getTorneos.mockResolvedValue({
+      data: [
+        {
+          name: "Primavera 2024",
+          description:
+            "El fin de semana del 10 al 12 de mayo, categorías masculinas y femeninas únicas. 15€ por inscripción.",
+          start_date: "2024-05-10T00:00:00",
+          imageUrl: null,
+          end_date: "2024-05-12T00:00:00",
+          inscription_end_date: "2024-05-09T00:00:00",
+        },
+      ],
+      totalPages: 1,
+    });
+
+    const props = {
+      page: 1,
+    };
+
+    const html = ReactDOMServer.renderToString(await Torneos(props));
+    expect(html).toContain("Cerrar Inscripciones");
+  });
+
+  test("open inscriptions button is available if user is admin and tournament is closed", async () => {
+    createClient.mockResolvedValueOnce({
+      auth: {
+        getUser: jest.fn().mockResolvedValue({
+          data: {
+            user: {
+              app_metadata: {
+                admin: true,
+              },
+            },
+          },
+        }),
+      },
+    });
+
+    getTorneos.mockResolvedValue({
+      data: [
+        {
+          name: "Primavera 2024",
+          description: "Desc",
+          start_date: "2024-05-10T00:00:00",
+          imageUrl: null,
+          end_date: "2024-05-12T00:00:00",
+          inscription_end_date: "2024-05-09T00:00:00",
+          manually_closed: true,
+        },
+      ],
+      totalPages: 1,
+    });
+
+    const html = ReactDOMServer.renderToString(await Torneos({ page: 1 }));
+    expect(html).toContain("Abrir Inscripciones");
   });
 });

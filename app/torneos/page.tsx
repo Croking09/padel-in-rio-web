@@ -16,19 +16,25 @@ type PageProps = {
 export default async function Page({ searchParams }: PageProps) {
   return (
     <>
-      <div className="grid grid-cols-3 items-center mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 items-center mt-8 text-center md:text-left">
         <div />
         <h2 className="text-3xl font-bold text-center">NUESTROS TORNEOS</h2>
-        <div className="flex justify-end pr-8">
+        <div className="flex justify-center md:justify-end md:pr-8 pt-4 md:pt-0">
           <Suspense>
             <AuthButton />
           </Suspense>
         </div>
       </div>
 
-      <div className="px-8">
-        <Suspense fallback={<Button disabled>Crear torneo</Button>}>
-          <CreateTorneoButton />
+      <div className="px-8 pt-4 md:pt-0 flex justify-center md:justify-start">
+        <Suspense
+          fallback={
+            <Button disabled className="w-full md:w-auto">
+              Crear torneo
+            </Button>
+          }
+        >
+          <CreateTorneoButton className="w-full md:w-auto" />
         </Suspense>
       </div>
 

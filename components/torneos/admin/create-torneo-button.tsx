@@ -2,7 +2,13 @@ import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export default async function CreateTorneoButton() {
+interface CreateTorneoButtonProps {
+  className?: string;
+}
+
+export default async function CreateTorneoButton({
+  className,
+}: CreateTorneoButtonProps) {
   const supabase = await createClient();
 
   const {
@@ -14,7 +20,7 @@ export default async function CreateTorneoButton() {
   if (!isAdmin) return null;
 
   return (
-    <Button asChild>
+    <Button asChild className={className}>
       <Link href="/admin/torneos/create-torneo">Crear torneo</Link>
     </Button>
   );

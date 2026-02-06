@@ -3,6 +3,8 @@ import PaginationControls from "./pagination-controls";
 import Image from "next/image";
 import InscripcionButton from "./inscripcion-button";
 import { formatDate } from "@/lib/utils";
+import ToggleInscriptionsButton from "@/components/torneos/admin/toggle-inscriptions-button";
+import { createClient } from "@/lib/supabase/server";
 
 interface TorneosProps {
   page?: number;
@@ -10,6 +12,14 @@ interface TorneosProps {
 
 export default async function Torneos({ page = 1 }: TorneosProps) {
   const { data: torneos, totalPages = 0 } = await getTorneos(page, 4);
+
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const isAdmin = user?.app_metadata?.admin === true;
 
   return (
     <>
@@ -43,6 +53,12 @@ export default async function Torneos({ page = 1 }: TorneosProps) {
                     startDate={torneo.start_date}
                     inscriptionEndDate={torneo.inscription_end_date}
                     manuallyClosed={torneo.manually_closed}
+                  />
+                  <ToggleInscriptionsButton
+                    isAdmin={isAdmin}
+                    torneoId={torneo.id}
+                    className="mt-2"
+                    isClosed={torneo.manually_closed}
                   />
                 </div>
               </li>
