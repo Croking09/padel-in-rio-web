@@ -1,6 +1,9 @@
 "use server";
 import { createAdmin } from "@/lib/supabase/admin";
-import { unstable_cache, revalidateTag } from "next/cache";
+import { unstable_cache, revalidatePath } from "next/cache";
+import { TorneoCreationState } from "@/components/torneos/admin/types";
+import { createClient } from "@/lib/supabase/server";
+import { InscripcionState } from "@/components/torneos/inscripcion/types";
 
 export const getTorneosCount = unstable_cache(
   async () => {
@@ -20,7 +23,7 @@ export const getTorneosCount = unstable_cache(
 export const getTorneos = unstable_cache(
   async (page: number = 1, pageSize: number = 5) => {
     const supabase = createAdmin();
-    
+
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
 
@@ -40,10 +43,9 @@ export const getTorneos = unstable_cache(
       return {
         ...torneo,
         imageUrl: torneo.img_path
-      ? supabase.storage
-          .from("torneos")
-          .getPublicUrl(torneo.img_path).data.publicUrl
-      : null,
+          ? supabase.storage.from("torneos").getPublicUrl(torneo.img_path).data
+              .publicUrl
+          : null,
       };
     });
 
@@ -61,12 +63,16 @@ export const getTorneos = unstable_cache(
   },
 );
 
-import { createClient } from "@/lib/supabase/server";
-import { InscripcionState } from "@/components/torneos/inscripcion/types";
-
-export async function inscribirTorneo(prevState: InscripcionState, formData: FormData, categoriesNeeded: boolean) {
+export async function inscribirTorneo(
+  prevState: InscripcionState,
+  formData: FormData,
+  categoriesNeeded: boolean,
+) {
   const supabase = await createClient();
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
   if (userError || !user) {
     return { error: "Debes iniciar sesión para inscribirte." };
@@ -78,7 +84,13 @@ export async function inscribirTorneo(prevState: InscripcionState, formData: For
   const player_1_full_name = formData.get("player_1_full_name") as string;
   const player_2_full_name = formData.get("player_2_full_name") as string;
 
-  if (!torneo_id || !phone_number || !player_1_full_name || !player_2_full_name || (categoriesNeeded && !category)) {
+  if (
+    !torneo_id ||
+    !phone_number ||
+    !player_1_full_name ||
+    !player_2_full_name ||
+    (categoriesNeeded && !category)
+  ) {
     return { error: "Faltan datos requeridos." };
   }
 
@@ -88,7 +100,11 @@ export async function inscribirTorneo(prevState: InscripcionState, formData: For
     .eq("id", torneo_id)
     .single();
 
-  if (torneo && (new Date() > new Date(torneo.inscription_end_date) || torneo.manually_closed)) {
+  if (
+    torneo &&
+    (new Date() > new Date(torneo.inscription_end_date) ||
+      torneo.manually_closed)
+  ) {
     return { error: "El plazo de inscripción se ha cerrado" };
   }
 
@@ -102,12 +118,14 @@ export async function inscribirTorneo(prevState: InscripcionState, formData: For
   });
 
   if (error) {
-    if (error.code === '23505') { // Unique violation
-        return { error: "Ya estás inscrito en este torneo." };
+    if (error.code === "23505") {
+      // Unique violation
+      return { error: "Ya estás inscrito en este torneo." };
     }
 
-    if (error.code === '42501') { // RLS violation
-        return { error: "No estás autorizado a inscribirte." };
+    if (error.code === "42501") {
+      // RLS violation
+      return { error: "No estás autorizado a inscribirte." };
     }
 
     return { error: "Hubo un error al procesar tu inscripción." };
@@ -119,7 +137,7 @@ export async function inscribirTorneo(prevState: InscripcionState, formData: For
 export const getTorneoById = unstable_cache(
   async (id: string) => {
     const supabase = createAdmin();
-    
+
     const { data: torneo, error } = await supabase
       .from("Torneos")
       .select("*")
@@ -138,12 +156,6 @@ export const getTorneoById = unstable_cache(
     tags: ["torneos"],
   },
 );
-
-export type TorneoCreationState = {
-  error?: string;
-  success?: boolean;
-  message?: string;
-};
 
 export async function createTorneo(
   prevState: TorneoCreationState,
@@ -209,6 +221,7 @@ export async function createTorneo(
     return { error: "Error al crear el torneo. Verifica los datos." };
   }
 
-  revalidateTag("torneos", "max");
+  revalidatePath("/"); // <-- Count
+  revalidatePath("/torneos"); // <-- Paginated
   return { success: true, message: "Torneo creado exitosamente." };
 }

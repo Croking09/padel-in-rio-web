@@ -26,9 +26,11 @@ export default async function Page({ searchParams }: PageProps) {
         </div>
       </div>
 
-      <Suspense fallback={<Button disabled>Crear torneo</Button>}>
-        <CreateTorneoButton />
-      </Suspense>
+      <div className="px-8">
+        <Suspense fallback={<Button disabled>Crear torneo</Button>}>
+          <CreateTorneoButton />
+        </Suspense>
+      </div>
 
       <Suspense fallback={<TorneosSkeleton />}>
         <TorneosWrapper searchParams={searchParams} />
