@@ -249,4 +249,5 @@ export async function toggleInscriptions(
   }
 
   revalidatePath("/torneos");
+  revalidatePath(`/torneos/inscripcion/${torneoId}`);
 }

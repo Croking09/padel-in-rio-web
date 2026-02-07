@@ -25,7 +25,8 @@ export default function InscripcionButton({
 
   if (new Date(startDate) <= now) return null;
 
-  const inscriptionsClosed = new Date(inscriptionEndDate) < now || manuallyClosed;
+  const inscriptionsClosed =
+    new Date(inscriptionEndDate) < now || manuallyClosed;
 
   return inscriptionsClosed ? (
     <Button className="w-fit font-bold" variant="secondary" disabled>
@@ -33,7 +34,7 @@ export default function InscripcionButton({
     </Button>
   ) : (
     <Button asChild className="w-fit font-bold" variant="secondary">
-      <Link href={`/torneos/inscripcion?id=${torneoId}`}>INSCRIBIRSE</Link>
+      <Link href={`/torneos/inscripcion/${torneoId}`}>INSCRIBIRSE</Link>
     </Button>
   );
 }
