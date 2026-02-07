@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
+import { usePathname } from "next/navigation";
 import { inscribirTorneo } from "@/app/actions/torneos";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,17 @@ export default function Form({
     inscribirTorneoWithCategories,
     initialState,
   );
+
+  const [feedback, setFeedback] = useState<InscripcionState>(initialState);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setFeedback(state);
+  }, [state]);
+
+  useEffect(() => {
+    setFeedback(initialState);
+  }, [pathname]);
 
   return (
     <form
@@ -151,19 +163,19 @@ export default function Form({
         </p>
       </div>
 
-      {state?.error && (
+      {feedback?.error && (
         <div className="p-3 text-sm text-error bg-error/20 border border-error rounded">
-          {state.error}
+          {feedback.error}
         </div>
       )}
 
-      {state?.success && (
+      {feedback?.success && (
         <div className="p-3 text-sm text-success bg-success/20 border border-success rounded">
-          {state.message}
+          {feedback.message}
         </div>
       )}
 
-      {!state?.success && <SubmitButton />}
+      {!feedback?.success && <SubmitButton />}
     </form>
   );
 }

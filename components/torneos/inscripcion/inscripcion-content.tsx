@@ -5,13 +5,7 @@ import Form from "@/components/torneos/inscripcion/form";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
 
-export default async function InscripcionContent({
-  searchParams,
-}: {
-  searchParams: Promise<{ id?: string }>;
-}) {
-  const { id } = await searchParams;
-
+export default async function InscripcionContent({ id }: { id: string }) {
   if (!id) {
     redirect("/torneos");
   }
