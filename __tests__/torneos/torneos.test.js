@@ -169,4 +169,42 @@ describe("Torneos", () => {
     const html = ReactDOMServer.renderToString(await Torneos({ page: 1 }));
     expect(html).toContain("Abrir Inscripciones");
   });
+
+  test("delete button is available if user is admin", async () => {
+    createClient.mockResolvedValueOnce({
+      auth: {
+        getUser: jest.fn().mockResolvedValue({
+          data: {
+            user: {
+              app_metadata: {
+                admin: true,
+              },
+            },
+          },
+        }),
+      },
+    });
+
+    getTorneos.mockResolvedValue({
+      data: [
+        {
+          name: "Primavera 2024",
+          description:
+            "El fin de semana del 10 al 12 de mayo, categorías masculinas y femeninas únicas. 15€ por inscripción.",
+          start_date: "2024-05-10T00:00:00",
+          imageUrl: null,
+          end_date: "2024-05-12T00:00:00",
+          inscription_end_date: "2024-05-09T00:00:00",
+        },
+      ],
+      totalPages: 1,
+    });
+
+    const props = {
+      page: 1,
+    };
+
+    const html = ReactDOMServer.renderToString(await Torneos(props));
+    expect(html).toContain("Eliminar torneo");
+  });
 });

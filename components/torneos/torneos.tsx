@@ -5,6 +5,7 @@ import InscripcionButton from "./inscripcion-button";
 import { formatDate } from "@/lib/utils";
 import ToggleInscriptionsButton from "@/components/torneos/admin/toggle-inscriptions-button";
 import { createClient } from "@/lib/supabase/server";
+import DeleteButton from "@/components/torneos/admin/delete-button";
 
 interface TorneosProps {
   page?: number;
@@ -54,12 +55,16 @@ export default async function Torneos({ page = 1 }: TorneosProps) {
                     inscriptionEndDate={torneo.inscription_end_date}
                     manuallyClosed={torneo.manually_closed}
                   />
-                  <ToggleInscriptionsButton
-                    isAdmin={isAdmin}
-                    torneoId={torneo.id}
-                    className="mt-2"
-                    isClosed={torneo.manually_closed}
-                  />
+                  {isAdmin && (
+                    <ToggleInscriptionsButton
+                      torneoId={torneo.id}
+                      className="mt-2"
+                      isClosed={torneo.manually_closed}
+                    />
+                  )}
+                  {isAdmin && (
+                    <DeleteButton torneoId={torneo.id} className="mt-2" />
+                  )}
                 </div>
               </li>
             );

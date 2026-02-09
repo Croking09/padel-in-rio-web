@@ -94,16 +94,19 @@ export async function inscribirTorneo(
     return { error: "Faltan datos requeridos." };
   }
 
-  const { data: torneo } = await supabase
+  const { data: torneo, error: torneoError } = await supabase
     .from("Torneos")
     .select("inscription_end_date, manually_closed")
     .eq("id", torneo_id)
     .single();
 
+  if (torneoError || !torneo) {
+    return { error: "El torneo no existe o ha sido eliminado." };
+  }
+
   if (
-    torneo &&
-    (new Date() > new Date(torneo.inscription_end_date) ||
-      torneo.manually_closed)
+    new Date() > new Date(torneo.inscription_end_date) ||
+    torneo.manually_closed
   ) {
     return { error: "El plazo de inscripción se ha cerrado" };
   }
@@ -118,6 +121,8 @@ export async function inscribirTorneo(
   });
 
   if (error) {
+    console.log(error);
+
     if (error.code === "23505") {
       // Unique violation
       return { error: "Ya estás inscrito en este torneo." };
@@ -246,6 +251,24 @@ export async function toggleInscriptions(
     }
 
     return { error: "Hubo un error al modificar las inscripciones." };
+  }
+
+  revalidatePath("/torneos");
+  revalidatePath(`/torneos/inscripcion/${torneoId}`);
+}
+
+export async function deleteTorneo(torneoId: number) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("Torneos").delete().eq("id", torneoId);
+
+  if (error) {
+    if (error.code === "42501") {
+      // RLS violation
+      return { error: "No estás autorizado a eliminar el torneo." };
+    }
+
+    return { error: "Hubo un error al eliminar el torneo." };
   }
 
   revalidatePath("/torneos");

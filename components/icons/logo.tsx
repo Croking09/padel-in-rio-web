@@ -11,7 +11,7 @@ const Logo = (props: SVGProps<SVGSVGElement>) => (
         <clipPath id="_clip1">
           <path d="M982.163,1302.715l-824.574,0l-0,-687.371l824.574,687.371Z" />
         </clipPath>
-        <g clip-path="url(#_clip1)">
+        <g clipPath="url(#_clip1)">
           <rect x="157.589" y="615.345" width="824.335" height="687.371" />
         </g>
       </g>

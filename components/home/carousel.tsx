@@ -20,7 +20,7 @@ export default function Carousel() {
         disableOnInteraction: false,
       }}
       pagination={{ clickable: true }}
-      className="w-full h-140"
+      className="w-full h-120 md:h-130"
     >
       {images.map((src) => (
         <SwiperSlide key={src} className="relative">
