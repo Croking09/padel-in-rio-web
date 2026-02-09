@@ -1,9 +1,9 @@
 import { Instagram, Gmail, WhatsApp } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
-export default function Socials() {
+export default function Socials({ className }: { className: string }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className={`flex flex-col gap-4 ${className}`}>
       <div className="flex flex-row items-center gap-6">
         <Gmail className="w-10 h-10" />
         <Button asChild className="font-bold text-sm p-0" variant="link">

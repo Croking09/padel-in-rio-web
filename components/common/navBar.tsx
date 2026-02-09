@@ -20,10 +20,7 @@ export default function NavBar() {
 
   return (
     <>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden z-50 text-2xl"
-      >
+      <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-2xl">
         ☰
       </button>
 
