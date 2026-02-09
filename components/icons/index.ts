@@ -5,3 +5,4 @@ export { Person } from "./person";
 export { Trophy } from "./trophy";
 export { Medal } from "./medal";
 export { Dumbell } from "./dumbell";
+export { Logo } from "./logo";
