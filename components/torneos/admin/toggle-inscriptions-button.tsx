@@ -6,20 +6,16 @@ import { cn } from "@/lib/utils";
 import { toggleInscriptions } from "@/app/actions/torneos";
 
 interface ToggleInscriptionsButtonProps {
-  isAdmin: boolean;
   torneoId: number;
   isClosed: boolean;
   className?: string;
 }
 
 export default function ToggleInscriptionsButton({
-  isAdmin,
   torneoId,
   isClosed,
   className,
 }: ToggleInscriptionsButtonProps) {
-  if (!isAdmin) return null;
-
   return (
     <Button
       className={cn("w-fit hover:cursor-pointer", className)}
