@@ -10,6 +10,7 @@ const defaultUrl = process.env.VERCEL_URL
   : "http://localhost:3000";
 
 export const metadata: Metadata = {
+  title: "Padel in Rio",
   metadataBase: new URL(defaultUrl),
 };
 
