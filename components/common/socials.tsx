@@ -26,7 +26,7 @@ export default function Socials({ className }: { className: string }) {
 
       <div className="flex flex-row items-center gap-6">
         <WhatsApp className="w-10 h-10" />
-        <span className="font-bold text-sm">666 66 66 66</span>
+        <span className="font-bold text-sm">696 50 38 98</span>
       </div>
     </div>
   );

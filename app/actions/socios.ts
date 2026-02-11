@@ -12,24 +12,7 @@ export const getSociosCount = unstable_cache(
   },
   ["socios-count"],
   {
-    revalidate: 3600, // 1 hora
-    tags: ["socios"],
-  },
-);
-
-// Al modificar datos usar revalidateTag('socios') para invalidar la caché
-
-export const getAllSocios = unstable_cache(
-  async () => {
-    const supabase = createAdmin();
-    const { data } = await supabase
-      .from("Socios")
-      .select("*");
-    return data;
-  },
-  ["socios-all"],
-  {
-    revalidate: 3600, // 1 hora
+    revalidate: 86400, // 1 dia
     tags: ["socios"],
   },
 );

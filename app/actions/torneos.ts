@@ -15,7 +15,7 @@ export const getTorneosCount = unstable_cache(
   },
   ["torneos-count"],
   {
-    revalidate: 21600, // 6 horas
+    revalidate: 86400, // 24 horas
     tags: ["torneos"],
   },
 );
@@ -58,7 +58,7 @@ export const getTorneos = unstable_cache(
   },
   ["torneos-paginated"],
   {
-    revalidate: 21600, // 6 horas
+    revalidate: 86400, // 24 horas
     tags: ["torneos"],
   },
 );
@@ -157,7 +157,7 @@ export const getTorneoById = unstable_cache(
   },
   ["torneo-by-id"],
   {
-    revalidate: 21600, // 6 horas
+    revalidate: 86400, // 24 horas
     tags: ["torneos"],
   },
 );
