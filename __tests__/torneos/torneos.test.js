@@ -14,6 +14,29 @@ jest.mock("@/lib/supabase/server", () => ({
   }),
 }));
 
+jest.mock("@/components/torneos/admin/view-inscriptions-button", () => ({
+  __esModule: true,
+  default: () => `<button>Ver inscripciones</button>`,
+}));
+
+jest.mock("@/components/torneos/admin/toggle-inscriptions-button", () => ({
+  __esModule: true,
+  default: ({ isClosed }) =>
+    isClosed
+      ? `<button>Abrir Inscripciones</button>`
+      : `<button>Cerrar Inscripciones</button>`,
+}));
+
+jest.mock("@/components/torneos/admin/delete-button", () => ({
+  __esModule: true,
+  default: () => `<button>Eliminar torneo</button>`,
+}));
+
+jest.mock("@/components/torneos/admin/create-torneo-button", () => ({
+  __esModule: true,
+  default: () => `<button>Crear torneo</button>`,
+}));
+
 import { getTorneos } from "@/app/actions/torneos";
 import { createClient } from "@/lib/supabase/server";
 
@@ -31,6 +54,7 @@ describe("Torneos", () => {
     getTorneos.mockResolvedValue({
       data: [
         {
+          id: 1,
           name: "Primavera 2024",
           description:
             "El fin de semana del 10 al 12 de mayo, categorías masculinas y femeninas únicas. 15€ por inscripción.",
@@ -74,10 +98,11 @@ describe("Torneos", () => {
     expect(html).toContain('src="/torneos/fallback.png"');
   });
 
-  test("button is disabled when inscription_end_date is before today", async () => {
+  test("inscription button is disabled when inscription_end_date is before today", async () => {
     getTorneos.mockResolvedValue({
       data: [
         {
+          id: 1,
           name: "Primavera 2024",
           description:
             "El fin de semana del 10 al 12 de mayo, categorías masculinas y femeninas únicas. 15€ por inscripción.",
@@ -116,6 +141,7 @@ describe("Torneos", () => {
     getTorneos.mockResolvedValue({
       data: [
         {
+          id: 1,
           name: "Primavera 2024",
           description:
             "El fin de semana del 10 al 12 de mayo, categorías masculinas y femeninas únicas. 15€ por inscripción.",
@@ -154,6 +180,7 @@ describe("Torneos", () => {
     getTorneos.mockResolvedValue({
       data: [
         {
+          id: 1,
           name: "Primavera 2024",
           description: "Desc",
           start_date: "2024-05-10T00:00:00",
@@ -188,6 +215,7 @@ describe("Torneos", () => {
     getTorneos.mockResolvedValue({
       data: [
         {
+          id: 1,
           name: "Primavera 2024",
           description:
             "El fin de semana del 10 al 12 de mayo, categorías masculinas y femeninas únicas. 15€ por inscripción.",
@@ -206,5 +234,44 @@ describe("Torneos", () => {
 
     const html = ReactDOMServer.renderToString(await Torneos(props));
     expect(html).toContain("Eliminar torneo");
+  });
+
+  test("view inscriptions button is available if user is admin", async () => {
+    createClient.mockResolvedValueOnce({
+      auth: {
+        getUser: jest.fn().mockResolvedValue({
+          data: {
+            user: {
+              app_metadata: {
+                admin: true,
+              },
+            },
+          },
+        }),
+      },
+    });
+
+    getTorneos.mockResolvedValue({
+      data: [
+        {
+          id: 1,
+          name: "Primavera 2024",
+          description:
+            "El fin de semana del 10 al 12 de mayo, categorías masculinas y femeninas únicas. 15€ por inscripción.",
+          start_date: "2024-05-10T00:00:00",
+          imageUrl: null,
+          end_date: "2024-05-12T00:00:00",
+          inscription_end_date: "2024-05-09T00:00:00",
+        },
+      ],
+      totalPages: 1,
+    });
+
+    const props = {
+      page: 1,
+    };
+
+    const html = ReactDOMServer.renderToString(await Torneos(props));
+    expect(html).toContain("Ver inscripciones");
   });
 });

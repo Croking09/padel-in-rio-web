@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Lock, LockOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toggleInscriptions } from "@/app/actions/torneos";
+import { toggleInscriptions } from "@/app/actions/inscripciones";
 
 interface ToggleInscriptionsButtonProps {
   torneoId: number;
