@@ -66,6 +66,7 @@ export async function updateSession(request: NextRequest) {
 
   const PUBLIC_PATHS = [
     "/",
+    "/politica-de-cookies",
     "/auth/login",
     "/auth/sign-up",
     "/auth/sign-up-success",
