@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { InscripcionState } from "@/components/torneos/inscripcion/types";
 import { createClient } from "@/lib/supabase/server";
+import { unstable_cache } from "next/cache";
+import { createAdmin } from "@/lib/supabase/admin";
 
 export async function inscribirTorneo(
   prevState: InscripcionState,
@@ -81,20 +83,27 @@ export async function inscribirTorneo(
   return { success: true, message: "¡Inscripción realizada con éxito!" };
 }
 
-export async function getInscripcionesByTorneo(torneo_id: string) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("Inscripciones")
-    .select("*")
-    .eq("torneo_id", torneo_id);
+export const getInscripcionesByTorneo = unstable_cache(
+  async (torneo_id: string) => {
+    const supabase = createAdmin();
+    const { data, error } = await supabase
+      .from("Inscripciones")
+      .select("*")
+      .eq("torneo_id", torneo_id);
 
-  if (error) {
-    console.log(error);
-    return { error: "Hubo un error al obtener las inscripciones." };
-  }
+    if (error) {
+      console.log(error);
+      return { error: "Hubo un error al obtener las inscripciones." };
+    }
 
-  return { data };
-}
+    return { data };
+  },
+  ["inscripciones-by-torneo"],
+  {
+    revalidate: 86400, // 24 horas
+    tags: ["inscripciones"],
+  },
+);
 
 export async function toggleInscriptions(
   torneoId: number,
