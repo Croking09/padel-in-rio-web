@@ -2,11 +2,11 @@ import "@testing-library/jest-dom";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import Form from "@/components/torneos/inscripcion/form";
 
-jest.mock("@/app/actions/torneos", () => ({
+jest.mock("@/app/actions/inscripciones", () => ({
   inscribirTorneo: jest.fn(),
 }));
 
-import { inscribirTorneo } from "@/app/actions/torneos";
+import { inscribirTorneo } from "@/app/actions/inscripciones";
 
 describe("Inscripcion Form", () => {
   test("all fields should show", () => {

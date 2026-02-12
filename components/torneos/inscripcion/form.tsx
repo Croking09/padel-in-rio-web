@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { usePathname } from "next/navigation";
-import { inscribirTorneo } from "@/app/actions/torneos";
+import { inscribirTorneo } from "@/app/actions/inscripciones";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
