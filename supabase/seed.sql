@@ -1,3 +1,34 @@
+INSERT INTO public."Categorias"
+  (name, "order")
+VALUES
+  ('1ª', 1),
+  ('2ª', 2),
+  ('3ª', 3),
+  ('4ª', 4),
+  ('5ª', 5);
+
+INSERT INTO public."Temporadas"
+  (name)
+VALUES
+  ('2025'),
+  ('2026');
+
+INSERT INTO public."Meses"
+  (temporada_id, month, year) -- status: draft by default
+VALUES
+  (2, 1, 2026),
+  (2, 2, 2026),
+  (2, 3, 2026),
+  (2, 4, 2026),
+  (2, 5, 2026),
+  (2, 6, 2026),
+  (2, 7, 2026),
+  (2, 8, 2026),
+  (2, 9, 2026),
+  (2, 10, 2026),
+  (2, 11, 2026),
+  (2, 12, 2026);
+
 INSERT INTO public."Torneos"
   (name, description, start_date, img_path, categories, end_date, inscription_end_date, manually_closed)
 VALUES 
