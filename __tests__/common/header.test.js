@@ -10,7 +10,13 @@ describe("Header", () => {
 
     expect(links).toHaveLength(5);
 
-    const expectedHrefs = ["/", "/torneos", "/liga", "/asociacion", "#"];
+    const expectedHrefs = [
+      "/",
+      "/torneos",
+      "/liga/reglamento",
+      "/asociacion",
+      "#",
+    ];
 
     links.forEach((link, index) => {
       expect(link).toHaveAttribute("href", expectedHrefs[index]);

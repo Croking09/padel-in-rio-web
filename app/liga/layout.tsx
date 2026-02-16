@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import AdminNav from "@/components/liga/admin/admin-nav";
+import LigaNav from "@/components/liga/liga-nav";
 
 export default function LigaLayout({
   children,
@@ -9,7 +9,7 @@ export default function LigaLayout({
   return (
     <div>
       <Suspense>
-        <AdminNav />
+        <LigaNav />
       </Suspense>
       {children}
     </div>
