@@ -11,7 +11,13 @@ import {
   Assignment,
 } from "@/app/actions/monthly-assignment";
 import { DndProvider } from "react-dnd";
+import {
+  TouchTransition,
+  MouseTransition,
+  MultiBackend,
+} from "react-dnd-multi-backend";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { TouchBackend } from "react-dnd-touch-backend";
 import PlayerCard from "./player-card";
 import { cn } from "@/lib/utils";
 import { Loader2, Lock } from "lucide-react";
@@ -27,6 +33,23 @@ interface DragItem {
   assignmentId?: number;
   type: string;
 }
+
+const HTML5toTouch = {
+  backends: [
+    {
+      id: "html5",
+      backend: HTML5Backend,
+      transition: MouseTransition,
+    },
+    {
+      id: "touch",
+      backend: TouchBackend,
+      options: { enableMouseEvents: true },
+      preview: true,
+      transition: TouchTransition,
+    },
+  ],
+};
 
 export default function AssignmentBoard({
   initialData,
@@ -125,7 +148,7 @@ export default function AssignmentBoard({
   };
 
   return (
-    <DndProvider backend={HTML5Backend}>
+    <DndProvider backend={MultiBackend} options={HTML5toTouch}>
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center p-4 rounded-lg shadow-sm border">
           <div className="flex items-center gap-2">
@@ -152,7 +175,7 @@ export default function AssignmentBoard({
           </div>
 
           {!isLocked && (
-            <div className="flex gap-2">
+            <div className="flex flex-col md:flex-row gap-2">
               <Button
                 onClick={onSave}
                 disabled={!hasChanges || isSaving || !isValid}
@@ -199,7 +222,7 @@ export default function AssignmentBoard({
             disabled={isLocked}
           />
 
-          <div className="flex-1">
+          <div className="flex-1 w-full md:w-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-4">
               {data.categories.map((category) => (
                 <CategoryColumn
@@ -252,7 +275,7 @@ function UnassignedColumn({
       ref={dropRef}
       className={cn(
         "w-full md:w-64 flex flex-col border rounded-lg transition-colors top-20 h-screen overflow-y-auto",
-        isOver && canDrop ? "" : "",
+        isOver && canDrop ? "bg-primary/10" : "",
         disabled && "opacity-75",
       )}
     >
@@ -299,8 +322,8 @@ function CategoryColumn({
     <div
       ref={dropRef}
       className={cn(
-        "w-full flex flex-col border rounded-lg h-[450px] shadow-sm transition-colors",
-        isOver && canDrop ? "ring-2" : "",
+        "flex flex-col border rounded-lg h-[450px] shadow-sm transition-colors",
+        isOver && canDrop ? "ring-2 ring-primary" : "",
         disabled && "opacity-90",
       )}
     >
