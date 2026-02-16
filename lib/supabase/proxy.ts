@@ -74,6 +74,7 @@ export async function updateSession(request: NextRequest) {
     "/auth/update-password",
     "/torneos",
     "/torneos/inscripcion",
+    "/liga/reglamento",
     "/asociacion",
   ];
 
