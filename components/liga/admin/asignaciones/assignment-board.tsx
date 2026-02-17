@@ -65,6 +65,7 @@ export default function AssignmentBoard({
   }, [initialData]);
 
   const isLocked = data.status === "locked";
+  const isConfirmed = data.status === "confirmed";
 
   const validateCategories = () => {
     const invalidCategories = data.categories.filter((category) => {
@@ -152,7 +153,7 @@ export default function AssignmentBoard({
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center p-4 rounded-lg shadow-sm border">
           <div className="flex items-center gap-2">
-            {isLocked ? (
+            {isLocked || isConfirmed ? (
               <div className="flex items-center text-amber-600 font-medium px-3 py-1 bg-amber-100 rounded-full border border-amber-200">
                 <Lock className="w-4 h-4 mr-2" />
                 Mes Cerrado
@@ -174,7 +175,7 @@ export default function AssignmentBoard({
             )}
           </div>
 
-          {!isLocked && (
+          {!isLocked && !isConfirmed && (
             <div className="flex flex-col md:flex-row gap-2">
               <Button
                 onClick={onSave}
