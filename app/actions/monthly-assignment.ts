@@ -158,4 +158,5 @@ export async function confirmMonth(monthId: number) {
   if (error) throw error;
 
   revalidatePath("/admin/liga/asignacion");
+  revalidatePath("/liga/partidos");
 }

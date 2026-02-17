@@ -24,6 +24,9 @@ export default async function LigaNav() {
           </li>
         )}
         <li>
+          <Link href="/liga/partidos">Partidos</Link>
+        </li>
+        <li>
           <Link href="/liga/reglamento">Reglamento</Link>
         </li>
       </ul>
