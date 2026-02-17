@@ -50,24 +50,24 @@ describe("Match Generator Page", () => {
       matchday: 1,
       categoryName: "Categoría A",
       players: [
-        { id: 1, name: "Jugador 1" },
-        { id: 2, name: "Jugador 2" },
+        { id: 1, full_name: "Jugador 1", nickname: "J1" },
+        { id: 2, full_name: "Jugador 2", nickname: "J2" },
       ],
     },
     {
       matchday: 1,
       categoryName: "Categoría B",
       players: [
-        { id: 3, name: "Jugador 3" },
-        { id: 4, name: "Jugador 4" },
+        { id: 3, full_name: "Jugador 3", nickname: "J3" },
+        { id: 4, full_name: "Jugador 4", nickname: null },
       ],
     },
     {
       matchday: 2,
       categoryName: "Categoría A",
       players: [
-        { id: 5, name: "Jugador 5" },
-        { id: 6, name: "Jugador 6" },
+        { id: 5, full_name: "Jugador 5" },
+        { id: 6, full_name: "Jugador 6" },
       ],
     },
   ];
@@ -142,9 +142,10 @@ describe("Match Generator Page", () => {
     });
     render(jsx);
 
-    expect(screen.getByText("Jugador 1")).toBeInTheDocument();
-    expect(screen.getByText("Jugador 2")).toBeInTheDocument();
-    expect(screen.getByText("Jugador 3")).toBeInTheDocument();
+    expect(screen.getByText("J1")).toBeInTheDocument();
+    expect(screen.getByText("J2")).toBeInTheDocument();
+    expect(screen.getByText("J3")).toBeInTheDocument();
+    expect(screen.getByText("Jugador 4")).toBeInTheDocument();
   });
 
   it("should show confirm button when there are matches", async () => {

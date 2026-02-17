@@ -43,7 +43,12 @@ export default function PlayerCard({
         className,
       )}
     >
-      <div className="font-medium text-sm truncate">{player.full_name}</div>
+      <p className="font-medium text-sm truncate">
+        {player.nickname || player.full_name}
+      </p>
+      {player.nickname && (
+        <p className="text-xs opacity-80 truncate">{player.full_name}</p>
+      )}
     </div>
   );
 }

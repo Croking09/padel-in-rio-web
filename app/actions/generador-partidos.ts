@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 interface Socio {
   id: number;
   full_name: string;
+  nickname: string | null;
 }
 
 interface JugadorCategoriaMes {
@@ -26,7 +27,7 @@ export async function previewMonth(mesId: number) {
   for (const cat of categories!) {
     const { data } = await supabase
       .from("Jugador_Categoria_Mes")
-      .select("jugador_id, Socios(id, full_name)")
+      .select("jugador_id, Socios(id, full_name, nickname)")
       .eq("mes_id", mesId)
       .eq("categoria_id", cat.id);
 
@@ -37,8 +38,9 @@ export async function previewMonth(mesId: number) {
     const players = data.map((p: JugadorCategoriaMes) => {
       const socio = Array.isArray(p.Socios) ? p.Socios[0] : p.Socios;
       return {
-        id: socio.id.toString(),
-        name: socio.full_name,
+        id: socio.id,
+        full_name: socio.full_name,
+        nickname: socio.nickname,
       };
     });
 

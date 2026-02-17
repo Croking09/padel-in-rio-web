@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { Player } from "@/app/actions/monthly-assignment";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -62,20 +63,15 @@ export function formatMonth(month: number) {
   }
 }
 
-export type Player = {
-  id: string;
-  name: string;
-};
-
 export type Match = {
-  categoryId: string;
+  categoryId: number;
   categoryName: string;
   matchday: number;
   players: Player[];
 };
 
 export function generateCategoryMatches(
-  categoryId: string,
+  categoryId: number,
   categoryName: string,
   players: Player[],
 ): Match[] {
