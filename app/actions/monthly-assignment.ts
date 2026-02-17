@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 export type Player = {
   id: number;
   full_name: string;
+  nickname: string | null;
 };
 
 export type Category = {
@@ -84,8 +85,7 @@ export async function getAssignmentData(
   // Fetch all players (Socios)
   const { data: players, error: playerError } = await supabase
     .from("Socios")
-    .select("id, full_name")
-    .order("full_name");
+    .select("*");
 
   if (playerError) throw playerError;
 

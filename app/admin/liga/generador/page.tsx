@@ -81,7 +81,7 @@ export default async function Page({
           {Object.entries(matchesByDay).map(([day, categories]) => (
             <div key={day} className="space-y-4">
               <h3 className="text-xl font-semibold pb-2">Jornada {day}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {Object.entries(categories).map(
                   ([category, categoryMatches]) => (
                     <div
@@ -93,11 +93,13 @@ export default async function Page({
                         {categoryMatches.map((match, idx) => (
                           <div
                             key={idx}
-                            className="text-sm bg-primary p-2 rounded"
+                            className="text-sm bg-primary p-2 rounded border border-border"
                           >
-                            <div className="flex flex-col gap-1">
+                            <div className="grid grid-cols-2 text-center">
                               {match.players.map((player) => (
-                                <span key={player.id}>{player.name}</span>
+                                <p key={player.id} className="truncate">
+                                  {player.nickname || player.full_name}
+                                </p>
                               ))}
                             </div>
                           </div>
