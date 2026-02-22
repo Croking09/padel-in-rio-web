@@ -5,6 +5,8 @@ import { InscripcionState } from "@/components/torneos/inscripcion/types";
 import { createClient } from "@/lib/supabase/server";
 import { unstable_cache } from "next/cache";
 import { createAdmin } from "@/lib/supabase/admin";
+import { ADMINS, sendMessage } from "@/lib/telegram/utils";
+import { newInscripcionMessage } from "@/lib/telegram/answers";
 
 export async function inscribirTorneo(
   prevState: InscripcionState,
@@ -39,7 +41,7 @@ export async function inscribirTorneo(
 
   const { data: torneo, error: torneoError } = await supabase
     .from("Torneos")
-    .select("inscription_end_date, manually_closed")
+    .select("name, inscription_end_date, manually_closed")
     .eq("id", torneo_id)
     .single();
 
@@ -79,8 +81,47 @@ export async function inscribirTorneo(
     return { error: "Hubo un error al procesar tu inscripción." };
   }
 
+  const adminMessage = newInscripcionMessage(
+    torneo.name,
+    player_1_full_name,
+    player_2_full_name,
+    phone_number,
+    category,
+  );
+
+  for (const admin of ADMINS) {
+    await sendMessage(admin, adminMessage, { parse_mode: "Markdown" });
+  }
+
   revalidatePath(`/admin/torneos/${torneo_id}/inscripciones`);
   return { success: true, message: "¡Inscripción realizada con éxito!" };
+}
+
+export async function getAllInscripcionesForOpenTorneos() {
+  const supabase = createAdmin();
+  const today = new Date().toISOString();
+
+  const { data, error } = await supabase
+    .from("Inscripciones")
+    .select(
+      `
+      *,
+      torneo:torneo_id (
+        id,
+        name,
+        inscription_end_date,
+        manually_closed
+      )
+    `,
+    )
+    .eq("torneo.manually_closed", false)
+    .gte("torneo.inscription_end_date", today);
+
+  if (error) {
+    return { error: "Hubo un error al obtener las inscripciones." };
+  }
+
+  return { data };
 }
 
 export const getInscripcionesByTorneo = unstable_cache(

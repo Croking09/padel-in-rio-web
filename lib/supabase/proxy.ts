@@ -64,6 +64,10 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
+  if (request.nextUrl.pathname.startsWith("/telegram")) {
+    return supabaseResponse;
+  }
+
   const PUBLIC_PATHS = [
     "/",
     "/politica-de-cookies",
