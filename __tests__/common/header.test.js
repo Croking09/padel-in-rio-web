@@ -15,7 +15,7 @@ describe("Header", () => {
       "/torneos",
       "/liga/reglamento",
       "/asociacion",
-      "#",
+      "/equipo",
     ];
 
     links.forEach((link, index) => {
