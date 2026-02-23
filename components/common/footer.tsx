@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function Footer() {
   return (
     <footer className="bg-primary p-8 shadow-top grid gap-8 items-center text-center md:grid-cols-3 md:grid-rows-1">
-      <Logo className="w-30 h-30 mx-auto md:justify-self-start md:ml-6" />
+      <Logo className="w-auto h-32 mx-auto md:justify-self-start md:ml-16" />
 
       <hr className="w-full border-border md:hidden" />
 
