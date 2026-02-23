@@ -81,6 +81,7 @@ export async function updateSession(request: NextRequest) {
     "/liga/reglamento",
     "/liga/partidos", // Maybe only for players?
     "/asociacion",
+    "/equipo",
   ];
 
   if (!PUBLIC_PATHS.includes(request.nextUrl.pathname) && !user) {
