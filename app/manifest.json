@@ -1,0 +1,36 @@
+{
+  "name": "Padel in Rio",
+  "short_name": "Padel in Rio",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/icons/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#17253f",
+  "background_color": "#01020f",
+  "display": "standalone",
+  "screenshots": [
+    {
+      "src": "/screenshots/mobile.png",
+      "sizes": "379x819",
+      "type": "image/png"
+    },
+    {
+      "src": "/screenshots/desktop.png",
+      "sizes": "1903x910",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ]
+}
