@@ -49,6 +49,7 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/manifest") ||
     request.nextUrl.pathname.startsWith("/_next") ||
     request.nextUrl.pathname.startsWith("/icons") ||
+    request.nextUrl.pathname.startsWith("/tutorial-instalacion") ||
     request.nextUrl.pathname.startsWith("/screenshots") ||
     (request.nextUrl.pathname.startsWith("/asociacion/") &&
       request.nextUrl.pathname.endsWith(".pdf"))
