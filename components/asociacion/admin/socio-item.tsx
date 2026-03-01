@@ -115,7 +115,7 @@ export default function SocioItem({ socio }: { socio: Socio }) {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-xs">Nickname</label>
+                <label className="text-xs">Apodo</label>
                 <Input
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
