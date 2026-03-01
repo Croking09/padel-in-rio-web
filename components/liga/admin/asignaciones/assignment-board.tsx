@@ -22,6 +22,18 @@ import PlayerCard from "./player-card";
 import { cn } from "@/lib/utils";
 import { Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface AssignmentBoardProps {
   initialData: AssignmentData;
@@ -111,20 +123,15 @@ export default function AssignmentBoard({
   };
 
   const onSave = async () => {
-    if (!isValid) {
-      alert(
-        `No se puede guardar. Las siguientes categorías deben tener exactamente 8 jugadores: ${invalidCategories.map((c) => c.name).join(", ")}`,
-      );
-      return;
-    }
-
     setIsSaving(true);
     try {
       await saveAssignments(monthId, data.assignments);
       setHasChanges(false);
-    } catch (error) {
-      console.error("Error saving:", error);
-      alert("Error al guardar cambios");
+      toast.info("Cambios guardados correctamente", {
+        position: "top-center",
+      });
+    } catch {
+      toast.error("Error al guardar cambios", { position: "top-center" });
     } finally {
       setIsSaving(false);
     }
@@ -132,7 +139,10 @@ export default function AssignmentBoard({
 
   const onConfirm = async () => {
     if (!isValid) {
-      alert("Todos las categorías deben tener 8 jugadores para confirmar.");
+      toast.warning(
+        "Todos las categorías deben tener 8 jugadores para confirmar.",
+        { position: "top-center" },
+      );
       return;
     }
 
@@ -140,9 +150,12 @@ export default function AssignmentBoard({
     try {
       await saveAssignments(monthId, data.assignments);
       await confirmMonth(monthId);
-    } catch (error) {
-      console.error("Error confirming:", error);
-      alert("Error al confirmar mes");
+
+      toast.success("Mes confirmado correctamente", {
+        position: "top-center",
+      });
+    } catch {
+      toast.error("Error al confirmar mes", { position: "top-center" });
     } finally {
       setIsSaving(false);
     }
@@ -179,10 +192,10 @@ export default function AssignmentBoard({
             <div className="flex flex-col md:flex-row gap-2">
               <Button
                 onClick={onSave}
-                disabled={!hasChanges || isSaving || !isValid}
+                disabled={!hasChanges || isSaving}
                 className={cn(
                   "px-4 py-2 text-sm font-medium rounded-md transition-colors",
-                  hasChanges && isValid
+                  hasChanges
                     ? "hover:cursor-pointer"
                     : "cursor-not-allowed opacity-50",
                   isSaving && "opacity-70 cursor-wait",
@@ -194,22 +207,48 @@ export default function AssignmentBoard({
                   "Guardar Borrador"
                 )}
               </Button>
-              <Button
-                onClick={onConfirm}
-                disabled={isSaving || !isValid}
-                className={cn(
-                  "px-4 py-2 text-sm font-medium rounded-md bg-success text-white shadow-sm flex items-center gap-2",
-                  !isValid
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-success/80 hover:cursor-pointer",
-                )}
-              >
-                {isSaving ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  "Confirmar y Cerrar"
-                )}
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    disabled={isSaving || !isValid}
+                    className={cn(
+                      "px-4 py-2 text-sm font-medium rounded-md bg-success text-white shadow-sm flex items-center gap-2",
+                      !isValid
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-success/80 hover:cursor-pointer",
+                    )}
+                  >
+                    {isSaving ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      "Confirmar y Cerrar"
+                    )}
+                  </Button>
+                </AlertDialogTrigger>
+
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta acción confirmará estas asignaciones de manera
+                      permanente. No se puede deshacer.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isSaving}>
+                      Cancelar
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={onConfirm}
+                      disabled={isSaving || !isValid}
+                      variant="destructive"
+                    >
+                      {isSaving ? "Guardando..." : "Sí, confirmar"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           )}
         </div>
@@ -283,7 +322,7 @@ function UnassignedColumn({
       <div className="p-3 border-b font-semibold">
         Sin Asignar ({players.length})
       </div>
-      <div className="flex-1 overflow-y-auto p-2 space-y-2">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2 custom-scroll">
         {players.map((player) => (
           <PlayerCard key={player.id} player={player} isDraggable={!disabled} />
         ))}
@@ -323,7 +362,7 @@ function CategoryColumn({
     <div
       ref={dropRef}
       className={cn(
-        "flex flex-col border rounded-lg h-[450px] shadow-sm transition-colors",
+        "flex flex-col border rounded-lg h-112.5 shadow-sm transition-colors",
         isOver && canDrop ? "ring-2 ring-primary" : "",
         disabled && "opacity-90",
       )}
@@ -334,7 +373,7 @@ function CategoryColumn({
           {assignedPlayers.length}/8
         </span>
       </div>
-      <div className="flex-1 overflow-y-auto p-2 space-y-2">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2 custom-scroll">
         {assignedPlayers.map((player) => {
           const assignment = assignments.find(
             (a) => a.jugador_id === player.id && a.categoria_id === category.id,
