@@ -1,14 +1,12 @@
 "use client";
 
 import { createTorneo } from "@/app/actions/torneos";
-import { TorneoCreationState } from "@/components/torneos/admin/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 import { cn, formatDate } from "@/lib/utils";
-import * as React from "react";
-import { useActionState } from "react";
+import { useState } from "react";
 import {
   Upload,
   ImageIcon,
@@ -18,23 +16,20 @@ import {
   Clock,
   X,
 } from "lucide-react";
-
-const initialState: TorneoCreationState = {
-  message: "",
-  error: "",
-  success: false,
-};
+import { toast } from "sonner";
 
 export default function CreateTorneoForm() {
-  const [state, formAction, isPending] = useActionState(
-    createTorneo,
-    initialState,
-  );
-  const [uploading, setUploading] = React.useState(false);
-  const [categories, setCategories] = React.useState<string[]>([]);
-  const [newCategory, setNewCategory] = React.useState("");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [inscriptionEndDate, setInscriptionEndDate] = useState("");
 
-  const [fileName, setFileName] = React.useState<string>("");
+  const [categories, setCategories] = useState<string[]>([]);
+  const [newCategory, setNewCategory] = useState("");
+
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState("");
 
   const handleAddCategory = () => {
     if (newCategory.trim()) {
@@ -47,52 +42,57 @@ export default function CreateTorneoForm() {
     setCategories(categories.filter((_, i) => i !== index));
   };
 
+  const resetForm = () => {
+    setName("");
+    setDescription("");
+    setStartDate("");
+    setEndDate("");
+    setInscriptionEndDate("");
+    setCategories([]);
+    setNewCategory("");
+    setFileName("");
+    setImageFile(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setUploading(true);
-    const formData = new FormData(e.currentTarget);
-    const imageFile = formData.get("image") as File;
-    const startDate = formData.get("start_date") as string;
 
-    categories.forEach((category) => {
-      formData.append("categories", category);
-    });
+    let imgPath = "";
 
     if (imageFile && imageFile.size > 0 && startDate) {
       const supabase = createClient();
 
       const formattedDate = formatDate(startDate, "dd-MM-yyyy");
-
       const fileExt = imageFile.name.split(".").pop();
-      const fileName = `${formattedDate}.${fileExt}`;
+      const uploadFileName = `${formattedDate}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("torneos")
-        .upload(fileName, imageFile, {
-          upsert: true,
-        });
+        .upload(uploadFileName, imageFile, { upsert: true });
 
-      if (uploadError) {
-        setUploading(false);
-        return;
-      }
+      if (uploadError) return;
 
-      formData.set("img_path", fileName);
+      imgPath = uploadFileName;
     }
-    formData.delete("image");
 
-    const dateFields = ["start_date", "end_date", "inscription_end_date"];
-    dateFields.forEach((field) => {
-      const value = formData.get(field) as string;
-      if (value) {
-        formData.set(field, new Date(value).toISOString());
-      }
+    const response = await createTorneo({
+      name,
+      description: description || null,
+      start_date: startDate ? new Date(startDate).toISOString() : "",
+      end_date: endDate ? new Date(endDate).toISOString() : "",
+      inscription_end_date: inscriptionEndDate
+        ? new Date(inscriptionEndDate).toISOString()
+        : "",
+      img_path: imgPath || null,
+      categories: categories.length > 1 ? categories : null,
     });
 
-    React.startTransition(() => {
-      formAction(formData);
-    });
-    setUploading(false);
+    if (!response.success) {
+      toast.error(response.error, { position: "top-center" });
+    } else {
+      toast.success("Torneo creado correctamente", { position: "top-center" });
+      resetForm();
+    }
   };
 
   return (
@@ -103,11 +103,13 @@ export default function CreateTorneoForm() {
       <div className="flex flex-col md:flex-row w-full gap-4 md:items-end">
         <div className="grid gap-2 md:w-4/5">
           <Label className="font-bold px-1" htmlFor="name">
-            Nombre
+            Nombre <span className="text-xs text-red-500">*</span>
           </Label>
           <Input
             id="name"
             name="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             placeholder="ej: Torneo de Primavera"
             required
           />
@@ -136,7 +138,11 @@ export default function CreateTorneoForm() {
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(e) => setFileName(e.target.files?.[0]?.name || "")}
+            onChange={(e) => {
+              const file = e.target.files?.[0] || null;
+              setImageFile(file);
+              setFileName(file?.name || "");
+            }}
           />
         </div>
       </div>
@@ -149,6 +155,8 @@ export default function CreateTorneoForm() {
         <textarea
           id="description"
           name="description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           rows={5}
           className={cn(
             "flex w-full rounded-md border border-input px-3 py-2 text-sm",
@@ -215,12 +223,14 @@ export default function CreateTorneoForm() {
             htmlFor="start_date"
           >
             <Calendar className="w-4 h-4" />
-            Fecha de inicio
+            Fecha de inicio <span className="text-xs text-red-500">*</span>
           </Label>
 
           <Input
             id="start_date"
             name="start_date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
             type="datetime-local"
             required
             className="cursor-pointer"
@@ -234,11 +244,13 @@ export default function CreateTorneoForm() {
             htmlFor="end_date"
           >
             <CalendarCheck className="w-4 h-4" />
-            Fecha de fin
+            Fecha de fin <span className="text-xs text-red-500">*</span>
           </Label>
           <Input
             id="end_date"
             name="end_date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
             type="datetime-local"
             required
             className="cursor-pointer"
@@ -253,12 +265,15 @@ export default function CreateTorneoForm() {
           htmlFor="inscription_end_date"
         >
           <Clock className="w-4 h-4" />
-          Cierre de inscripciones
+          Cierre de inscripciones{" "}
+          <span className="text-xs text-red-500">*</span>
         </Label>
 
         <Input
           id="inscription_end_date"
           name="inscription_end_date"
+          value={inscriptionEndDate}
+          onChange={(e) => setInscriptionEndDate(e.target.value)}
           type="datetime-local"
           required
           className="cursor-pointer"
@@ -266,29 +281,8 @@ export default function CreateTorneoForm() {
         />
       </div>
 
-      {state?.error && (
-        <div className="p-3 text-sm text-error bg-error/20 border border-error rounded w-full">
-          {state.error}
-        </div>
-      )}
-
-      {state?.success && (
-        <div className="p-3 text-sm text-success bg-success/20 border border-success rounded w-full">
-          {state.message}
-        </div>
-      )}
-
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={isPending || uploading}
-        variant="secondary"
-      >
-        {uploading
-          ? "Subiendo imagen..."
-          : isPending
-            ? "Creando..."
-            : "Crear Torneo"}
+      <Button type="submit" className="w-full" variant="secondary">
+        Crear Torneo
       </Button>
     </form>
   );

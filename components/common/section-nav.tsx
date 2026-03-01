@@ -16,6 +16,14 @@ export default async function SectionNav({
 
   const isAdmin = user?.app_metadata?.admin === true;
 
+  if (!isAdmin && publicLinks.length === 0) {
+    return null;
+  }
+
+  if (adminLinks.length === 0 && publicLinks.length === 0) {
+    return null;
+  }
+
   return (
     <nav className="p-2 bg-primary/80">
       <ul className="flex gap-2 overflow-x-scroll md:overflow-x-auto [&>li]:hover:bg-background/40 [&>li]:rounded-md [&>li]:px-2 [&>li]:py-1">

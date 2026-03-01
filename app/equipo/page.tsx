@@ -35,12 +35,13 @@ export default function Equipo() {
       </div>
 
       <div className="max-w-4xl mx-auto px-6 pt-12">
-        <div className="relative h-[450px] w-full overflow-hidden">
+        <div className="relative h-112.5 w-full overflow-hidden">
           <Image
             src="/equipo/equipoFemenino.webp"
             alt="Equipo femenino Padel in Rio"
             fill
             className="object-contain"
+            priority
           />
         </div>
       </div>

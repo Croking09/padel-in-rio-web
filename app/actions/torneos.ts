@@ -1,8 +1,8 @@
 "use server";
 import { createAdmin } from "@/lib/supabase/admin";
 import { unstable_cache, revalidatePath } from "next/cache";
-import { TorneoCreationState } from "@/components/torneos/admin/types";
 import { createClient } from "@/lib/supabase/server";
+import { Torneo } from "@/lib/types/torneo";
 
 export const getTorneosCount = unstable_cache(
   async () => {
@@ -86,25 +86,26 @@ export const getTorneoById = unstable_cache(
 );
 
 export async function createTorneo(
-  prevState: TorneoCreationState,
-  formData: FormData,
-): Promise<TorneoCreationState> {
+  data: Omit<Torneo, "id" | "manually_closed">,
+) {
   const supabase = await createClient();
 
-  const name = formData.get("name") as string;
-  const description = formData.get("description") as string;
-  const start_date = formData.get("start_date") as string;
-  const end_date = formData.get("end_date") as string;
-  const inscription_end_date = formData.get("inscription_end_date") as string;
-  const img_path = formData.get("img_path") as string | null;
-  const categories = formData.getAll("categories") as string[];
+  const {
+    name,
+    description,
+    start_date,
+    end_date,
+    inscription_end_date,
+    img_path,
+    categories,
+  } = data;
 
   if (!name || !start_date || !end_date || !inscription_end_date) {
     if (img_path) {
       await supabase.storage.from("torneos").remove([img_path]);
     }
 
-    return { error: "Faltan campos obligatorios." };
+    return { success: false, error: "Faltan campos obligatorios." };
   }
 
   const start = new Date(start_date);
@@ -117,6 +118,7 @@ export async function createTorneo(
     }
 
     return {
+      success: false,
       error:
         "El cierre de inscripciones debe ser anterior al inicio del torneo.",
     };
@@ -127,17 +129,20 @@ export async function createTorneo(
       await supabase.storage.from("torneos").remove([img_path]);
     }
 
-    return { error: "La fecha de inicio debe ser anterior a la fecha de fin." };
+    return {
+      success: false,
+      error: "La fecha de inicio debe ser anterior a la fecha de fin.",
+    };
   }
 
   const { error } = await supabase.from("Torneos").insert({
     name,
     description,
     start_date,
-    img_path,
-    categories: categories.length > 0 ? categories : null,
     end_date,
     inscription_end_date,
+    img_path: img_path ?? null,
+    categories,
     manually_closed: false,
   });
 
@@ -146,12 +151,18 @@ export async function createTorneo(
       await supabase.storage.from("torneos").remove([img_path]);
     }
 
-    return { error: "Error al crear el torneo. Verifica los datos." };
+    return {
+      success: false,
+      error: "Error al crear el torneo. Verifica los datos.",
+    };
   }
 
-  revalidatePath("/"); // <-- Count
+  revalidatePath("/");
   revalidatePath("/torneos");
-  return { success: true, message: "Torneo creado exitosamente." };
+
+  return {
+    success: true,
+  };
 }
 
 export async function deleteTorneo(torneoId: number) {

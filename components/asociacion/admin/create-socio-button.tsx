@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 import { createSocio } from "@/app/actions/socios";
+import { Label } from "@/components/ui/label";
 
 export default function CreateSocioButton() {
   const [open, setOpen] = useState(false);
@@ -55,9 +56,9 @@ export default function CreateSocioButton() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label className="text-xs">
+            <Label className="text-xs">
               Nombre completo <span className="text-red-500">*</span>
-            </label>
+            </Label>
             <Input
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
@@ -66,7 +67,7 @@ export default function CreateSocioButton() {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs">Nickname</label>
+            <Label className="text-xs">Nickname</Label>
             <Input
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
