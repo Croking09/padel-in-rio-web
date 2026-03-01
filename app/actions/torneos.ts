@@ -168,6 +168,7 @@ export async function deleteTorneo(torneoId: number) {
     return { error: "Hubo un error al eliminar el torneo." };
   }
 
+  revalidatePath("/"); // <-- Count
   revalidatePath("/torneos");
   revalidatePath(`/torneos/inscripcion/${torneoId}`);
 }

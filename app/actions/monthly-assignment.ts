@@ -85,7 +85,8 @@ export async function getAssignmentData(
   // Fetch all players (Socios)
   const { data: players, error: playerError } = await supabase
     .from("Socios")
-    .select("*");
+    .select("*")
+    .eq("active", true);
 
   if (playerError) throw playerError;
 
