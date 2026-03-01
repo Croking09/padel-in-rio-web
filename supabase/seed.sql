@@ -37,7 +37,7 @@ VALUES
   ('Mixto de Otoño 2025', 'El fin de semana del 17 al 19 de octubre, 20€ por inscripción y 15€ si eres socio.', '2025-10-17', '17-10-2025.jpeg', NULL, '2025-10-19', '2025-10-13', false);
 
 INSERT INTO public."Socios"
-  (full_name, nickname)
+  (full_name, nickname) -- active: true by default
 VALUES
   ('Mónica Rodríguez Gavín', 'Mónica'),
   ('Bonia Martínez Irimia', 'Bonia'),
