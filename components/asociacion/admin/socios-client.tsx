@@ -27,8 +27,8 @@ export default function SociosClient({ socios }: { socios: Socio[] }) {
   }, [search, socios]);
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 mb-4 mt-8">
-      <div className="flex items-center justify-between gap-4">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 mb-4 mt-8 px-4">
+      <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-4">
         <div className="flex w-full">
           <Input
             placeholder="Buscar socio..."
@@ -48,7 +48,7 @@ export default function SociosClient({ socios }: { socios: Socio[] }) {
         <CreateSocioButton />
       </div>
 
-      <div className="flex flex-col gap-4 custom-scroll-container custom-scroll overflow-y-scroll h-[65vh]">
+      <div className="flex flex-col gap-4 custom-scroll-container custom-scroll md:overflow-y-scroll md:h-[65vh]">
         {filteredSocios.length > 0 ? (
           filteredSocios.map((socio) => (
             <SocioItem key={socio.id} socio={socio} />

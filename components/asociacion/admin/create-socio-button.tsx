@@ -48,7 +48,7 @@ export default function CreateSocioButton() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-sm" aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Crear nuevo socio</DialogTitle>
         </DialogHeader>

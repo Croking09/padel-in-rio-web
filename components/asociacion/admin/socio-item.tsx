@@ -63,7 +63,7 @@ export default function SocioItem({ socio }: { socio: Socio }) {
       <CardContent>
         <Collapsible className="rounded-md">
           <div className="flex items-center justify-between pt-6 relative">
-            <div className="flex flex-col">
+            <div className="flex flex-col w-[45%]">
               <span className="text-sm font-medium">{socio.full_name}</span>
               <span className="text-sm opacity-70">{socio.nickname}</span>
             </div>
