@@ -12,16 +12,14 @@ describe("Create Torneo Form", () => {
   test("all fields should show", () => {
     render(<CreateTorneoForm />);
 
-    const nameInput = screen.getByLabelText("Nombre");
-    const cartelInput = screen.getByLabelText("Cartel");
+    const nameInput = screen.getByLabelText(/Nombre/i);
+    const cartelInput = screen.getByLabelText(/cartel/i);
     const descriptionInput = screen.getByLabelText("Descripción");
-    const categoriesInput = screen.getByLabelText("Categorías");
+    const categoriesInput = screen.getByLabelText(/categorías/i);
     const addNewCategoryButton = screen.getByRole("button", { name: "Añadir" });
-    const startDateInput = screen.getByLabelText("Fecha de inicio");
-    const endDateInput = screen.getByLabelText("Fecha de fin");
-    const inscriptionEndDateInput = screen.getByLabelText(
-      "Cierre de inscripciones",
-    );
+    const startDateInput = screen.getByLabelText(/fecha de inicio/i);
+    const endDateInput = screen.getByLabelText(/fecha de fin/i);
+    const inscriptionEndDateInput = screen.getByLabelText(/cierre de inscripciones/i);
     const submitButton = screen.getByRole("button", { name: "Crear Torneo" });
 
     expect(nameInput).toBeInTheDocument();
@@ -38,7 +36,7 @@ describe("Create Torneo Form", () => {
   test("add category should work", () => {
     render(<CreateTorneoForm />);
 
-    const categoriesInput = screen.getByLabelText("Categorías");
+    const categoriesInput = screen.getByLabelText(/categorías/i);
     const addNewCategoryButton = screen.getByRole("button", { name: "Añadir" });
 
     fireEvent.change(categoriesInput, { target: { value: "1ª Masculina" } });
@@ -54,7 +52,7 @@ describe("Create Torneo Form", () => {
   test("remove category should work", () => {
     render(<CreateTorneoForm />);
 
-    const categoriesInput = screen.getByLabelText("Categorías");
+    const categoriesInput = screen.getByLabelText(/categorías/i);
     const addNewCategoryButton = screen.getByRole("button", { name: "Añadir" });
 
     fireEvent.change(categoriesInput, { target: { value: "1ª Masculina" } });
@@ -71,31 +69,26 @@ describe("Create Torneo Form", () => {
   });
 
   test("submit should work", async () => {
+    createTorneo.mockResolvedValue({ success: true });
+
     render(<CreateTorneoForm />);
 
-    const nameInput = screen.getByLabelText("Nombre");
+    const nameInput = screen.getByLabelText(/Nombre/i);
     const descriptionInput = screen.getByLabelText("Descripción");
-    const categoriesInput = screen.getByLabelText("Categorías");
+    const categoriesInput = screen.getByLabelText(/categorías/i);
     const addNewCategoryButton = screen.getByRole("button", { name: "Añadir" });
-    const startDateInput = screen.getByLabelText("Fecha de inicio");
-    const endDateInput = screen.getByLabelText("Fecha de fin");
-    const inscriptionEndDateInput = screen.getByLabelText(
-      "Cierre de inscripciones"
-    );
+    const startDateInput = screen.getByLabelText(/fecha de inicio/i);
+    const endDateInput = screen.getByLabelText(/fecha de fin/i);
+    const inscriptionEndDateInput = screen.getByLabelText(/cierre de inscripciones/i);
     const submitButton = screen.getByRole("button", { name: "Crear Torneo" });
 
     fireEvent.change(nameInput, { target: { value: "Torneo de Primavera" } });
-    fireEvent.change(descriptionInput, {
-      target: { value: "Descripción del torneo" },
-    });
+    fireEvent.change(descriptionInput, { target: { value: "Descripción del torneo" } });
     fireEvent.change(categoriesInput, { target: { value: "1ª Masculina" } });
     fireEvent.click(addNewCategoryButton);
-    
     fireEvent.change(startDateInput, { target: { value: "2022-01-02T10:00" } });
     fireEvent.change(endDateInput, { target: { value: "2022-01-03T18:00" } });
-    fireEvent.change(inscriptionEndDateInput, {
-      target: { value: "2022-01-01T23:59" },
-    });
+    fireEvent.change(inscriptionEndDateInput, { target: { value: "2022-01-01T23:59" } });
 
     fireEvent.click(submitButton);
 

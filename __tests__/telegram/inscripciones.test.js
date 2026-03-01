@@ -165,14 +165,13 @@ describe("inscribirTorneo - admin notifications", () => {
 
     createClient.mockResolvedValue(mockSupabase);
 
-    const formData = new FormData();
-    formData.append("torneo_id", "1");
-    formData.append("phone_number", "123456789");
-    formData.append("category", "Primera");
-    formData.append("player_1_full_name", "Juan Pérez");
-    formData.append("player_2_full_name", "Carlos López");
-
-    await inscribirTorneo({}, formData, true);
+    await inscribirTorneo({
+      torneo_id: 1,
+      phone_number: "123456789",
+      category: "Primera",
+      player_1_full_name: "Juan Pérez",
+      player_2_full_name: "Carlos López",
+    });
 
     expect(sendMessage).toHaveBeenCalledTimes(3);
 
