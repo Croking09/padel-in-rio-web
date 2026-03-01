@@ -1,16 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { InscripcionState } from "@/components/torneos/inscripcion/types";
 import { createClient } from "@/lib/supabase/server";
 import { unstable_cache } from "next/cache";
 import { createAdmin } from "@/lib/supabase/admin";
 import { ADMINS, sendMessage } from "@/lib/telegram/utils";
 import { newInscripcionMessage } from "@/lib/telegram/answers";
+import { Inscription } from "@/lib/types/inscription";
 
 export async function inscribirTorneo(
-  prevState: InscripcionState,
-  formData: FormData,
+  data: Omit<Inscription, "id" | "user_id">,
   categoriesNeeded: boolean,
 ) {
   const supabase = await createClient();
@@ -23,11 +22,13 @@ export async function inscribirTorneo(
     return { error: "Debes iniciar sesión para inscribirte." };
   }
 
-  const torneo_id = formData.get("torneo_id") as string;
-  const phone_number = formData.get("phone_number") as string;
-  const category = formData.get("category") as string;
-  const player_1_full_name = formData.get("player_1_full_name") as string;
-  const player_2_full_name = formData.get("player_2_full_name") as string;
+  const {
+    torneo_id,
+    phone_number,
+    category,
+    player_1_full_name,
+    player_2_full_name,
+  } = data;
 
   if (
     !torneo_id ||
@@ -94,7 +95,7 @@ export async function inscribirTorneo(
   }
 
   revalidatePath(`/admin/torneos/${torneo_id}/inscripciones`);
-  return { success: true, message: "¡Inscripción realizada con éxito!" };
+  return { success: true };
 }
 
 export async function getAllInscripcionesForOpenTorneos() {

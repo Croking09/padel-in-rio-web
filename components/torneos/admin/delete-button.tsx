@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { deleteTorneo } from "@/app/actions/torneos";
 import { Trash2 } from "lucide-react";
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 interface DeleteButtonProps {
   torneoId: number;
@@ -31,19 +31,23 @@ export default function DeleteButton({
 
   const handleConfirm = async () => {
     setLoading(true);
-    await deleteTorneo(torneoId);
+    const error = await deleteTorneo(torneoId);
     setLoading(false);
+
+    if (error) {
+      toast.error(error.error, { position: "top-center" });
+    } else {
+      toast.success("Torneo eliminado correctamente", {
+        position: "top-center",
+      });
+    }
   };
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button
-          className={cn("w-fit hover:cursor-pointer", className)}
-          variant="destructive"
-        >
+        <Button className={cn("w-fit", className)} variant="destructive">
           <Trash2 className="h-4 w-4" />
-          Eliminar torneo
         </Button>
       </AlertDialogTrigger>
 

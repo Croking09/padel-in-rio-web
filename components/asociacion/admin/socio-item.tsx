@@ -14,6 +14,7 @@ import { ChevronDownIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 import { toggleActiveSocio, editSocio } from "@/app/actions/socios";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 
 export default function SocioItem({ socio }: { socio: Socio }) {
   const [fullName, setFullName] = useState(socio.full_name);
@@ -106,7 +107,7 @@ export default function SocioItem({ socio }: { socio: Socio }) {
             <hr />
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-xs">Nombre completo</label>
+                <Label className="text-xs">Nombre completo</Label>
                 <Input
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
@@ -115,7 +116,7 @@ export default function SocioItem({ socio }: { socio: Socio }) {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-xs">Apodo</label>
+                <Label className="text-xs">Apodo</Label>
                 <Input
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}

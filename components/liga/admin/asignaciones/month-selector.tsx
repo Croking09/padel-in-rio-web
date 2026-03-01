@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Month } from "@/app/actions/monthly-assignment";
 import { formatMonth } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
 
 export default function MonthSelector({
   months,
@@ -22,7 +23,7 @@ export default function MonthSelector({
 
   return (
     <div className="flex items-center justify-center gap-2">
-      <label className="font-medium text-sm">Mes:</label>
+      <Label className="font-medium text-sm">Mes:</Label>
       <select
         value={currentMonthId}
         onChange={(e) => handleChange(e.target.value)}

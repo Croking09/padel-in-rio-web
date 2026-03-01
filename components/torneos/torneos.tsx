@@ -60,14 +60,15 @@ export default async function Torneos({ page = 1 }: TorneosProps) {
                   )}
                   {isAdmin && <ViewInscriptionsButton torneoId={torneo.id} />}
                   {isAdmin && (
-                    <ToggleInscriptionsButton
-                      torneoId={torneo.id}
-                      className="mt-2"
-                      isClosed={torneo.manually_closed}
-                    />
-                  )}
-                  {isAdmin && (
-                    <DeleteButton torneoId={torneo.id} className="mt-2" />
+                    <div className="flex gap-2">
+                      <ToggleInscriptionsButton
+                        torneoId={torneo.id}
+                        className="mt-2"
+                        isClosed={torneo.manually_closed}
+                      />
+
+                      <DeleteButton torneoId={torneo.id} className="mt-2" />
+                    </div>
                   )}
                 </div>
               </li>
