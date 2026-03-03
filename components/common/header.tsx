@@ -1,6 +1,5 @@
 import NavBar from "./navBar";
-import { Logo } from "@/components/icons";
-import Link from "next/link";
+import LogoLink from "./logoLink";
 import InstallTutorialCarousel from "./installTutorialCarousel";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,15 +15,13 @@ export default function Header() {
   return (
     <header className="bg-primary flex flex-row p-5 shadow-bottom justify-between items-center">
       <div className="flex items-center gap-4">
-        <Link href="/">
-          <Logo className="w-15 h-15 hover:text-secondary hover:scale-110 transition-all duration-300" />
-        </Link>
+        <LogoLink />
 
         <Dialog>
           <DialogTrigger asChild className="hide-in-standalone">
             <Button variant="secondary">Instálame</Button>
           </DialogTrigger>
-          <DialogContent className="flex flex-col items-center justify-center">
+          <DialogContent className="max-h-dvh flex flex-col items-center justify-center">
             <DialogHeader className="w-full text-center">
               <DialogTitle>También somos una App</DialogTitle>
               <DialogDescription className="opacity-80">

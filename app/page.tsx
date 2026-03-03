@@ -4,9 +4,9 @@ import IconCardFromBD from "@/components/home/iconCardFromBD";
 import IconCardSkeleton from "@/components/home/iconCardSkeleton";
 import Map from "@/components/home/map";
 import { Dumbell, Medal, Person, Trophy } from "@/components/icons";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Suspense } from "react";
+import { HapticButton } from "@/components/ui/haptic-button";
 
 export default function Home() {
   return (
@@ -42,7 +42,8 @@ export default function Home() {
         </div>
 
         <Map />
-        <Button
+
+        <HapticButton
           asChild
           className="mt-8 font-bold"
           variant="secondary"
@@ -55,7 +56,7 @@ export default function Home() {
           >
             RESERVA
           </Link>
-        </Button>
+        </HapticButton>
       </section>
     </>
   );

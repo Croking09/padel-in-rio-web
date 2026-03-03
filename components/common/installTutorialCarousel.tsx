@@ -51,7 +51,7 @@ export default function InstallTutorialCarousel() {
                     )}
                   </div>
 
-                  <div className="relative w-full aspect-9/16 max-h-[50vh] rounded-4xl overflow-hidden shadow-xl border">
+                  <div className="relative w-full aspect-9/16 max-h-[50dvh] rounded-4xl overflow-hidden shadow-xl border">
                     <Image
                       src={step.src}
                       alt={step.title}
@@ -67,7 +67,7 @@ export default function InstallTutorialCarousel() {
         ))}
       </CarouselContent>
 
-      <div className="flex items-center justify-center gap-6 mt-6">
+      <div className="flex items-center justify-center gap-6 mt-2 md:mt-6">
         <CarouselPrevious className="static translate-y-0 h-12 w-12 hover:bg-secondary transition-colors" />
 
         <CarouselNext className="static translate-y-0 h-12 w-12 hover:bg-secondary transition-colors" />

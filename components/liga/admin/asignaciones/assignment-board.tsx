@@ -34,6 +34,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useWebHaptics } from "web-haptics/react";
 
 interface AssignmentBoardProps {
   initialData: AssignmentData;
@@ -71,6 +72,8 @@ export default function AssignmentBoard({
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
+  const { trigger } = useWebHaptics();
+
   useEffect(() => {
     setData(initialData);
     setHasChanges(false);
@@ -92,8 +95,10 @@ export default function AssignmentBoard({
   const invalidCategories = validateCategories();
   const isValid = invalidCategories.length === 0;
 
+  const dndDisabled = isLocked || isConfirmed;
+
   const handleAssign = (playerId: number, categoryId: number) => {
-    if (isLocked) return;
+    if (dndDisabled) return;
 
     setData((prev) => {
       const newAssignments = prev.assignments.filter(
@@ -111,7 +116,7 @@ export default function AssignmentBoard({
   };
 
   const handleUnassign = (playerId: number) => {
-    if (isLocked) return;
+    if (dndDisabled) return;
 
     setData((prev) => {
       return {
@@ -191,7 +196,13 @@ export default function AssignmentBoard({
           {!isLocked && !isConfirmed && (
             <div className="flex flex-col md:flex-row gap-2">
               <Button
-                onClick={onSave}
+                onClick={() => {
+                  trigger([
+                    { duration: 30 },
+                    { delay: 60, duration: 40, intensity: 1 },
+                  ]);
+                  onSave();
+                }}
                 disabled={!hasChanges || isSaving}
                 className={cn(
                   "px-4 py-2 text-sm font-medium rounded-md transition-colors",
@@ -211,6 +222,12 @@ export default function AssignmentBoard({
                 <AlertDialogTrigger asChild>
                   <Button
                     disabled={isSaving || !isValid}
+                    onClick={() =>
+                      trigger([
+                        { duration: 30 },
+                        { delay: 60, duration: 40, intensity: 1 },
+                      ])
+                    }
                     className={cn(
                       "px-4 py-2 text-sm font-medium rounded-md bg-success text-white shadow-sm flex items-center gap-2",
                       !isValid
@@ -259,7 +276,7 @@ export default function AssignmentBoard({
               (p) => !data.assignments.some((a) => a.jugador_id === p.id),
             )}
             onDrop={(item: DragItem) => handleUnassign(item.id)}
-            disabled={isLocked}
+            disabled={dndDisabled}
           />
 
           <div className="flex-1 w-full md:w-auto">
@@ -276,7 +293,7 @@ export default function AssignmentBoard({
                   )}
                   assignments={data.assignments}
                   onDrop={(item) => handleAssign(item.id, category.id)}
-                  disabled={isLocked}
+                  disabled={dndDisabled}
                 />
               ))}
             </div>
@@ -316,7 +333,7 @@ function UnassignedColumn({
       className={cn(
         "w-full md:w-64 flex flex-col border rounded-lg transition-colors top-20 h-screen overflow-y-auto",
         isOver && canDrop ? "bg-primary/10" : "",
-        disabled && "opacity-75",
+        disabled && "cursor-not-allowed opacity-75",
       )}
     >
       <div className="p-3 border-b font-semibold">
@@ -364,7 +381,7 @@ function CategoryColumn({
       className={cn(
         "flex flex-col border rounded-lg h-112.5 shadow-sm transition-colors",
         isOver && canDrop ? "ring-2 ring-primary" : "",
-        disabled && "opacity-90",
+        disabled && "opacity-75 cursor-not-allowed",
       )}
     >
       <div className="p-3 border-b font-semibold flex justify-between items-center">
