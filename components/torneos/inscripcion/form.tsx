@@ -6,7 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { ChevronDown } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useWebHaptics } from "web-haptics/react";
 
 export default function Form({
   torneo_id,
@@ -19,6 +27,8 @@ export default function Form({
   const [player2Name, setPlayer2Name] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [category, setCategory] = useState("");
+
+  const { trigger } = useWebHaptics();
 
   const categoriesNeeded = Boolean(categories && categories.length > 0);
 
@@ -64,35 +74,27 @@ export default function Form({
             Categoría <span className="text-xs text-red-500">*</span>
           </Label>
 
-          <div className="relative">
-            <select
-              id="category"
-              name="category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              required
-              className="
-                flex h-10 w-full appearance-none items-center rounded-md
-                border bg-background px-3 pr-10 text-sm
-                focus:outline-none
-                disabled:cursor-not-allowed disabled:opacity-50
-              "
-            >
-              <option value="" disabled>
-                Selecciona una categoría
-              </option>
-
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-
-            <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-              <ChevronDown className="h-4 w-4" />
-            </div>
-          </div>
+          <Select
+            value={category}
+            onValueChange={(value) => setCategory(value)}
+          >
+            <SelectTrigger className="w-full" id="category">
+              <SelectValue placeholder="Selecciona una categoría" />
+            </SelectTrigger>
+            <SelectContent position="popper" className="bg-background">
+              <SelectGroup>
+                {categories.map((category) => (
+                  <SelectItem
+                    key={category}
+                    value={category}
+                    className="hover:bg-primary py-1 px-4"
+                  >
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
       )}
 
@@ -148,7 +150,14 @@ export default function Form({
         </p>
       </div>
 
-      <Button className="w-fit font-bold" type="submit" variant="secondary">
+      <Button
+        className="w-fit font-bold"
+        type="submit"
+        variant="secondary"
+        onClick={() =>
+          trigger([{ duration: 30 }, { delay: 60, duration: 40, intensity: 1 }])
+        }
+      >
         Confirmar Inscripción
       </Button>
     </form>

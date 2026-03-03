@@ -2,9 +2,16 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useWebHaptics } from "web-haptics/react";
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
+
+  const { trigger } = useWebHaptics();
+  const hapticResponseSettings = [
+    { duration: 30 },
+    { delay: 60, duration: 40, intensity: 1 },
+  ];
 
   useEffect(() => {
     if (isOpen) {
@@ -51,7 +58,10 @@ export default function NavBar() {
             <Link
               href="/torneos"
               className="hover:text-secondary transition-colors"
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                trigger(hapticResponseSettings);
+                setIsOpen(false);
+              }}
             >
               TORNEOS
             </Link>
@@ -60,7 +70,10 @@ export default function NavBar() {
             <Link
               href="/liga/reglamento"
               className="hover:text-secondary transition-colors"
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                trigger(hapticResponseSettings);
+                setIsOpen(false);
+              }}
             >
               LIGA
             </Link>
@@ -69,7 +82,10 @@ export default function NavBar() {
             <Link
               href="/asociacion"
               className="hover:text-secondary transition-colors"
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                trigger(hapticResponseSettings);
+                setIsOpen(false);
+              }}
             >
               ASOCIACION
             </Link>
@@ -78,7 +94,10 @@ export default function NavBar() {
             <Link
               href="/equipo"
               className="hover:text-secondary transition-colors"
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                trigger(hapticResponseSettings);
+                setIsOpen(false);
+              }}
             >
               EQUIPO
             </Link>

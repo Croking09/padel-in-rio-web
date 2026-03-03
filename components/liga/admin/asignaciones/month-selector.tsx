@@ -3,7 +3,15 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Month } from "@/app/actions/monthly-assignment";
 import { formatMonth } from "@/lib/utils";
-import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useWebHaptics } from "web-haptics/react";
 
 export default function MonthSelector({
   months,
@@ -12,6 +20,8 @@ export default function MonthSelector({
   months: Month[];
   currentMonthId: number | undefined;
 }) {
+  const { trigger } = useWebHaptics();
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -23,19 +33,34 @@ export default function MonthSelector({
 
   return (
     <div className="flex items-center justify-center gap-2">
-      <Label className="font-medium text-sm">Mes:</Label>
-      <select
-        value={currentMonthId}
-        onChange={(e) => handleChange(e.target.value)}
-        className="bg-background border rounded px-2 py-1 text-sm shadow-sm focus:outline-none focus:ring-2"
+      <Select
+        defaultValue={String(currentMonthId)}
+        onValueChange={(value) => {
+          trigger([
+            { duration: 30 },
+            { delay: 60, duration: 40, intensity: 1 },
+          ]);
+          handleChange(value);
+        }}
       >
-        {months.map((m) => (
-          <option key={m.id} value={m.id}>
-            {formatMonth(m.month)} -{" "}
-            {m.temporada_name || `Temp ${m.temporada_id}`}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger className="w-full">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent position="popper" className="bg-background">
+          <SelectGroup>
+            {months.map((m) => (
+              <SelectItem
+                key={m.id}
+                value={String(m.id)}
+                className="hover:bg-primary py-1 px-4"
+              >
+                {formatMonth(m.month)} -{" "}
+                {m.temporada_name || `Temp ${m.temporada_id}`}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
     </div>
   );
 }
