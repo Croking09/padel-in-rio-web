@@ -1,14 +1,10 @@
 "use server";
 
 import { createAdmin } from "@/lib/supabase/admin";
-import { generateCategoryMatches, Match } from "@/lib/utils";
+import { generateCategoryMatches } from "@/lib/utils";
+import { Match } from "@/lib/types/match";
 import { revalidatePath } from "next/cache";
-
-interface Socio {
-  id: number;
-  full_name: string;
-  nickname: string | null;
-}
+import { Socio } from "@/lib/types/socio";
 
 interface JugadorCategoriaMes {
   jugador_id: number;
@@ -27,7 +23,7 @@ export async function previewMonth(mesId: number) {
   for (const cat of categories!) {
     const { data } = await supabase
       .from("Jugador_Categoria_Mes")
-      .select("jugador_id, Socios(id, full_name, nickname)")
+      .select("jugador_id, Socios(id, full_name, nickname, active)")
       .eq("mes_id", mesId)
       .eq("categoria_id", cat.id);
 
@@ -41,6 +37,7 @@ export async function previewMonth(mesId: number) {
         id: socio.id,
         full_name: socio.full_name,
         nickname: socio.nickname,
+        active: socio.active,
       };
     });
 

@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Player } from "@/app/actions/monthly-assignment";
+import { Match } from "@/lib/types/match";
+import { Socio } from "./types/socio";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -63,17 +64,10 @@ export function formatMonth(month: number) {
   }
 }
 
-export type Match = {
-  categoryId: number;
-  categoryName: string;
-  matchday: number;
-  players: Player[];
-};
-
 export function generateCategoryMatches(
   categoryId: number,
   categoryName: string,
-  players: Player[],
+  players: Socio[],
 ): Match[] {
   const j = [...players].sort(() => Math.random() - 0.5);
 

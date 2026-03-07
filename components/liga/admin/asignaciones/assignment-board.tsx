@@ -259,7 +259,7 @@ export default function AssignmentBoard({
                     <AlertDialogAction
                       onClick={onConfirm}
                       disabled={isSaving || !isValid}
-                      variant="destructive"
+                      variant="secondary"
                     >
                       {isSaving ? "Guardando..." : "Sí, confirmar"}
                     </AlertDialogAction>
