@@ -1,15 +1,15 @@
 "use server";
 
 import { createAdmin } from "@/lib/supabase/admin";
-import { Match } from "@/lib/utils";
-import type { Player } from "@/app/actions/monthly-assignment";
+import { Match } from "@/lib/types/match";
+import { Socio } from "@/lib/types/socio";
 
 interface PartidoResponse {
   id: number;
   categoria_id: number;
   Categorias: { name: string } | null;
   Jugador_Partido: {
-    Player: Player | null;
+    Player: Socio | null;
   }[];
 }
 
@@ -54,7 +54,7 @@ export async function getConfirmedMatches(monthId: number): Promise<Match[]> {
         matchday: jornada.number,
         players:
           partido.Jugador_Partido?.map((jp) => jp.Player).filter(
-            (s): s is Player => Boolean(s),
+            (s): s is Socio => Boolean(s),
           ) || [],
       });
     });
