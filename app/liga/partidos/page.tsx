@@ -1,7 +1,7 @@
 import { getConfirmedMatches } from "@/app/actions/partidos";
 import { getMonths } from "@/app/actions/monthly-assignment";
 import MonthSelector from "@/components/liga/admin/asignaciones/month-selector";
-import { Match } from "@/lib/utils";
+import { Match } from "@/lib/types/match";
 
 export default async function Page({
   searchParams,
