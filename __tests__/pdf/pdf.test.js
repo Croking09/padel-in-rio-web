@@ -19,24 +19,35 @@ jest.mock("@react-pdf/renderer", () => {
 });
 
 const mockMatch = {
-  categoryId: 1,
+  id: 1,
+  matchday: 1, // month matchday
   categoryName: "1ª",
-  matchday: 1,
   players: [
     {
       id: 1,
       full_name: "Juan Comendeiro",
       nickname: "Comendeiro",
-      active: true,
     },
-    { id: 2, full_name: "Javier García", nickname: "Javi", active: true },
-    { id: 3, full_name: "Isaac López", nickname: "Isaac", active: true },
-    { id: 4, full_name: "Iván Martínez", nickname: "Iván", active: true },
+    {
+      id: 2,
+      full_name: "Javier García",
+      nickname: "Javi",
+    },
+    {
+      id: 3,
+      full_name: "Isaac López",
+      nickname: "Isaac",
+    },
+    {
+      id: 4,
+      full_name: "Iván Martínez",
+      nickname: "Iván",
+    },
   ],
 };
 
 const matchesByDay = {
-  1: {
+  1: { // global matchday
     "1ª": [mockMatch],
   },
 };
