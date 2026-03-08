@@ -1,14 +1,10 @@
-import { renderToStream } from "@react-pdf/renderer";
-import { NextResponse } from "next/server";
+import { renderToBuffer } from "@react-pdf/renderer";
 import { MatchesPdf } from "@/lib/pdf/matches-pdf";
 import { getConfirmedMatches } from "@/app/actions/partidos";
 import { getMonths } from "@/app/actions/monthly-assignment";
 import { Match } from "@/lib/types/match";
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const monthId = Number(searchParams.get("monthId"));
-
+export async function generateMatchesPdf(monthId: number) {
   const allMonths = await getMonths();
   const confirmedMonths = allMonths.filter((m) => m.status === "confirmed");
 
@@ -38,13 +34,9 @@ export async function GET(req: Request) {
     matchesByDay[globalDay][match.categoryName].push(match);
   });
 
-  const stream = await renderToStream(
+  const buffer = await renderToBuffer(
     <MatchesPdf matchesByDay={matchesByDay} />,
   );
 
-  return new NextResponse(stream as unknown as ReadableStream, {
-    headers: {
-      "Content-Type": "application/pdf",
-    },
-  });
+  return buffer;
 }

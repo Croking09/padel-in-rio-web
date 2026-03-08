@@ -5,11 +5,11 @@ export const start_answer =
   "¡Hola! Soy BonIA 🤖, tu asistente de Padel in Rio.";
 
 export const help_answer =
-  `🤖 Ayuda del Bot 🤖\n\n` +
-  `Estos son los comandos disponibles:\n\n` +
+  `🤖: Esto es lo que puedo hacer\n\n` +
   `/start - Inicia el bot\n` +
   `/help - Muestra esta ayuda\n\n` +
   `Opciones de admin:\n\n` +
+  `/pdf - Genera un PDF con los partidos de la liga para el mes actual\n` +
   `/inscripciones - Muestra las inscripciones para los torneos activos\n` +
   `(Si eres admin también te llegan avisos de nuevas inscripciones)\n`;
 

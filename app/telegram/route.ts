@@ -6,7 +6,14 @@ import {
   help_answer,
   formatInscripciones,
 } from "@/lib/telegram/answers";
-import { sendMessage, TELEGRAM_API, ADMINS } from "@/lib/telegram/utils";
+import {
+  sendMessage,
+  TELEGRAM_API,
+  ADMINS,
+  sendDocument,
+} from "@/lib/telegram/utils";
+import { generateMatchesPdf } from "@/lib/pdf/generate-pdf";
+import { getMonths } from "../actions/monthly-assignment";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -67,6 +74,43 @@ export async function POST(req: NextRequest) {
             parse_mode: "Markdown",
           });
         }
+        break;
+      case "/pdf":
+        if (!ADMINS.has(chatId)) {
+          await sendMessage(chatId, "No tienes permiso para usar este comando");
+          break;
+        }
+
+        const now = new Date();
+        const currentMonthNumber = now.getMonth() + 1;
+        const currentYear = now.getFullYear();
+
+        const allMonths = await getMonths();
+        const currentMonth = allMonths.find(
+          (m) =>
+            m.month === currentMonthNumber &&
+            m.year === currentYear &&
+            m.status === "confirmed",
+        );
+
+        if (!currentMonth) {
+          await sendMessage(
+            chatId,
+            "Todavía no se han confirmado los partidos.",
+          );
+          break;
+        }
+
+        const monthId = currentMonth.id;
+
+        const pdfBuffer = await generateMatchesPdf(monthId);
+
+        await sendDocument(
+          chatId,
+          pdfBuffer,
+          `partidos_${currentMonthNumber}.pdf`,
+        );
+
         break;
       default:
         await sendMessage(chatId, default_answer);
