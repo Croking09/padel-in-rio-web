@@ -36,3 +36,34 @@ export async function sendMessage(chat_id: number, text: string, extra?: any) {
   });
   return res.json();
 }
+
+export async function sendDocument(
+  chat_id: number,
+  document: Buffer | Blob,
+  filename?: string,
+) {
+  const body = new FormData();
+
+  // chat_id debe ser string
+  body.append("chat_id", chat_id.toString());
+
+  // Convertir Buffer a Blob si hace falta
+  let blobDocument: Blob;
+  if (document instanceof Buffer) {
+    blobDocument = new Blob([new Uint8Array(document)], {
+      type: "application/pdf",
+    });
+  } else {
+    // aquí forzamos a TypeScript a entender que ya es Blob
+    blobDocument = document as Blob;
+  }
+
+  body.append("document", blobDocument, filename ?? "document.pdf");
+
+  const res = await fetch(`${TELEGRAM_API}/sendDocument`, {
+    method: "POST",
+    body,
+  });
+
+  return res.json();
+}

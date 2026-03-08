@@ -1,51 +1,23 @@
-import { getConfirmedMatches } from "@/app/actions/partidos";
 import { getMonths } from "@/app/actions/monthly-assignment";
 import MonthSelector from "@/components/liga/admin/asignaciones/month-selector";
-import { Match } from "@/lib/types/match";
+import { getMatchesByDayGlobal } from "@/lib/partidos";
 
 export default async function Page({
   searchParams,
 }: {
   searchParams: Promise<{ monthId: string }>;
 }) {
+  const sP = await searchParams;
+  const monthInput = Number(sP.monthId);
+
+  const { matchesByDay, monthId: currentMonthId } =
+    await getMatchesByDayGlobal(monthInput);
+
   const allMonths = await getMonths();
   const confirmedMonths = allMonths.filter((m) => m.status === "confirmed");
-
-  const orderedConfirmedMonths = [...confirmedMonths].sort((a, b) => {
-    if (a.year !== b.year) return a.year - b.year;
-    return a.month - b.month;
-  });
-
-  const sP = await searchParams;
-  let currentMonthId = sP.monthId ? parseInt(String(sP.monthId)) : undefined;
-
-  if (!currentMonthId && confirmedMonths.length > 0) {
-    currentMonthId = confirmedMonths[0].id;
-  }
-
-  const matches = currentMonthId
-    ? await getConfirmedMatches(currentMonthId)
-    : [];
-
-  const monthIndex = orderedConfirmedMonths.findIndex(
-    (m) => m.id === currentMonthId,
+  const orderedConfirmedMonths = [...confirmedMonths].sort((a, b) =>
+    a.year !== b.year ? a.year - b.year : a.month - b.month,
   );
-
-  const jornadaOffset = monthIndex >= 0 ? monthIndex * 2 : 0;
-
-  const matchesByDay: Record<number, Record<string, Match[]>> = {};
-
-  matches.forEach((match) => {
-    const globalDay = jornadaOffset + match.matchday;
-
-    if (!matchesByDay[globalDay]) {
-      matchesByDay[globalDay] = {};
-    }
-    if (!matchesByDay[globalDay][match.categoryName]) {
-      matchesByDay[globalDay][match.categoryName] = [];
-    }
-    matchesByDay[globalDay][match.categoryName].push(match);
-  });
 
   return (
     <div className="container mx-auto py-8 px-4 space-y-8">
@@ -63,7 +35,7 @@ export default async function Page({
         <div className="text-center py-20 rounded-lg border-2 border-dashed">
           <p>Todavía no hay partidos confirmados.</p>
         </div>
-      ) : matches.length === 0 ? (
+      ) : Object.keys(matchesByDay).length === 0 ? (
         <div className="text-center py-20 rounded-lg border-2 border-dashed">
           <p>No se encontraron partidos para el mes seleccionado.</p>
         </div>
