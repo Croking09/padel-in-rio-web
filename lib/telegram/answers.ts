@@ -1,3 +1,5 @@
+import { Match } from "@/lib/types/match";
+
 export const default_answer =
   "No entiendo eso 😅, comprueba lo que puedo hacer con /help";
 
@@ -7,7 +9,8 @@ export const start_answer =
 export const help_answer =
   `🤖: Esto es lo que puedo hacer\n\n` +
   `/start - Inicia el bot\n` +
-  `/help - Muestra esta ayuda\n\n` +
+  `/help - Muestra esta ayuda\n` +
+  `/partidos - Muestra los partidos de la liga, puedes indicar el mes con el formato MM/AAAA, o no poner nada y ver el mes más actual\n\n` +
   `Opciones de admin:\n\n` +
   `/pdf - Genera un PDF con los partidos de la liga para el mes actual\n` +
   `/inscripciones - Muestra las inscripciones para los torneos activos\n` +
@@ -76,4 +79,27 @@ export function newInscripcionMessage(
     (category ? `🎯 Categoría: ${category}\n` : "");
 
   return adminMessage;
+}
+
+export function buildMatchesAnswer(
+  matchesByDay: Record<number, Record<string, Match[]>>,
+) {
+  let text = "";
+
+  Object.entries(matchesByDay).forEach(([day, categories]) => {
+    text += `Jornada ${day}:\n\n`;
+
+    Object.entries(categories).forEach(([category, categoryMatches]) => {
+      text += `${category}:\n`;
+      categoryMatches.forEach((match) => {
+        const names = match.players.map((p) => p.nickname || p.full_name);
+        text += names.join(", ") + "\n";
+      });
+      text += "\n";
+    });
+
+    text += "\n";
+  });
+
+  return text;
 }

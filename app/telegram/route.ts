@@ -5,6 +5,7 @@ import {
   start_answer,
   help_answer,
   formatInscripciones,
+  buildMatchesAnswer,
 } from "@/lib/telegram/answers";
 import {
   sendMessage,
@@ -14,6 +15,7 @@ import {
 } from "@/lib/telegram/utils";
 import { generateMatchesPdf } from "@/lib/pdf/generate-pdf";
 import { getMonths } from "../actions/monthly-assignment";
+import { getMatchesByDayGlobal } from "@/lib/partidos";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -43,24 +45,27 @@ export async function POST(req: NextRequest) {
 
   if (message) {
     const chatId = message.chat.id;
-    const text = message.text?.trim();
+    const text = message.text?.trim() || "";
 
-    switch (text) {
-      case "/start":
+    switch (true) {
+      case text === "/start":
         await sendMessage(chatId, start_answer);
         break;
-      case "/help":
+
+      case text === "/help":
         await sendMessage(chatId, help_answer, {
           reply_markup: {
             inline_keyboard: [],
           },
         });
         break;
-      case "/inscripciones":
+
+      case text === "/inscripciones":
         if (!ADMINS.has(chatId)) {
           await sendMessage(chatId, "No tienes permiso para usar este comando");
           break;
         }
+
         const { data: inscripciones, error } =
           await getAllInscripcionesForOpenTorneos();
 
@@ -75,7 +80,8 @@ export async function POST(req: NextRequest) {
           });
         }
         break;
-      case "/pdf":
+
+      case text.startsWith("/pdf"):
         if (!ADMINS.has(chatId)) {
           await sendMessage(chatId, "No tienes permiso para usar este comando");
           break;
@@ -102,7 +108,6 @@ export async function POST(req: NextRequest) {
         }
 
         const monthId = currentMonth.id;
-
         const pdfBuffer = await generateMatchesPdf(monthId);
 
         await sendDocument(
@@ -110,7 +115,22 @@ export async function POST(req: NextRequest) {
           pdfBuffer,
           `partidos_${currentMonthNumber}.pdf`,
         );
+        break;
+      case text.startsWith("/partidos"):
+        const monthInput = text.split(" ")[1];
 
+        const { matchesByDay } = await getMatchesByDayGlobal(monthInput);
+
+        if (!matchesByDay || Object.keys(matchesByDay).length === 0) {
+          await sendMessage(
+            chatId,
+            "No hay partidos confirmados para este mes.",
+          );
+          break;
+        }
+
+        const answer = buildMatchesAnswer(matchesByDay);
+        await sendMessage(chatId, answer);
         break;
       default:
         await sendMessage(chatId, default_answer);
