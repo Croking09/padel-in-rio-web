@@ -4,6 +4,7 @@ import "./globals.css";
 
 import Header from "@/components/common/header";
 import Footer from "@/components/common/footer";
+import { Toaster } from "@/components/ui/sonner";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -33,6 +34,20 @@ export default function RootLayout({
           name="viewport"
           content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
+        <link
+          rel="icon"
+          type="image/png"
+          href="/icons/favicon-96x96.png"
+          sizes="96x96"
+        />
+        <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
+        <link rel="shortcut icon" href="/icons/favicon.ico" />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/icons/apple-touch-icon.png"
+        />
+        <meta name="apple-mobile-web-app-title" content="Padel in Rio" />
       </head>
       <body
         className={`${montserrat.className} antialiased bg-background text-text-primary min-h-dvh flex flex-col`}
@@ -40,6 +55,7 @@ export default function RootLayout({
         <Header />
 
         <main className="flex-1">{children}</main>
+        <Toaster richColors />
 
         <Footer />
       </body>

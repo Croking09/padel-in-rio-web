@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 jest.mock("@/lib/supabase/server");
 jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
-  unstable_cache: jest.fn((fn) => fn), // Funcion sin cachear
+  unstable_cache: jest.fn((fn) => fn),
 }));
 
 describe("createTorneo", () => {
@@ -36,78 +36,70 @@ describe("createTorneo", () => {
 
   describe("Required fields validation", () => {
     test("should return error if name is missing", async () => {
-      const formData = new FormData();
-      formData.append("description", "Descripción");
-      formData.append("start_date", "2022-01-02T10:00:00Z");
-      formData.append("end_date", "2022-01-03T10:00:00Z");
-      formData.append("inscription_end_date", "2022-01-01T10:00:00Z");
-
-      const result = await createTorneo({}, formData);
+      const result = await createTorneo({
+        description: "Descripción",
+        start_date: "2022-01-02T10:00:00Z",
+        end_date: "2022-01-03T10:00:00Z",
+        inscription_end_date: "2022-01-01T10:00:00Z",
+      });
 
       expect(result.error).toBe("Faltan campos obligatorios.");
-      expect(result.success).toBeUndefined();
+      expect(result.success).toBe(false);
     });
 
     test("should return error if start_date is missing", async () => {
-      const formData = new FormData();
-      formData.append("name", "Torneo de Primavera");
-      formData.append("description", "Descripción");
-      formData.append("end_date", "2022-01-03T10:00:00Z");
-      formData.append("inscription_end_date", "2022-01-01T10:00:00Z");
-
-      const result = await createTorneo({}, formData);
+      const result = await createTorneo({
+        name: "Torneo de Primavera",
+        description: "Descripción",
+        end_date: "2022-01-03T10:00:00Z",
+        inscription_end_date: "2022-01-01T10:00:00Z",
+      });
 
       expect(result.error).toBe("Faltan campos obligatorios.");
     });
 
     test("should return error if end_date is missing", async () => {
-      const formData = new FormData();
-      formData.append("name", "Torneo de Primavera");
-      formData.append("description", "Descripción");
-      formData.append("start_date", "2022-01-02T10:00:00Z");
-      formData.append("inscription_end_date", "2022-01-01T10:00:00Z");
-
-      const result = await createTorneo({}, formData);
+      const result = await createTorneo({
+        name: "Torneo de Primavera",
+        description: "Descripción",
+        start_date: "2022-01-02T10:00:00Z",
+        inscription_end_date: "2022-01-01T10:00:00Z",
+      });
 
       expect(result.error).toBe("Faltan campos obligatorios.");
     });
 
     test("should return error if inscription_end_date is missing", async () => {
-      const formData = new FormData();
-      formData.append("name", "Torneo de Primavera");
-      formData.append("description", "Descripción");
-      formData.append("start_date", "2022-01-02T10:00:00Z");
-      formData.append("end_date", "2022-01-03T10:00:00Z");
-
-      const result = await createTorneo({}, formData);
+      const result = await createTorneo({
+        name: "Torneo de Primavera",
+        description: "Descripción",
+        start_date: "2022-01-02T10:00:00Z",
+        end_date: "2022-01-03T10:00:00Z",
+      });
 
       expect(result.error).toBe("Faltan campos obligatorios.");
     });
 
     test("should delete the image if required fields are missing", async () => {
-      const formData = new FormData();
-      formData.append("name", "Torneo de Primavera");
-      formData.append("img_path", "02-01-2022.jpg");
-
-      await createTorneo({}, formData);
+      await createTorneo({
+        name: "Torneo de Primavera",
+        img_path: "02-01-2022.jpg",
+      });
 
       expect(mockStorage.from).toHaveBeenCalledWith("torneos");
-      expect(mockStorage.from().remove).toHaveBeenCalledWith([
-        "02-01-2022.jpg",
-      ]);
+      expect(mockStorage.from().remove).toHaveBeenCalledWith(["02-01-2022.jpg"]);
     });
   });
 
   describe("Date validations", () => {
     test("should return error if inscription_end_date is equal to start_date", async () => {
-      const formData = new FormData();
-      formData.append("name", "Torneo de Primavera");
-      formData.append("description", "Descripción");
-      formData.append("start_date", "2022-01-02T10:00:00Z");
-      formData.append("end_date", "2022-01-03T10:00:00Z");
-      formData.append("inscription_end_date", "2022-01-02T10:00:00Z");
-
-      const result = await createTorneo({}, formData);
+      const result = await createTorneo({
+        name: "Torneo de Primavera",
+        description: "Descripción",
+        start_date: "2022-01-02T10:00:00Z",
+        end_date: "2022-01-03T10:00:00Z",
+        inscription_end_date: "2022-01-02T10:00:00Z",
+      });
 
       expect(result.error).toBe(
         "El cierre de inscripciones debe ser anterior al inicio del torneo.",
@@ -115,14 +107,13 @@ describe("createTorneo", () => {
     });
 
     test("should return error if inscription_end_date is after start_date", async () => {
-      const formData = new FormData();
-      formData.append("name", "Torneo de Primavera");
-      formData.append("description", "Descripción");
-      formData.append("start_date", "2022-01-02T10:00:00Z");
-      formData.append("end_date", "2022-01-03T10:00:00Z");
-      formData.append("inscription_end_date", "2022-01-03T10:00:00Z");
-
-      const result = await createTorneo({}, formData);
+      const result = await createTorneo({
+        name: "Torneo de Primavera",
+        description: "Descripción",
+        start_date: "2022-01-02T10:00:00Z",
+        end_date: "2022-01-03T10:00:00Z",
+        inscription_end_date: "2022-01-03T10:00:00Z",
+      });
 
       expect(result.error).toBe(
         "El cierre de inscripciones debe ser anterior al inicio del torneo.",
@@ -130,14 +121,13 @@ describe("createTorneo", () => {
     });
 
     test("should return error if start_date is equal to end_date", async () => {
-      const formData = new FormData();
-      formData.append("name", "Torneo de Primavera");
-      formData.append("description", "Descripción");
-      formData.append("start_date", "2022-01-02T10:00:00Z");
-      formData.append("end_date", "2022-01-02T10:00:00Z");
-      formData.append("inscription_end_date", "2022-01-01T10:00:00Z");
-
-      const result = await createTorneo({}, formData);
+      const result = await createTorneo({
+        name: "Torneo de Primavera",
+        description: "Descripción",
+        start_date: "2022-01-02T10:00:00Z",
+        end_date: "2022-01-02T10:00:00Z",
+        inscription_end_date: "2022-01-01T10:00:00Z",
+      });
 
       expect(result.error).toBe(
         "La fecha de inicio debe ser anterior a la fecha de fin.",
@@ -145,14 +135,13 @@ describe("createTorneo", () => {
     });
 
     test("should return error if start_date is after end_date", async () => {
-      const formData = new FormData();
-      formData.append("name", "Torneo de Primavera");
-      formData.append("description", "Descripción");
-      formData.append("start_date", "2022-01-03T10:00:00Z");
-      formData.append("end_date", "2022-01-02T10:00:00Z");
-      formData.append("inscription_end_date", "2022-01-01T10:00:00Z");
-
-      const result = await createTorneo({}, formData);
+      const result = await createTorneo({
+        name: "Torneo de Primavera",
+        description: "Descripción",
+        start_date: "2022-01-03T10:00:00Z",
+        end_date: "2022-01-02T10:00:00Z",
+        inscription_end_date: "2022-01-01T10:00:00Z",
+      });
 
       expect(result.error).toBe(
         "La fecha de inicio debe ser anterior a la fecha de fin.",
@@ -160,36 +149,31 @@ describe("createTorneo", () => {
     });
 
     test("should delete the image if there is a date validation error", async () => {
-      const formData = new FormData();
-      formData.append("name", "Torneo de Primavera");
-      formData.append("description", "Descripción");
-      formData.append("start_date", "2022-01-03T10:00:00Z");
-      formData.append("end_date", "2022-01-02T10:00:00Z");
-      formData.append("inscription_end_date", "2022-01-01T10:00:00Z");
-      formData.append("img_path", "01-01-2022.jpg");
-
-      await createTorneo({}, formData);
+      await createTorneo({
+        name: "Torneo de Primavera",
+        description: "Descripción",
+        start_date: "2022-01-03T10:00:00Z",
+        end_date: "2022-01-02T10:00:00Z",
+        inscription_end_date: "2022-01-01T10:00:00Z",
+        img_path: "01-01-2022.jpg",
+      });
 
       expect(mockStorage.from).toHaveBeenCalledWith("torneos");
-      expect(mockStorage.from().remove).toHaveBeenCalledWith([
-        "01-01-2022.jpg",
-      ]);
+      expect(mockStorage.from().remove).toHaveBeenCalledWith(["01-01-2022.jpg"]);
     });
   });
 
   describe("Successful creation", () => {
     test("should create a tournament correctly with all fields", async () => {
-      const formData = new FormData();
-      formData.append("name", "Torneo de Primavera");
-      formData.append("description", "Descripción del torneo");
-      formData.append("start_date", "2022-01-02T10:00:00Z");
-      formData.append("end_date", "2022-01-03T10:00:00Z");
-      formData.append("inscription_end_date", "2022-01-01T10:00:00Z");
-      formData.append("img_path", "02-01-2022.jpg");
-      formData.append("categories", "1ª Masculina");
-      formData.append("categories", "2ª Femenina");
-
-      const result = await createTorneo({}, formData);
+      const result = await createTorneo({
+        name: "Torneo de Primavera",
+        description: "Descripción del torneo",
+        start_date: "2022-01-02T10:00:00Z",
+        end_date: "2022-01-03T10:00:00Z",
+        inscription_end_date: "2022-01-01T10:00:00Z",
+        img_path: "02-01-2022.jpg",
+        categories: ["1ª Masculina", "2ª Femenina"],
+      });
 
       expect(mockFrom).toHaveBeenCalledWith("Torneos");
       expect(mockFrom().insert).toHaveBeenCalledWith({
@@ -204,56 +188,49 @@ describe("createTorneo", () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.message).toBe("Torneo creado exitosamente.");
     });
 
     test("should create a tournament without an image", async () => {
-      const formData = new FormData();
-      formData.append("name", "Torneo de Primavera");
-      formData.append("description", "Descripción del torneo");
-      formData.append("start_date", "2022-01-02T10:00:00Z");
-      formData.append("end_date", "2022-01-03T10:00:00Z");
-      formData.append("inscription_end_date", "2022-01-01T10:00:00Z");
-
-      const result = await createTorneo({}, formData);
+      const result = await createTorneo({
+        name: "Torneo de Primavera",
+        description: "Descripción del torneo",
+        start_date: "2022-01-02T10:00:00Z",
+        end_date: "2022-01-03T10:00:00Z",
+        inscription_end_date: "2022-01-01T10:00:00Z",
+      });
 
       expect(mockFrom().insert).toHaveBeenCalledWith(
-        expect.objectContaining({
-          img_path: null,
-        }),
+        expect.objectContaining({ img_path: null }),
       );
 
       expect(result.success).toBe(true);
     });
 
     test("should create a tournament without categories", async () => {
-      const formData = new FormData();
-      formData.append("name", "Torneo de Primavera");
-      formData.append("description", "Descripción del torneo");
-      formData.append("start_date", "2022-01-02T10:00:00Z");
-      formData.append("end_date", "2022-01-03T10:00:00Z");
-      formData.append("inscription_end_date", "2022-01-01T10:00:00Z");
-
-      const result = await createTorneo({}, formData);
+      const result = await createTorneo({
+        name: "Torneo de Primavera",
+        description: "Descripción del torneo",
+        start_date: "2022-01-02T10:00:00Z",
+        end_date: "2022-01-03T10:00:00Z",
+        inscription_end_date: "2022-01-01T10:00:00Z",
+        categories: null,
+      });
 
       expect(mockFrom().insert).toHaveBeenCalledWith(
-        expect.objectContaining({
-          categories: null,
-        }),
+        expect.objectContaining({ categories: null }),
       );
 
       expect(result.success).toBe(true);
     });
 
     test("should revalidate paths after creating the tournament", async () => {
-      const formData = new FormData();
-      formData.append("name", "Torneo de Primavera");
-      formData.append("description", "Descripción del torneo");
-      formData.append("start_date", "2022-01-02T10:00:00Z");
-      formData.append("end_date", "2022-01-03T10:00:00Z");
-      formData.append("inscription_end_date", "2022-01-01T10:00:00Z");
-
-      await createTorneo({}, formData);
+      await createTorneo({
+        name: "Torneo de Primavera",
+        description: "Descripción del torneo",
+        start_date: "2022-01-02T10:00:00Z",
+        end_date: "2022-01-03T10:00:00Z",
+        inscription_end_date: "2022-01-01T10:00:00Z",
+      });
 
       expect(revalidatePath).toHaveBeenCalledWith("/");
       expect(revalidatePath).toHaveBeenCalledWith("/torneos");
@@ -268,19 +245,16 @@ describe("createTorneo", () => {
         }),
       });
 
-      const formData = new FormData();
-      formData.append("name", "Torneo de Primavera");
-      formData.append("description", "Descripción del torneo");
-      formData.append("start_date", "2022-01-02T10:00:00Z");
-      formData.append("end_date", "2022-01-03T10:00:00Z");
-      formData.append("inscription_end_date", "2022-01-01T10:00:00Z");
+      const result = await createTorneo({
+        name: "Torneo de Primavera",
+        description: "Descripción del torneo",
+        start_date: "2022-01-02T10:00:00Z",
+        end_date: "2022-01-03T10:00:00Z",
+        inscription_end_date: "2022-01-01T10:00:00Z",
+      });
 
-      const result = await createTorneo({}, formData);
-
-      expect(result.error).toBe(
-        "Error al crear el torneo. Verifica los datos.",
-      );
-      expect(result.success).toBeUndefined();
+      expect(result.error).toBe("Error al crear el torneo. Verifica los datos.");
+      expect(result.success).toBe(false);
     });
 
     test("should delete the image if database insertion fails", async () => {
@@ -290,20 +264,17 @@ describe("createTorneo", () => {
         }),
       });
 
-      const formData = new FormData();
-      formData.append("name", "Torneo de Primavera");
-      formData.append("description", "Descripción del torneo");
-      formData.append("start_date", "2022-01-02T10:00:00Z");
-      formData.append("end_date", "2022-01-03T10:00:00Z");
-      formData.append("inscription_end_date", "2022-01-01T10:00:00Z");
-      formData.append("img_path", "02-01-2022.jpg");
-
-      await createTorneo({}, formData);
+      await createTorneo({
+        name: "Torneo de Primavera",
+        description: "Descripción del torneo",
+        start_date: "2022-01-02T10:00:00Z",
+        end_date: "2022-01-03T10:00:00Z",
+        inscription_end_date: "2022-01-01T10:00:00Z",
+        img_path: "02-01-2022.jpg",
+      });
 
       expect(mockStorage.from).toHaveBeenCalledWith("torneos");
-      expect(mockStorage.from().remove).toHaveBeenCalledWith([
-        "02-01-2022.jpg",
-      ]);
+      expect(mockStorage.from().remove).toHaveBeenCalledWith(["02-01-2022.jpg"]);
     });
   });
 });

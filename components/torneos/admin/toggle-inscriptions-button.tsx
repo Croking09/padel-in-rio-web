@@ -3,7 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Lock, LockOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toggleInscriptions } from "@/app/actions/torneos";
+import { toggleInscriptions } from "@/app/actions/inscripciones";
+import { toast } from "sonner";
 
 interface ToggleInscriptionsButtonProps {
   torneoId: number;
@@ -19,17 +20,26 @@ export default function ToggleInscriptionsButton({
   return (
     <Button
       className={cn("w-fit hover:cursor-pointer", className)}
-      onClick={() => toggleInscriptions(torneoId, !isClosed)}
+      onClick={async () => {
+        const error = await toggleInscriptions(torneoId, !isClosed);
+
+        if (error) {
+          toast.error(error.error, { position: "top-center" });
+        } else {
+          const text = isClosed ? "abiertas" : "cerradas";
+          toast.success("Inscripciones " + text + " correctamente", {
+            position: "top-center",
+          });
+        }
+      }}
     >
       {isClosed ? (
         <>
           <LockOpen className="h-4 w-4" />
-          Abrir Inscripciones
         </>
       ) : (
         <>
           <Lock className="h-4 w-4" />
-          Cerrar Inscripciones
         </>
       )}
     </Button>

@@ -46,8 +46,11 @@ export async function updateSession(request: NextRequest) {
   const user = data?.claims;
 
   if (
+    request.nextUrl.pathname.startsWith("/manifest") ||
     request.nextUrl.pathname.startsWith("/_next") ||
-    request.nextUrl.pathname.startsWith("/favicon") ||
+    request.nextUrl.pathname.startsWith("/icons") ||
+    request.nextUrl.pathname.startsWith("/tutorial-instalacion") ||
+    request.nextUrl.pathname.startsWith("/screenshots") ||
     (request.nextUrl.pathname.startsWith("/asociacion/") &&
       request.nextUrl.pathname.endsWith(".pdf"))
   ) {
@@ -64,8 +67,13 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
+  if (request.nextUrl.pathname.startsWith("/telegram")) {
+    return supabaseResponse;
+  }
+
   const PUBLIC_PATHS = [
     "/",
+    "/politica-de-cookies",
     "/auth/login",
     "/auth/sign-up",
     "/auth/sign-up-success",
@@ -73,7 +81,10 @@ export async function updateSession(request: NextRequest) {
     "/auth/update-password",
     "/torneos",
     "/torneos/inscripcion",
+    "/liga/reglamento",
+    "/liga/partidos", // Maybe only for players?
     "/asociacion",
+    "/equipo",
   ];
 
   if (!PUBLIC_PATHS.includes(request.nextUrl.pathname) && !user) {

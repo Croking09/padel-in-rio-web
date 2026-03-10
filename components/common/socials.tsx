@@ -1,33 +1,32 @@
-import { Instagram, Gmail, WhatsApp } from "@/components/icons";
-import { Button } from "@/components/ui/button";
+import { Instagram, Gmail, WhatsApp, Telegram } from "@/components/icons";
+import SocialItem from "./socialItem";
 
-export default function Socials({ className }: { className: string }) {
+export default function Socials({ className }: { className?: string }) {
   return (
     <div className={`flex flex-col gap-4 ${className}`}>
-      <div className="flex flex-row items-center gap-6">
-        <Gmail className="w-10 h-10" />
-        <Button asChild className="font-bold text-sm p-0" variant="link">
-          <a href="mailto:padelinrio@gmail.com">padelinrio@gmail.com</a>
-        </Button>
-      </div>
+      <SocialItem
+        icon={<Gmail className="w-8 h-8" />}
+        href="mailto:padelinrio@gmail.com"
+        text="padelinrio@gmail.com"
+      />
 
-      <div className="flex flex-row items-center gap-6">
-        <Instagram className="w-10 h-10" />
-        <Button asChild className="font-bold text-sm p-0" variant="link">
-          <a
-            href="https://www.instagram.com/padel.in.rio/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            @padel.in.rio
-          </a>
-        </Button>
-      </div>
+      <SocialItem
+        icon={<Instagram className="w-8 h-8" />}
+        href="https://www.instagram.com/padel.in.rio/"
+        text="@padel.in.rio"
+      />
 
-      <div className="flex flex-row items-center gap-6">
-        <WhatsApp className="w-10 h-10" />
-        <span className="font-bold text-sm">696 50 38 98</span>
-      </div>
+      <SocialItem
+        icon={<WhatsApp className="w-8 h-8" />}
+        href="tel:+34696503898"
+        text="696 50 38 98"
+      />
+
+      <SocialItem
+        icon={<Telegram className="w-8 h-8" />}
+        href="https://t.me/BonIA"
+        text="t.me/BonIA"
+      />
     </div>
   );
 }

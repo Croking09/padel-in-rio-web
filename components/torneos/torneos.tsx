@@ -6,6 +6,7 @@ import { formatDate } from "@/lib/utils";
 import ToggleInscriptionsButton from "@/components/torneos/admin/toggle-inscriptions-button";
 import { createClient } from "@/lib/supabase/server";
 import DeleteButton from "@/components/torneos/admin/delete-button";
+import ViewInscriptionsButton from "@/components/torneos/admin/view-inscriptions-button";
 
 interface TorneosProps {
   page?: number;
@@ -49,21 +50,25 @@ export default async function Torneos({ page = 1 }: TorneosProps) {
                     {formatDate(torneo.end_date)}
                   </p>
                   <p className="py-2">{torneo.description}</p>
-                  <InscripcionButton
-                    torneoId={torneo.id}
-                    startDate={torneo.start_date}
-                    inscriptionEndDate={torneo.inscription_end_date}
-                    manuallyClosed={torneo.manually_closed}
-                  />
-                  {isAdmin && (
-                    <ToggleInscriptionsButton
+                  {!isAdmin && (
+                    <InscripcionButton
                       torneoId={torneo.id}
-                      className="mt-2"
-                      isClosed={torneo.manually_closed}
+                      startDate={torneo.start_date}
+                      inscriptionEndDate={torneo.inscription_end_date}
+                      manuallyClosed={torneo.manually_closed}
                     />
                   )}
+                  {isAdmin && <ViewInscriptionsButton torneoId={torneo.id} />}
                   {isAdmin && (
-                    <DeleteButton torneoId={torneo.id} className="mt-2" />
+                    <div className="flex gap-2">
+                      <ToggleInscriptionsButton
+                        torneoId={torneo.id}
+                        className="mt-2"
+                        isClosed={torneo.manually_closed}
+                      />
+
+                      <DeleteButton torneoId={torneo.id} className="mt-2" />
+                    </div>
                   )}
                 </div>
               </li>

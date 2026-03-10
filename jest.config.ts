@@ -207,4 +207,15 @@ const config: Config = {
   // watchman: true,
 };
 
-export default createJestConfig(config);
+const asyncConfig = async () => {
+  const jestConfig = await createJestConfig(config)();
+  
+  // Provide regex to avoid transforming node_modules except for specific ones
+  jestConfig.transformIgnorePatterns = [
+    '/node_modules/(?!(@react-pdf.*|yoga.*|scheduler)/)',
+  ];
+
+  return jestConfig;
+};
+
+export default asyncConfig;
