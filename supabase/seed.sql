@@ -84,4 +84,5 @@ VALUES
   ('Miguel Rivas Castro', 'Miguel'),
   ('Pablo López Rodríguez', 'Pablo L.'),
   ('Beltrán García Darriba', 'Beltrán'),
-  ('Andrea García Darriba', 'Andrea');
+  ('Andrea García Darriba', 'Andrea'),
+  ('Tania Canto Morado', 'Tania');
