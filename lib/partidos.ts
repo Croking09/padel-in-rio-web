@@ -19,7 +19,7 @@ export async function getMatchesByDayGlobal(monthInput?: string | number) {
   if (typeof monthInput === "string") {
     const [mm, yyyy] = monthInput.split("/").map(Number);
     if (!isNaN(mm) && !isNaN(yyyy)) {
-      const matchedMonth = confirmedMonths.find(
+      const matchedMonth = allMonths.find(
         (m) => m.month === mm && m.year === yyyy,
       );
       currentMonthId = matchedMonth?.id;
