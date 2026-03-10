@@ -2,7 +2,7 @@
 
 import { confirmMonth } from "@/app/actions/generador-partidos";
 import { Button } from "@/components/ui/button";
-import { Match } from "@/lib/utils";
+import { Match } from "@/lib/types/match";
 import {
   AlertDialog,
   AlertDialogAction,
