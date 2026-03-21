@@ -2,6 +2,7 @@
 
 import { createAdmin } from "@/lib/supabase/admin";
 import { Match } from "@/lib/types/match";
+import { SetResult } from "@/lib/types/setResult";
 import { Socio } from "@/lib/types/socio";
 
 interface PartidoResponse {
@@ -49,6 +50,7 @@ export async function getConfirmedMatches(monthId: number): Promise<Match[]> {
   (data as unknown as JornadaResponse[])?.forEach((jornada) => {
     jornada.Partidos?.forEach((partido) => {
       matches.push({
+        id: partido.id,
         categoryId: partido.categoria_id,
         categoryName: partido.Categorias?.name || "Sin Categoría",
         matchday: jornada.number,
@@ -61,4 +63,46 @@ export async function getConfirmedMatches(monthId: number): Promise<Match[]> {
   });
 
   return matches;
+}
+
+export async function getPlayersByPartido(partidoId: number) {
+  const supabase = createAdmin();
+
+  const { data: match } = await supabase
+    .from("Partidos")
+    .select(
+      `
+      id,
+      players:Jugador_Partido (
+        jugador:Socios (
+          id,
+          nickname,
+          full_name
+        )
+      )
+    `,
+    )
+    .eq("id", partidoId)
+    .single();
+
+  return (
+    match?.players?.map((p) => p.jugador as unknown as Omit<Socio, "active">) ??
+    []
+  );
+}
+
+export async function registerMatchResults(
+  partidoId: number,
+  sets: SetResult[],
+) {
+  const supabase = createAdmin();
+
+  const { error } = await supabase.rpc("register_match_results", {
+    p_partido_id: partidoId,
+    p_sets: sets,
+  });
+
+  if (error) return { success: false, error };
+
+  return { success: true };
 }

@@ -1,12 +1,23 @@
 import { getMonths } from "@/app/actions/monthly-assignment";
 import MonthSelector from "@/components/liga/admin/asignaciones/month-selector";
+import { HapticButton } from "@/components/ui/haptic-button";
 import { getMatchesByDayGlobal } from "@/lib/partidos";
+import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
 
 export default async function Page({
   searchParams,
 }: {
   searchParams: Promise<{ monthId: string }>;
 }) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const isAdmin = user?.app_metadata?.admin === true;
+
   const sP = await searchParams;
   const monthInput = Number(sP.monthId);
 
@@ -67,7 +78,7 @@ export default async function Page({
                           {categoryMatches.map((match, idx) => (
                             <div
                               key={idx}
-                              className="bg-primary p-3 rounded-lg border border-border"
+                              className="bg-primary p-3 rounded-lg border border-border space-y-4"
                             >
                               <div className="grid grid-cols-2 gap-2 text-sm">
                                 {match.players.map((player) => (
@@ -81,6 +92,21 @@ export default async function Page({
                                   </div>
                                 ))}
                               </div>
+
+                              {isAdmin && (
+                                <>
+                                  <hr className="border-border" />
+
+                                  <HapticButton asChild variant="secondary">
+                                    <Link
+                                      href={`/admin/liga/partidos/${match.id}/resultados`}
+                                      className="text-xs px-3 py-1 rounded-md bg-black text-white hover:opacity-80 transition"
+                                    >
+                                      Introducir resultados
+                                    </Link>
+                                  </HapticButton>
+                                </>
+                              )}
                             </div>
                           ))}
                         </div>

@@ -36,6 +36,8 @@ export async function getMatchesByDayGlobal(monthInput?: string | number) {
 
   const matches = await getConfirmedMatches(currentMonthId);
 
+  console.log("aqui", matches);
+
   const monthIndex = orderedConfirmedMonths.findIndex(
     (m) => m.id === currentMonthId,
   );

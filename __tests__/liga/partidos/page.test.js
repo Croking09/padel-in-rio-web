@@ -8,6 +8,7 @@ import { render, screen } from "@testing-library/react";
 import Page from "@/app/liga/partidos/page";
 import { getMonths } from "@/app/actions/monthly-assignment";
 import { getConfirmedMatches } from "@/app/actions/partidos";
+import { createClient } from "@/lib/supabase/server";
 
 jest.mock("@/app/actions/monthly-assignment");
 jest.mock("@/app/actions/partidos");
@@ -16,6 +17,16 @@ jest.mock("@/components/liga/admin/asignaciones/month-selector", () => {
     return <div data-testid="month-selector" />;
   };
 });
+
+jest.mock("@/lib/supabase/server", () => ({
+  createClient: jest.fn().mockResolvedValue({
+    auth: {
+      getUser: jest.fn().mockResolvedValue({
+        data: { user: { app_metadata: { admin: false } } },
+      }),
+    },
+  }),
+}));
 
 const mockGetMonths = getMonths;
 const mockGetConfirmedMatches = getConfirmedMatches;
@@ -129,5 +140,33 @@ describe("Liga partidos page", () => {
     expect(
       screen.getByText("No se encontraron partidos para el mes seleccionado."),
     ).toBeInTheDocument();
+  });
+
+  it("shows admin button if user is admin", async () => {
+    createClient.mockResolvedValue({
+      auth: {
+        getUser: jest.fn().mockResolvedValue({
+          data: { user: { app_metadata: { admin: true } } },
+        }),
+      },
+    });
+
+    mockGetMonths.mockResolvedValue([
+        { id: 1, month: 1, year: 2026, status: "confirmed" },
+      ]);
+
+    mockGetConfirmedMatches.mockResolvedValue([
+      {
+        matchday: 1,
+        categoryName: "Primera",
+        players: [{ id: "1", full_name: "A" }],
+      },
+    ]);
+
+    const jsx = await Page({ searchParams: Promise.resolve({}) });
+
+    render(jsx);
+
+    expect(screen.getByText("Introducir resultados")).toBeInTheDocument();
   });
 });
