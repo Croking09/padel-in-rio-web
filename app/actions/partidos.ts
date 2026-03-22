@@ -4,6 +4,7 @@ import { createAdmin } from "@/lib/supabase/admin";
 import { Match } from "@/lib/types/match";
 import { SetResult } from "@/lib/types/setResult";
 import { Socio } from "@/lib/types/socio";
+import { revalidatePath } from "next/cache";
 
 interface PartidoResponse {
   id: number;
@@ -103,6 +104,8 @@ export async function registerMatchResults(
   });
 
   if (error) return { success: false, error };
+
+  revalidatePath("/liga/ascensor");
 
   return { success: true };
 }

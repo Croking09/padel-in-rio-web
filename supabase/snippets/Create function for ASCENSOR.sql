@@ -4,6 +4,7 @@ CREATE OR REPLACE FUNCTION public.get_month_classification(
 )
 RETURNS TABLE (
   player_id integer,
+  full_name text,
   nickname text,
   points integer,
   diff integer,
@@ -73,7 +74,7 @@ classification AS (
 ),
 
 players_in_category AS (
-  SELECT jcm.jugador_id AS player_id, s.nickname
+  SELECT jcm.jugador_id AS player_id, s.nickname, s.full_name
   FROM public."Jugador_Categoria_Mes" jcm
   JOIN public."Socios" s ON s.id = jcm.jugador_id
   WHERE jcm.mes_id = p_mes_id
@@ -82,6 +83,7 @@ players_in_category AS (
 
 SELECT
   p.player_id,
+  p.full_name,
   p.nickname,
   COALESCE(c.points, 0) AS points,
   COALESCE(c.diff, 0) AS diff,

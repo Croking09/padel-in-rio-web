@@ -83,6 +83,7 @@ export async function updateSession(request: NextRequest) {
     "/torneos/inscripcion",
     "/liga/reglamento",
     "/liga/partidos", // Maybe only for players?
+    "/liga/ascensor",
     "/asociacion",
     "/equipo",
   ];
