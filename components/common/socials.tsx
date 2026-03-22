@@ -24,8 +24,8 @@ export default function Socials({ className }: { className?: string }) {
 
       <SocialItem
         icon={<Telegram className="w-8 h-8" />}
-        href="https://t.me/BonIA"
-        text="t.me/BonIA"
+        href="https://t.me/Padel_in_Rio_bot"
+        text="t.me/Padel_in_Rio_bot"
       />
     </div>
   );

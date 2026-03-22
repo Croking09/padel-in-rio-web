@@ -1,11 +1,11 @@
 INSERT INTO public."Categorias"
-  (name, "order")
+  (name, "order", puntos_set)
 VALUES
-  ('1ª', 1),
-  ('2ª', 2),
-  ('3ª', 3),
-  ('4ª', 4),
-  ('5ª', 5);
+  ('1ª', 1, 7),
+  ('2ª', 2, 6),
+  ('3ª', 3, 5),
+  ('4ª', 4, 4),
+  ('5ª', 5, 3);
 
 INSERT INTO public."Temporadas"
   (name)
@@ -84,4 +84,5 @@ VALUES
   ('Miguel Rivas Castro', 'Miguel'),
   ('Pablo López Rodríguez', 'Pablo L.'),
   ('Beltrán García Darriba', 'Beltrán'),
-  ('Andrea García Darriba', 'Andrea');
+  ('Andrea García Darriba', 'Andrea'),
+  ('Tania Canto Morado', 'Tania');
