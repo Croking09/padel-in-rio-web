@@ -50,6 +50,15 @@ const mockAscensorData = [
 ];
 
 describe("Page (ascensor)", () => {
+  beforeAll(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(2026, 2, 15));
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockGetMonths.mockResolvedValue(confirmedMonths);
