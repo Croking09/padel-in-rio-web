@@ -148,9 +148,9 @@ export function MatchesPdf({
                 if (players.length !== 4) return null;
 
                 const combos = [
-                  [players[0], players[2], players[1], players[3]],
-                  [players[0], players[1], players[2], players[3]],
-                  [players[0], players[3], players[1], players[2]],
+                  [players[0], players[2], players[1], players[3]], // 0-1 vs 2-3
+                  [players[0], players[1], players[2], players[3]], // 0-2 vs 1-3
+                  [players[0], players[1], players[3], players[2]], // 0-3 vs 1-2
                 ];
 
                 return (

@@ -26,7 +26,7 @@ export const getAllSocios = unstable_cache(
       .from("Socios")
       .select("*")
       .order("full_name", { ascending: true });
-    return data;
+    return data as Socio[];
   },
   ["socios"],
   {

@@ -26,7 +26,7 @@ export default async function Page({ searchParams }: PageProps) {
     : (orderedConfirmedMonths.find(
         (m) => m.month === currentMonthNumber && m.year === currentYear,
       )?.id ??
-      orderedConfirmedMonths[0]?.id ??
+      orderedConfirmedMonths.at(-1)?.id ??
       1);
 
   const data: CategoryClassification[] = await getAscensor(monthId);
@@ -49,7 +49,7 @@ export default async function Page({ searchParams }: PageProps) {
         <div className="text-center py-20 rounded-lg border-2 border-dashed">
           <p>No hay meses confirmados para mostrar.</p>
         </div>
-      ) : sorted.length === 0 ? (
+      ) : sorted.every((cat) => cat.classification.length === 0) ? (
         <div className="text-center py-20 rounded-lg border-2 border-dashed">
           <p>No se encontraron datos para el mes seleccionado.</p>
         </div>

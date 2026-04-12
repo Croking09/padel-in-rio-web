@@ -3,6 +3,7 @@
 import { createAdmin } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { Match } from "@/lib/types/match";
+import MatchParticipants from "@/lib/types/matchParticipants";
 import { SetResult } from "@/lib/types/setResult";
 import { Socio } from "@/lib/types/socio";
 import { revalidatePath, unstable_cache } from "next/cache";
@@ -96,12 +97,14 @@ export async function getPlayersByPartido(partidoId: number) {
 export async function registerMatchResults(
   partidoId: number,
   sets: SetResult[],
+  participacion: MatchParticipants[],
 ) {
   const supabase = createAdmin();
 
   const { error } = await supabase.rpc("register_match_results", {
     p_partido_id: partidoId,
     p_sets: sets,
+    p_participacion: participacion,
   });
 
   if (error) return { success: false, error };
@@ -174,5 +177,28 @@ export const getMatchResults = unstable_cache(
   {
     revalidate: 86400, // 1 dia
     tags: ["results"],
+  },
+);
+
+export const getMatchParticipation = unstable_cache(
+  async (partidoId: number) => {
+    const supabase = await createClient({ useCookies: false });
+
+    const { data, error } = await supabase
+      .from("Participacion")
+      .select("jugador_id, sustituto_id")
+      .eq("partido_id", partidoId);
+
+    if (error) {
+      console.error(error);
+      return [];
+    }
+
+    return data;
+  },
+  ["participation"],
+  {
+    revalidate: 86400, // 1 dia
+    tags: ["participation"],
   },
 );

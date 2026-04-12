@@ -1,16 +1,21 @@
 CREATE OR REPLACE FUNCTION public.register_match_results(
   p_partido_id integer,
-  p_sets jsonb
+  p_sets jsonb,
+  p_participacion jsonb
 )
 RETURNS void
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  -- Abrimos la transacción implícita
+  -- Borramos sets anteriores
   DELETE FROM public."Sets"
   WHERE partido_id = p_partido_id;
 
-  -- Insertamos todos los sets recibidos como JSON
+  -- Borramos participaciones anteriores
+  DELETE FROM public."Participacion"
+  WHERE partido_id = p_partido_id;
+
+  -- Insertamos sets
   INSERT INTO public."Sets" (
     partido_id,
     orden,
@@ -31,5 +36,18 @@ BEGIN
     (s->>'pareja1_juegos')::int,
     (s->>'pareja2_juegos')::int
   FROM jsonb_array_elements(p_sets) AS s;
+
+  -- Insertamos participación
+  INSERT INTO public."Participacion" (
+    partido_id,
+    jugador_id,
+    sustituto_id
+  )
+  SELECT
+    p_partido_id,
+    (p->>'jugador_id')::int,
+    (p->>'sustituto_id')::int
+  FROM jsonb_array_elements(p_participacion) AS p;
+
 END;
 $$;

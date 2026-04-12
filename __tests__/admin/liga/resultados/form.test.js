@@ -131,12 +131,20 @@ describe("MatchResultsPage", () => {
   it("calls registerMatchResults with correct data on valid submit", async () => {
     mockRegisterMatchResults.mockResolvedValue({ success: true });
 
-    render(<MatchResultsPage partidoId={1} players={mockPlayers} />);
+    render(
+      <MatchResultsPage
+        partidoId={1}
+        players={mockPlayers}
+        allSocios={mockPlayers}
+      />
+    );
 
     const inputs = screen.getAllByRole("textbox");
-    // 6 inputs: p1 y p2 por cada set
+
     [6, 3, 6, 4, 6, 2].forEach((val, idx) => {
-      fireEvent.change(inputs[idx], { target: { value: String(val) } });
+      fireEvent.change(inputs[idx], {
+        target: { value: String(val) },
+      });
     });
 
     fireEvent.click(screen.getByText("Guardar resultados"));
@@ -144,11 +152,43 @@ describe("MatchResultsPage", () => {
     await waitFor(() => {
       expect(mockRegisterMatchResults).toHaveBeenCalledWith(
         1,
+
         expect.arrayContaining([
-          expect.objectContaining({ orden: 1, pareja1_juegos: 6, pareja2_juegos: 3 }),
-          expect.objectContaining({ orden: 2, pareja1_juegos: 6, pareja2_juegos: 4 }),
-          expect.objectContaining({ orden: 3, pareja1_juegos: 6, pareja2_juegos: 2 }),
+          expect.objectContaining({
+            orden: 1,
+            pareja1_juegos: 6,
+            pareja2_juegos: 3,
+          }),
+          expect.objectContaining({
+            orden: 2,
+            pareja1_juegos: 6,
+            pareja2_juegos: 4,
+          }),
+          expect.objectContaining({
+            orden: 3,
+            pareja1_juegos: 6,
+            pareja2_juegos: 2,
+          }),
         ]),
+
+        expect.arrayContaining([
+          {
+            jugador_id: mockPlayers[0].id,
+            sustituto_id: null,
+          },
+          {
+            jugador_id: mockPlayers[1].id,
+            sustituto_id: null,
+          },
+          {
+            jugador_id: mockPlayers[2].id,
+            sustituto_id: null,
+          },
+          {
+            jugador_id: mockPlayers[3].id,
+            sustituto_id: null,
+          },
+        ])
       );
     });
   });
@@ -194,5 +234,108 @@ describe("MatchResultsPage", () => {
     });
 
     expect(mockRedirect).not.toHaveBeenCalled();
+  });
+
+  it("renders participation section with all players attending by default", () => {
+    render(
+      <MatchResultsPage
+        partidoId={1}
+        players={mockPlayers}
+        allSocios={mockPlayers}
+      />
+    );
+
+    const checkboxes = screen.getAllByRole("checkbox");
+
+    expect(checkboxes).toHaveLength(4);
+    checkboxes.forEach((cb) => {
+      expect(cb).toBeChecked();
+    });
+  });
+
+  it("allows marking a player as absent", () => {
+    render(
+      <MatchResultsPage
+        partidoId={1}
+        players={mockPlayers}
+        allSocios={mockPlayers}
+      />
+    );
+
+    const checkboxes = screen.getAllByRole("checkbox");
+
+    fireEvent.click(checkboxes[0]);
+
+    expect(checkboxes[0]).not.toBeChecked();
+  });
+
+  it("shows substitute select when player is marked as absent", () => {
+    render(
+      <MatchResultsPage
+        partidoId={1}
+        players={mockPlayers}
+        allSocios={mockPlayers}
+      />
+    );
+
+    const checkboxes = screen.getAllByRole("checkbox");
+
+    fireEvent.click(checkboxes[0]);
+
+    expect(screen.getByDisplayValue("Sin sustituto")).toBeInTheDocument();
+  });
+
+  it("allows selecting a substitute player", () => {
+    render(
+      <MatchResultsPage
+        partidoId={1}
+        players={mockPlayers}
+        allSocios={mockPlayers}
+      />
+    );
+
+    const checkboxes = screen.getAllByRole("checkbox");
+
+    fireEvent.click(checkboxes[0]);
+
+    const select = screen.getByRole("combobox");
+
+    fireEvent.change(select, {
+      target: { value: mockPlayers[1].id },
+    });
+
+    expect(select).toHaveValue(mockPlayers[1].id);
+  });
+
+  it("prevents submit when a player is absent without substitute", async () => {
+    render(
+      <MatchResultsPage
+        partidoId={1}
+        players={mockPlayers}
+        allSocios={mockPlayers}
+      />
+    );
+
+    const checkboxes = screen.getAllByRole("checkbox");
+
+    // marcar uno como ausente
+    fireEvent.click(checkboxes[0]);
+
+    const inputs = screen.getAllByRole("textbox");
+
+    [6, 3, 6, 4, 6, 2].forEach((val, idx) => {
+      fireEvent.change(inputs[idx], { target: { value: String(val) } });
+    });
+
+    fireEvent.click(screen.getByText("Guardar resultados"));
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith(
+        "Debes seleccionar un sustituto para todos los jugadores ausentes",
+        { position: "top-center" }
+      );
+    });
+
+    expect(mockRegisterMatchResults).not.toHaveBeenCalled();
   });
 });
