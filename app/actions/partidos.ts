@@ -179,3 +179,26 @@ export const getMatchResults = unstable_cache(
     tags: ["results"],
   },
 );
+
+export const getMatchParticipation = unstable_cache(
+  async (partidoId: number) => {
+    const supabase = await createClient({ useCookies: false });
+
+    const { data, error } = await supabase
+      .from("Participacion")
+      .select("jugador_id, sustituto_id")
+      .eq("partido_id", partidoId);
+
+    if (error) {
+      console.error(error);
+      return [];
+    }
+
+    return data;
+  },
+  ["participation"],
+  {
+    revalidate: 86400, // 1 dia
+    tags: ["participation"],
+  },
+);

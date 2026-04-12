@@ -7,6 +7,8 @@ export default async function Page({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+
   const { id } = await params;
   const matchId = Number(id);
 

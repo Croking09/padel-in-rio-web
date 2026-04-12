@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, cleanup } from "@testing-library/react";
 import ResultsView from "@/components/liga/partidos/resultados/results-view";
 
 const makePlayer = (id, full_name, nickname) => ({
@@ -24,16 +24,23 @@ const mockSets = [
   },
 ];
 
+const mockParticipation = [
+  { jugador_id: "1", sustituto_id: null },
+  { jugador_id: "2", sustituto_id: null },
+  { jugador_id: "3", sustituto_id: null },
+  { jugador_id: "4", sustituto_id: null },
+];
+
 describe("ResultsView", () => {
   it("Shows the title", () => {
-      render(<ResultsView sets={[]} />);
+      render(<ResultsView sets={[]} participation={[]} />);
       expect(
         screen.queryByText("Resultados del partido")
       ).not.toBeInTheDocument();
     });
 
   it("Shows a message when there are no results", () => {
-      render(<ResultsView sets={[]} />);
+      render(<ResultsView sets={[]} participation={[]} />);
       expect(
         screen.getByText("No hay resultados registrados")
       ).toBeInTheDocument();
@@ -41,7 +48,11 @@ describe("ResultsView", () => {
 
   describe("Set results available", () => {
     beforeEach(() => {
-      render(<ResultsView sets={mockSets} />);
+      render(<ResultsView sets={mockSets} participation={mockParticipation} />);
+    });
+
+    afterEach(() => {
+      cleanup();
     });
 
     it("Renders a card for each set", () => {
@@ -56,21 +67,44 @@ describe("ResultsView", () => {
     });
 
     it("Shows nickname if available", () => {
-      render(<ResultsView sets={[mockSets[0]]} />);
+      render(<ResultsView sets={[mockSets[0]]} participation={mockParticipation} />);
       expect(screen.getAllByText("Carlitos").length).toBeGreaterThan(0);
       expect(screen.getAllByText("Anita").length).toBeGreaterThan(0);
     });
 
     it("Shows full_name if no nickname", () => {
-      render(<ResultsView sets={[mockSets[0]]} />);
+      render(<ResultsView sets={[mockSets[0]]} participation={mockParticipation} />);
       expect(screen.getAllByText("Luis Pérez").length).toBeGreaterThan(0);
       expect(screen.getAllByText("María López").length).toBeGreaterThan(0);
     });
 
     it("Doesnt show full_name if there is a nickname", () => {
-      render(<ResultsView sets={[mockSets[0]]} />);
+      render(<ResultsView sets={[mockSets[0]]} participation={mockParticipation} />);
       expect(screen.queryByText("Carlos García")).not.toBeInTheDocument();
       expect(screen.queryByText("Ana Martín")).not.toBeInTheDocument();
+    });
+
+    it("strikes through player name when they are absent", () => {
+      cleanup();
+      
+      const mockParticipationWithAbsence = [
+        { jugador_id: "1", sustituto_id: "9" },
+        { jugador_id: "2", sustituto_id: null },
+        { jugador_id: "3", sustituto_id: null },
+        { jugador_id: "4", sustituto_id: null },
+      ];
+
+      render(
+        <ResultsView
+          sets={[mockSets[0]]}
+          participation={mockParticipationWithAbsence}
+        />
+      );
+
+      const absentPlayer = screen.getAllByText("Carlitos")[0];
+
+      expect(absentPlayer).toHaveClass("line-through");
+      expect(absentPlayer).toHaveClass("opacity-50");
     });
   });
 });

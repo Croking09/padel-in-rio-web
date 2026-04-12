@@ -1,4 +1,5 @@
-import { getMatchResults } from "@/app/actions/partidos";
+import { getMatchResults, getMatchParticipation } from "@/app/actions/partidos";
+
 import ResultsView from "@/components/liga/partidos/resultados/results-view";
 
 export default async function Page({
@@ -9,7 +10,10 @@ export default async function Page({
   const { id } = await params;
   const matchId = Number(id);
 
-  const sets = await getMatchResults(matchId);
+  const [sets, participation] = await Promise.all([
+    getMatchResults(matchId),
+    getMatchParticipation(matchId),
+  ]);
 
-  return <ResultsView sets={sets} />;
+  return <ResultsView sets={sets} participation={participation} />;
 }

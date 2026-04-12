@@ -1,11 +1,24 @@
 import { SetWithPlayers } from "@/app/actions/partidos";
+import MatchParticipants from "@/lib/types/matchParticipants";
 
-export default function ResultsView({ sets }: { sets: SetWithPlayers[] }) {
+export default function ResultsView({
+  sets,
+  participation,
+}: {
+  sets: SetWithPlayers[];
+  participation: MatchParticipants[];
+}) {
   if (!sets.length) {
     return (
       <div className="container mx-auto py-8 text-center">
         No hay resultados registrados
       </div>
+    );
+  }
+
+  function isAbsent(playerId: number) {
+    return participation.some(
+      (p) => p.jugador_id === playerId && p.sustituto_id !== null,
     );
   }
 
@@ -24,13 +37,25 @@ export default function ResultsView({ sets }: { sets: SetWithPlayers[] }) {
             </div>
 
             <div className="flex flex-col gap-4 p-4">
-              {/* Pareja 1 */}
               <div className="flex items-center justify-between">
                 <div className="flex flex-col">
-                  <span className="font-semibold">
+                  <span
+                    className={`font-semibold ${
+                      isAbsent(set.pareja1[0].id)
+                        ? "line-through opacity-50"
+                        : ""
+                    }`}
+                  >
                     {set.pareja1[0].nickname ?? set.pareja1[0].full_name}
                   </span>
-                  <span className="font-semibold">
+
+                  <span
+                    className={`font-semibold ${
+                      isAbsent(set.pareja1[1].id)
+                        ? "line-through opacity-50"
+                        : ""
+                    }`}
+                  >
                     {set.pareja1[1].nickname ?? set.pareja1[1].full_name}
                   </span>
                 </div>
@@ -40,20 +65,31 @@ export default function ResultsView({ sets }: { sets: SetWithPlayers[] }) {
                 </span>
               </div>
 
-              {/* VS */}
               <div className="flex items-center gap-2">
                 <div className="h-px bg-border flex-1" />
                 <span className="text-xs font-bold">VS</span>
                 <div className="h-px bg-border flex-1" />
               </div>
 
-              {/* Pareja 2 */}
               <div className="flex items-center justify-between">
                 <div className="flex flex-col">
-                  <span className="font-semibold">
+                  <span
+                    className={`font-semibold ${
+                      isAbsent(set.pareja2[0].id)
+                        ? "line-through opacity-50"
+                        : ""
+                    }`}
+                  >
                     {set.pareja2[0].nickname ?? set.pareja2[0].full_name}
                   </span>
-                  <span className="font-semibold">
+
+                  <span
+                    className={`font-semibold ${
+                      isAbsent(set.pareja2[1].id)
+                        ? "line-through opacity-50"
+                        : ""
+                    }`}
+                  >
                     {set.pareja2[1].nickname ?? set.pareja2[1].full_name}
                   </span>
                 </div>
