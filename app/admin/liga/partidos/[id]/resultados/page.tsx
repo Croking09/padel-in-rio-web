@@ -1,4 +1,5 @@
 import { getPlayersByPartido } from "@/app/actions/partidos";
+import { getAllSocios } from "@/app/actions/socios";
 import ResultsForm from "@/components/liga/admin/resultados/results-form";
 
 export default async function Page({
@@ -10,6 +11,9 @@ export default async function Page({
   const matchId = Number(id);
 
   const players = await getPlayersByPartido(matchId);
+  const allSocios = await getAllSocios();
 
-  return <ResultsForm partidoId={matchId} players={players} />;
+  return (
+    <ResultsForm partidoId={matchId} players={players} allSocios={allSocios} />
+  );
 }

@@ -2,6 +2,7 @@
 
 import { createAdmin } from "@/lib/supabase/admin";
 import { Match } from "@/lib/types/match";
+import MatchParticipants from "@/lib/types/matchParticipants";
 import { SetResult } from "@/lib/types/setResult";
 import { Socio } from "@/lib/types/socio";
 import { revalidatePath } from "next/cache";
@@ -95,12 +96,14 @@ export async function getPlayersByPartido(partidoId: number) {
 export async function registerMatchResults(
   partidoId: number,
   sets: SetResult[],
+  participacion: MatchParticipants[],
 ) {
   const supabase = createAdmin();
 
   const { error } = await supabase.rpc("register_match_results", {
     p_partido_id: partidoId,
     p_sets: sets,
+    p_participacion: participacion,
   });
 
   if (error) return { success: false, error };

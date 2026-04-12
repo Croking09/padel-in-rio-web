@@ -100,7 +100,7 @@ export default async function Page({
                                   <HapticButton asChild variant="secondary">
                                     <Link
                                       href={`/admin/liga/partidos/${match.id}/resultados`}
-                                      className="text-xs px-3 py-1 rounded-md bg-black text-white hover:opacity-80 transition"
+                                      className="text-xs px-3 py-1 rounded-md bg-black hover:opacity-80 transition"
                                     >
                                       Introducir resultados
                                     </Link>

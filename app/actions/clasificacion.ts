@@ -17,8 +17,8 @@ export const getAscensor = unstable_cache(
     const results = await Promise.all(
       categories.map(async (category) => {
         const { data, error } = await supabase.rpc("get_month_classification", {
-          p_categoria_id: category.id,
           p_mes_id: monthId,
+          p_categoria_id: category.id,
         });
 
         if (error) console.error(`Error en categoría ${category.id}`, error);
