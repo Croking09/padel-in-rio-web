@@ -93,20 +93,29 @@ export default async function Page({
                                 ))}
                               </div>
 
-                              {isAdmin && (
-                                <>
-                                  <hr className="border-border" />
+                              <hr className="border-border" />
 
-                                  <HapticButton asChild variant="secondary">
+                              <div className="flex gap-4">
+                                <HapticButton asChild variant="secondary">
+                                  <Link
+                                    href={`/liga/partidos/${match.id}/resultados`}
+                                    className="text-xs px-3 py-1"
+                                  >
+                                    Ver resultados
+                                  </Link>
+                                </HapticButton>
+
+                                {isAdmin && (
+                                  <HapticButton asChild variant="outline">
                                     <Link
                                       href={`/admin/liga/partidos/${match.id}/resultados`}
-                                      className="text-xs px-3 py-1 rounded-md bg-black text-white hover:opacity-80 transition"
+                                      className="text-xs px-3 py-1"
                                     >
                                       Introducir resultados
                                     </Link>
                                   </HapticButton>
-                                </>
-                              )}
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>
