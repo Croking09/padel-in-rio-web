@@ -1,14 +1,16 @@
-import { getMonths } from "@/app/actions/monthly-assignment";
-import MonthSelector from "@/components/liga/admin/asignaciones/month-selector";
+import { getMonths, getTemporadas } from "@/app/actions/ligas";
+import MonthSelector from "@/components/liga/month-selector";
 import { HapticButton } from "@/components/ui/haptic-button";
 import { getMatchesByDayGlobal } from "@/lib/partidos";
 import { createClient } from "@/lib/supabase/server";
+import { MonthStatus } from "@/lib/types/month";
+import { getCurrentMonthId } from "@/lib/utils";
 import Link from "next/link";
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ monthId: string }>;
+  searchParams: Promise<{ monthId?: string; temporadaId?: string }>;
 }) {
   const supabase = await createClient();
 
@@ -18,27 +20,39 @@ export default async function Page({
 
   const isAdmin = user?.app_metadata?.admin === true;
 
-  const sP = await searchParams;
-  const monthInput = Number(sP.monthId);
+  const [allMonthsRaw, temporadas, params] = await Promise.all([
+    getMonths(),
+    getTemporadas(),
+    searchParams,
+  ]);
 
-  const { matchesByDay, monthId: currentMonthId } =
-    await getMatchesByDayGlobal(monthInput);
+  const temporadaIdParam = params.temporadaId
+    ? Number(params.temporadaId)
+    : undefined;
+  const activeTemporadaId = temporadaIdParam ?? temporadas.at(0)?.id ?? 0;
 
-  const allMonths = await getMonths();
-  const confirmedMonths = allMonths.filter((m) => m.status === "confirmed");
-  const orderedConfirmedMonths = [...confirmedMonths].sort((a, b) =>
-    a.year !== b.year ? a.year - b.year : a.month - b.month,
+  const months = allMonthsRaw.filter(
+    (m) => m.temporada_id === activeTemporadaId,
   );
+  const confirmedMonths = months.filter(
+    (m) => m.status === MonthStatus.Confirmed,
+  );
+
+  const monthIdParam = params.monthId ? Number(params.monthId) : undefined;
+  const currentMonthId =
+    monthIdParam ??
+    getCurrentMonthId(confirmedMonths) ??
+    confirmedMonths.at(-1)?.id;
+
+  const { matchesByDay } = await getMatchesByDayGlobal(currentMonthId, activeTemporadaId);
 
   return (
     <div className="container mx-auto py-8 px-4 space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <h1 className="text-3xl font-bold">Partidos de la Liga</h1>
-        {confirmedMonths.length > 0 && (
-          <MonthSelector
-            months={orderedConfirmedMonths}
-            currentMonthId={currentMonthId}
-          />
+
+        {months.length > 0 && (
+          <MonthSelector months={months} currentMonthId={currentMonthId} />
         )}
       </div>
 

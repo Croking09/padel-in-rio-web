@@ -8,10 +8,10 @@ VALUES
   ('5ª', 5, 3);
 
 INSERT INTO public."Temporadas"
-  (name)
+  (name, start_date)
 VALUES
-  ('2025'),
-  ('2026');
+  ('2025', '2025-01-01'),
+  ('2026', '2026-01-01');
 
 INSERT INTO public."Meses"
   (temporada_id, month, year) -- status: draft by default

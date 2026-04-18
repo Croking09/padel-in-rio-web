@@ -2,16 +2,18 @@ import { render, screen } from "@testing-library/react";
 
 const mockGetAscensor = jest.fn();
 const mockGetMonths = jest.fn();
+const mockGetTemporadas = jest.fn();
 
 jest.mock("@/app/actions/clasificacion", () => ({
   getAscensor: (...args) => mockGetAscensor(...args),
 }));
 
-jest.mock("@/app/actions/monthly-assignment", () => ({
+jest.mock("@/app/actions/ligas", () => ({
   getMonths: (...args) => mockGetMonths(...args),
+  getTemporadas: (...args) => mockGetTemporadas(...args),
 }));
 
-jest.mock("@/components/liga/admin/asignaciones/month-selector", () => ({
+jest.mock("@/components/liga/month-selector", () => ({
   __esModule: true,
   default: ({ months }) => (
     <select aria-label="mes">
@@ -37,8 +39,8 @@ const makePlayers = (count) =>
   }));
 
 const confirmedMonths = [
-  { id: 1, month: 3, year: 2026, status: "confirmed", temporada_name: "2025/26" },
-  { id: 2, month: 4, year: 2026, status: "confirmed", temporada_name: "2025/26" },
+  { id: 1, month: 3, year: 2026, status: "confirmed", temporada_name: "2025/26", temporada_id: 1 },
+  { id: 2, month: 4, year: 2026, status: "confirmed", temporada_name: "2025/26", temporada_id: 1 },
 ];
 
 const mockAscensorData = [
@@ -63,6 +65,7 @@ describe("Page (ascensor)", () => {
     jest.clearAllMocks();
     mockGetMonths.mockResolvedValue(confirmedMonths);
     mockGetAscensor.mockResolvedValue(mockAscensorData);
+    mockGetTemporadas.mockResolvedValue([{ id: 1, name: "2025/26" }]);
   });
 
   describe("cuando hay meses confirmados y datos", () => {
@@ -99,7 +102,7 @@ describe("Page (ascensor)", () => {
   describe("cuando no hay meses confirmados", () => {
     beforeEach(() => {
       mockGetMonths.mockResolvedValue([
-        { id: 1, month: 3, year: 2026, status: "pending", temporada_name: "2025/26" },
+        { id: 1, month: 3, year: 2026, status: "pending", temporada_name: "2025/26", temporada_id: 1 },
       ]);
     });
 

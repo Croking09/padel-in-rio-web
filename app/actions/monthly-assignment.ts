@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdmin } from "@/lib/supabase/admin";
+import { MonthStatus } from "@/lib/types/month";
 import { revalidatePath } from "next/cache";
 
 export type Player = {
@@ -21,8 +22,6 @@ export type Assignment = {
   id?: number; // Optional for new assignments before save
 };
 
-export type MonthStatus = "draft" | "locked" | "confirmed";
-
 export type AssignmentData = {
   categories: Category[];
   players: Player[];
@@ -38,27 +37,6 @@ export type Month = {
   temporada_id: number;
   temporada_name?: string;
 };
-
-type MonthWithTemporada = Month & {
-  Temporadas: {
-    name: string;
-  };
-};
-
-export async function getMonths(): Promise<Month[]> {
-  const supabase = createAdmin();
-  const { data: months, error } = await supabase
-    .from("Meses")
-    .select("*, Temporadas ( name )")
-    .order("id", { ascending: false });
-
-  if (error) throw error;
-
-  return (months as MonthWithTemporada[]).map((m) => ({
-    ...m,
-    temporada_name: m.Temporadas?.name,
-  }));
-}
 
 export async function getAssignmentData(
   monthId: number,

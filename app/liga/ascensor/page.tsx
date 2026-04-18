@@ -1,35 +1,51 @@
 import { getAscensor } from "@/app/actions/clasificacion";
 import { CategoryClassification } from "@/lib/types/classification";
 import { CategoryTable } from "@/components/liga/ascensor/category-table";
-import MonthSelector from "@/components/liga/admin/asignaciones/month-selector";
-import { getMonths } from "@/app/actions/monthly-assignment";
+import MonthSelector from "@/components/liga/month-selector";
+import { getMonths, getTemporadas } from "@/app/actions/ligas";
+import { getCurrentMonthId } from "@/lib/utils";
+import { MonthStatus } from "@/lib/types/month";
 
 interface PageProps {
-  searchParams: Promise<{ monthId?: string }>;
+  searchParams: Promise<{ monthId?: string; temporadaId?: string }>;
 }
 
 export default async function Page({ searchParams }: PageProps) {
-  const sP = await searchParams;
+  const [allMonthsRaw, temporadas, params] = await Promise.all([
+    getMonths(),
+    getTemporadas(),
+    searchParams,
+  ]);
 
-  const allMonths = await getMonths();
-  const confirmedMonths = allMonths.filter((m) => m.status === "confirmed");
-  const orderedConfirmedMonths = [...confirmedMonths].sort((a, b) =>
-    a.year !== b.year ? a.year - b.year : a.month - b.month,
+  const temporadaIdParam = params.temporadaId
+    ? Number(params.temporadaId)
+    : undefined;
+  const activeTemporadaId = temporadaIdParam ?? temporadas.at(0)?.id ?? 0;
+
+  const months = allMonthsRaw.filter(
+    (m) => m.temporada_id === activeTemporadaId,
   );
 
-  const today = new Date();
-  const currentMonthNumber = today.getMonth() + 1;
-  const currentYear = today.getFullYear();
+  const confirmedMonths = months
+    .filter((m) => m.status === MonthStatus.Confirmed)
+    .sort((a, b) => (a.year !== b.year ? a.year - b.year : a.month - b.month));
 
-  const monthId = sP.monthId
-    ? Number(sP.monthId)
-    : (orderedConfirmedMonths.find(
-        (m) => m.month === currentMonthNumber && m.year === currentYear,
-      )?.id ??
-      orderedConfirmedMonths.at(-1)?.id ??
-      1);
+  const monthIdParam = params.monthId ? Number(params.monthId) : undefined;
+  const currentMonthId =
+    monthIdParam ??
+    getCurrentMonthId(confirmedMonths) ??
+    confirmedMonths.at(-1)?.id;
 
-  const data: CategoryClassification[] = await getAscensor(monthId);
+  if (!currentMonthId) {
+    return (
+      <div className="text-center py-20 rounded-lg border-2 border-dashed">
+        <p>No hay meses confirmados para mostrar.</p>
+      </div>
+    );
+  }
+
+  const data: CategoryClassification[] = await getAscensor(currentMonthId);
+
   const sorted = [...data].sort((a, b) => a.category.id - b.category.id);
 
   return (
@@ -37,15 +53,12 @@ export default async function Page({ searchParams }: PageProps) {
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <h1 className="text-3xl font-bold">Ascensor</h1>
 
-        {orderedConfirmedMonths.length > 0 && (
-          <MonthSelector
-            months={orderedConfirmedMonths}
-            currentMonthId={monthId}
-          />
+        {months.length > 0 && (
+          <MonthSelector months={months} currentMonthId={currentMonthId} />
         )}
       </div>
 
-      {orderedConfirmedMonths.length === 0 ? (
+      {confirmedMonths.length === 0 ? (
         <div className="text-center py-20 rounded-lg border-2 border-dashed">
           <p>No hay meses confirmados para mostrar.</p>
         </div>
