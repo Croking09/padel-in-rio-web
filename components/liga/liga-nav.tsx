@@ -1,7 +1,15 @@
 import { Suspense } from "react";
 import SectionNav from "@/components/common/section-nav";
+import TemporadaSelector from "./temporada-selector";
+import { getTemporadas } from "@/app/actions/ligas";
 
-export default function LigaNav({ children }: { children: React.ReactNode }) {
+export default async function LigaNav({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const temporadas = await getTemporadas();
+
   return (
     <div>
       <Suspense>
@@ -15,7 +23,9 @@ export default function LigaNav({ children }: { children: React.ReactNode }) {
             { href: "/liga/partidos", label: "Partidos" },
             { href: "/liga/reglamento", label: "Reglamento" },
           ]}
-        />
+        >
+          <TemporadaSelector temporadas={temporadas} />
+        </SectionNav>
       </Suspense>
       {children}
     </div>

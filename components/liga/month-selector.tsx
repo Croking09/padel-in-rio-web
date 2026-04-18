@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useWebHaptics } from "web-haptics/react";
+import { hapticResponseSettings } from "@/lib/haptic";
 
 export default function MonthSelector({
   months,
@@ -34,12 +35,9 @@ export default function MonthSelector({
   return (
     <div className="flex items-center justify-center gap-2">
       <Select
-        defaultValue={String(currentMonthId)}
+        value={currentMonthId ? String(currentMonthId) : ""}
         onValueChange={(value) => {
-          trigger([
-            { duration: 30 },
-            { delay: 60, duration: 40, intensity: 1 },
-          ]);
+          trigger(hapticResponseSettings);
           handleChange(value);
         }}
       >
@@ -54,8 +52,7 @@ export default function MonthSelector({
                 value={String(m.id)}
                 className="hover:bg-primary py-1 px-4"
               >
-                {formatMonth(m.month)} -{" "}
-                {m.temporada_name || `Temp ${m.temporada_id}`}
+                {formatMonth(m.month) + " - " + m.year}
               </SelectItem>
             ))}
           </SelectGroup>

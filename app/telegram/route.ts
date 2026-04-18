@@ -14,8 +14,9 @@ import {
   sendDocument,
 } from "@/lib/telegram/utils";
 import { generateMatchesPdf } from "@/lib/pdf/generate-pdf";
-import { getMonths } from "../actions/monthly-assignment";
 import { getMatchesByDayGlobal } from "@/lib/partidos";
+import { MonthStatus } from "@/lib/types/month";
+import { getMonths } from "../actions/ligas";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -96,7 +97,7 @@ export async function POST(req: NextRequest) {
           (m) =>
             m.month === currentMonthNumber &&
             m.year === currentYear &&
-            m.status === "confirmed",
+            m.status === MonthStatus.Confirmed,
         );
 
         if (!currentMonth) {
@@ -107,8 +108,10 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        const monthId = currentMonth.id;
-        const pdfBuffer = await generateMatchesPdf(monthId);
+        const pdfBuffer = await generateMatchesPdf(
+          currentMonth.id,
+          currentMonth.temporada_id,
+        );
 
         await sendDocument(
           chatId,
@@ -119,7 +122,33 @@ export async function POST(req: NextRequest) {
       case text.startsWith("/partidos"):
         const monthInput = text.split(" ")[1];
 
-        const { matchesByDay } = await getMatchesByDayGlobal(monthInput);
+        const allMonthsForPartidos = await getMonths();
+
+        let temporadaIdForPartidos: number | undefined;
+
+        if (monthInput) {
+          const [mm, yyyy] = monthInput.split("/").map(Number);
+          const matched = allMonthsForPartidos.find(
+            (m) => m.month === mm && m.year === yyyy,
+          );
+          temporadaIdForPartidos = matched?.temporada_id;
+        }
+
+        // Fallback: temporada del último mes confirmado
+        if (!temporadaIdForPartidos) {
+          const lastConfirmed = allMonthsForPartidos
+            .filter((m) => m.status === MonthStatus.Confirmed)
+            .sort((a, b) =>
+              a.year !== b.year ? a.year - b.year : a.month - b.month,
+            )
+            .at(-1);
+          temporadaIdForPartidos = lastConfirmed?.temporada_id;
+        }
+
+        const { matchesByDay } = await getMatchesByDayGlobal(
+          monthInput,
+          temporadaIdForPartidos,
+        );
 
         if (!matchesByDay || Object.keys(matchesByDay).length === 0) {
           await sendMessage(

@@ -35,6 +35,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useWebHaptics } from "web-haptics/react";
+import { MonthStatus } from "@/lib/types/month";
 
 interface AssignmentBoardProps {
   initialData: AssignmentData;
@@ -79,8 +80,8 @@ export default function AssignmentBoard({
     setHasChanges(false);
   }, [initialData]);
 
-  const isLocked = data.status === "locked";
-  const isConfirmed = data.status === "confirmed";
+  const isLocked = data.status === MonthStatus.Locked;
+  const isConfirmed = data.status === MonthStatus.Confirmed;
 
   const validateCategories = () => {
     const invalidCategories = data.categories.filter((category) => {

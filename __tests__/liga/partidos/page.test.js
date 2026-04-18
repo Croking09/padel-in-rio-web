@@ -1,39 +1,52 @@
+import { render, screen } from "@testing-library/react";
+import Page from "@/app/liga/partidos/page";
+import { getMonths, getTemporadas } from "@/app/actions/ligas";
+import { getConfirmedMatches } from "@/app/actions/partidos";
+import { createClient } from "@/lib/supabase/server";
+
 jest.mock("next/cache", () => ({
   unstable_cache: (fn) => fn,
   revalidateTag: jest.fn(),
   revalidatePath: jest.fn(),
 }));
 
-import { render, screen } from "@testing-library/react";
-import Page from "@/app/liga/partidos/page";
-import { getMonths } from "@/app/actions/monthly-assignment";
-import { getConfirmedMatches } from "@/app/actions/partidos";
-import { createClient } from "@/lib/supabase/server";
+jest.mock("@/app/actions/ligas", () => ({
+  getMonths: jest.fn(),
+  getTemporadas: jest.fn(),
+}));
 
-jest.mock("@/app/actions/monthly-assignment");
-jest.mock("@/app/actions/partidos");
-jest.mock("@/components/liga/admin/asignaciones/month-selector", () => {
+jest.mock("@/app/actions/partidos", () => ({
+  getConfirmedMatches: jest.fn(),
+}));
+
+jest.mock("@/components/liga/month-selector", () => {
   return function MockMonthSelector() {
     return <div data-testid="month-selector" />;
   };
 });
 
 jest.mock("@/lib/supabase/server", () => ({
-  createClient: jest.fn().mockResolvedValue({
-    auth: {
-      getUser: jest.fn().mockResolvedValue({
-        data: { user: { app_metadata: { admin: false } } },
-      }),
-    },
-  }),
+  createClient: jest.fn(),
 }));
 
 const mockGetMonths = getMonths;
+const mockGetTemporadas = getTemporadas;
 const mockGetConfirmedMatches = getConfirmedMatches;
+const mockCreateClient = createClient;
 
 describe("Liga partidos page", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
+    mockGetTemporadas.mockResolvedValue([{ id: 1, name: "2026" }]);
+
+    mockCreateClient.mockResolvedValue({
+      auth: {
+        getUser: jest.fn().mockResolvedValue({
+          data: { user: { app_metadata: { admin: false } } },
+        }),
+      },
+    });
   });
 
   it("shows a message if there are no confirmed months", async () => {
@@ -44,13 +57,13 @@ describe("Liga partidos page", () => {
     render(jsx);
 
     expect(
-      screen.getByText("Todavía no hay partidos confirmados."),
+      screen.getByText("Todavía no hay partidos confirmados.")
     ).toBeInTheDocument();
   });
 
   it("renders month selector if there are confirmed months", async () => {
     mockGetMonths.mockResolvedValue([
-      { id: 1, month: 1, year: 2026, status: "confirmed" },
+      { id: 1, month: 1, year: 2026, status: "confirmed", temporada_id: 1 },
     ]);
 
     mockGetConfirmedMatches.mockResolvedValue([]);
@@ -64,8 +77,8 @@ describe("Liga partidos page", () => {
 
   it("calculates global matchdays", async () => {
     mockGetMonths.mockResolvedValue([
-      { id: 1, month: 1, year: 2026, status: "confirmed" },
-      { id: 2, month: 2, year: 2026, status: "confirmed" },
+      { id: 1, month: 1, year: 2026, status: "confirmed", temporada_id: 1 },
+      { id: 2, month: 2, year: 2026, status: "confirmed", temporada_id: 1 },
     ]);
 
     mockGetConfirmedMatches.mockResolvedValue([
@@ -93,14 +106,13 @@ describe("Liga partidos page", () => {
 
     render(jsx);
 
-    // Febrero = index 1 → offset 2
     expect(screen.getByText("Jornada 3")).toBeInTheDocument();
     expect(screen.getByText("Jornada 4")).toBeInTheDocument();
   });
 
   it("groups matches by category", async () => {
     mockGetMonths.mockResolvedValue([
-      { id: 1, month: 1, year: 2026, status: "confirmed" },
+      { id: 1, month: 1, year: 2026, status: "confirmed", temporada_id: 1 },
     ]);
 
     mockGetConfirmedMatches.mockResolvedValue([
@@ -126,7 +138,7 @@ describe("Liga partidos page", () => {
 
   it("shows a message if no matches are found for the selected month", async () => {
     mockGetMonths.mockResolvedValue([
-      { id: 1, month: 1, year: 2026, status: "confirmed" },
+      { id: 1, month: 1, year: 2026, status: "confirmed", temporada_id: 1 },
     ]);
 
     mockGetConfirmedMatches.mockResolvedValue([]);
@@ -138,12 +150,12 @@ describe("Liga partidos page", () => {
     render(jsx);
 
     expect(
-      screen.getByText("No se encontraron partidos para el mes seleccionado."),
+      screen.getByText("No se encontraron partidos para el mes seleccionado.")
     ).toBeInTheDocument();
   });
 
   it("shows admin button if user is admin", async () => {
-    createClient.mockResolvedValue({
+    mockCreateClient.mockResolvedValue({
       auth: {
         getUser: jest.fn().mockResolvedValue({
           data: { user: { app_metadata: { admin: true } } },
@@ -152,8 +164,8 @@ describe("Liga partidos page", () => {
     });
 
     mockGetMonths.mockResolvedValue([
-        { id: 1, month: 1, year: 2026, status: "confirmed" },
-      ]);
+      { id: 1, month: 1, year: 2026, status: "confirmed", temporada_id: 1 },
+    ]);
 
     mockGetConfirmedMatches.mockResolvedValue([
       {
@@ -167,6 +179,8 @@ describe("Liga partidos page", () => {
 
     render(jsx);
 
-    expect(screen.getByText("Introducir resultados")).toBeInTheDocument();
+    expect(
+      screen.getByText("Introducir resultados")
+    ).toBeInTheDocument();
   });
 });

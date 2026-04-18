@@ -5,9 +5,11 @@ import { HapticButton } from "@/components/ui/haptic-button";
 export default async function SectionNav({
   adminLinks,
   publicLinks,
+  children,
 }: {
   adminLinks: { href: string; label: string }[];
   publicLinks: { href: string; label: string }[];
+  children?: React.ReactNode;
 }) {
   const supabase = await createClient();
 
@@ -26,7 +28,7 @@ export default async function SectionNav({
   }
 
   return (
-    <nav className="p-2 bg-primary/80">
+    <nav className="p-2 bg-primary/80 flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4">
       <ul className="flex gap-2 overflow-x-scroll md:overflow-x-auto [&>li]:hover:bg-background/40 [&>li]:rounded-md [&>li]:px-2 [&>li]:py-1">
         {isAdmin &&
           adminLinks.map((link) => (
@@ -44,6 +46,11 @@ export default async function SectionNav({
           </li>
         ))}
       </ul>
+      {children && (
+        <div className="pt-2 border-t md:border-t-0 md:pt-0 border-border md:pl-4 flex justify-end">
+          {children}
+        </div>
+      )}
     </nav>
   );
 }

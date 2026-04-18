@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { useWebHaptics } from "web-haptics/react";
+import { hapticResponseSettings } from "@/lib/haptic";
 
 export default function ConfirmButton({
   className,
@@ -47,12 +48,7 @@ export default function ConfirmButton({
         <Button
           className={className}
           variant="secondary"
-          onClick={() =>
-            trigger([
-              { duration: 30 },
-              { delay: 60, duration: 40, intensity: 1 },
-            ])
-          }
+          onClick={() => trigger(hapticResponseSettings)}
         >
           Confirmar
         </Button>

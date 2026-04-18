@@ -1,28 +1,30 @@
-import { getAssignmentData, getMonths } from "@/app/actions/monthly-assignment";
+import { getMonths, getTemporadas } from "@/app/actions/ligas";
+import { getAssignmentData } from "@/app/actions/monthly-assignment";
 import AssignmentBoard from "@/components/liga/admin/asignaciones/assignment-board";
-import MonthSelector from "@/components/liga/admin/asignaciones/month-selector";
+import MonthSelector from "@/components/liga/month-selector";
+import { getCurrentMonthId } from "@/lib/utils";
 
 export default async function AssignmentPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const months = await getMonths();
-  const { monthId } = await searchParams;
+  const [allMonths, temporadas, params] = await Promise.all([
+    getMonths(),
+    getTemporadas(),
+    searchParams,
+  ]);
 
-  let currentMonthId = monthId ? parseInt(String(monthId)) : undefined;
+  const temporadaIdParam = params.temporadaId
+    ? Number(params.temporadaId)
+    : undefined;
+  const activeTemporadaId = temporadaIdParam ?? temporadas.at(0)?.id ?? 0;
 
-  if (!currentMonthId && months.length > 0) {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth() + 1;
+  const months = allMonths.filter((m) => m.temporada_id === activeTemporadaId);
 
-    const currentMonthData = months.find(
-      (m) => m.month === currentMonth && m.year === currentYear,
-    );
-
-    currentMonthId = currentMonthData?.id ?? months[0].id;
-  }
+  const monthIdParam = params.monthId ? Number(params.monthId) : undefined;
+  const currentMonthId =
+    monthIdParam ?? getCurrentMonthId(months) ?? months.at(0)?.id;
 
   if (!currentMonthId) {
     return <div>No hay meses configurados. Por favor crea meses primero.</div>;
@@ -31,7 +33,7 @@ export default async function AssignmentPage({
   const data = await getAssignmentData(currentMonthId);
 
   return (
-    <div className="container mx-auto p-4 flex flex-col gap-4">
+    <div className="container mx-auto p-4 flex flex-col gap-4 mt-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Asignación de Jugadores</h2>
         <MonthSelector months={months} currentMonthId={currentMonthId} />

@@ -30,7 +30,7 @@ export default function AssignmentBoardSkeleton() {
             {[...Array(3)].map((_, colIndex) => (
               <div
                 key={colIndex}
-                className="w-full flex flex-col border rounded-lg h-[450px] shadow-sm"
+                className="w-full flex flex-col border rounded-lg h-112.5 shadow-sm"
               >
                 <div className="p-3 border-b flex justify-between">
                   <Skeleton className="h-5 w-24" />

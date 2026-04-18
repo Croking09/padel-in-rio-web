@@ -14,18 +14,22 @@ interface JugadorCategoriaMes {
 export async function previewMonth(mesId: number) {
   const supabase = createAdmin();
 
-  const { data: categories } = await supabase
+  const { data: categories, error: catError } = await supabase
     .from("Categorias")
     .select("id,name");
 
+  if (catError) throw catError;
+
   const result = [];
 
-  for (const cat of categories!) {
-    const { data } = await supabase
+  for (const cat of categories ?? []) {
+    const { data, error } = await supabase
       .from("Jugador_Categoria_Mes")
       .select("jugador_id, Socios(id, full_name, nickname, active)")
       .eq("mes_id", mesId)
       .eq("categoria_id", cat.id);
+
+    if (error) throw error;
 
     if (!data || data.length !== 8) {
       throw new Error(`Categoria ${cat.name} inválida`);
@@ -33,6 +37,7 @@ export async function previewMonth(mesId: number) {
 
     const players = data.map((p: JugadorCategoriaMes) => {
       const socio = Array.isArray(p.Socios) ? p.Socios[0] : p.Socios;
+
       return {
         id: socio.id,
         full_name: socio.full_name,
@@ -41,7 +46,9 @@ export async function previewMonth(mesId: number) {
       };
     });
 
-    result.push(...generateCategoryMatches(cat.id, cat.name, players));
+    const matches = generateCategoryMatches(cat.id, cat.name, players);
+
+    result.push(...matches);
   }
 
   return result;

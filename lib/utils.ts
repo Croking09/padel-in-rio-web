@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Match } from "@/lib/types/match";
 import { Socio } from "./types/socio";
+import { Month, MonthStatus } from "./types/month";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -87,4 +88,26 @@ export function generateCategoryMatches(
       players: [j[2], j[3], j[6], j[7]],
     },
   ];
+}
+
+export function getCurrentMonthId(months: Month[]) {
+  if (!months.length) return undefined;
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+
+  return months.find((m) => m.year === currentYear && m.month === currentMonth)
+    ?.id;
+}
+
+export function mapMonthStatus(status: string): MonthStatus {
+  switch (status) {
+    case MonthStatus.Draft:
+    case MonthStatus.Locked:
+    case MonthStatus.Confirmed:
+      return status;
+    default:
+      throw new Error(`Invalid month status: ${status}`);
+  }
 }
