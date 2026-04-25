@@ -38,3 +38,22 @@ export const getAscensor = unstable_cache(
     tags: ["ascensor"],
   },
 );
+
+export const getGeneralClassification = unstable_cache(
+  async (temporadaId: number) => {
+    const supabase = await createClient({ useCookies: false });
+
+    const { data, error } = await supabase.rpc("get_global_classification", {
+      p_temporada_id: temporadaId,
+    });
+
+    if (error) console.error(error);
+
+    return data ?? [];
+  },
+  ["general"],
+  {
+    revalidate: 86400,
+    tags: ["general"],
+  },
+);

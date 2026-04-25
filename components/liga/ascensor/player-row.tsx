@@ -57,6 +57,9 @@ export function PlayerRow({ player, index, categoryId, zebra }: Props) {
       <td className="py-2.5 px-3 text-center text-text-primary/80">
         {player.games_for}
       </td>
+      <td className="py-2.5 px-3 text-center text-text-primary/80">
+        {player.matches_played}
+      </td>
     </tr>
   );
 }

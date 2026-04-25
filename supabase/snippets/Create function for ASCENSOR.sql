@@ -8,7 +8,8 @@ RETURNS TABLE (
   nickname text,
   points integer,
   diff integer,
-  games_for integer
+  games_for integer,
+  matches_played integer
 )
 LANGUAGE sql
 STABLE
@@ -41,9 +42,14 @@ WITH sets_base AS (
     END AS real_p2_j2
 
   FROM public."Sets" s
-  JOIN public."Partidos" m ON m.id = s.partido_id
-  JOIN public."Jornadas" j ON j.id = m.jornada_id
-  JOIN public."Categorias" c ON c.id = m.categoria_id
+  JOIN public."Partidos" m
+    ON m.id = s.partido_id
+
+  JOIN public."Jornadas" j
+    ON j.id = m.jornada_id
+
+  JOIN public."Categorias" c
+    ON c.id = m.categoria_id
 
   LEFT JOIN public."Participacion" p1
     ON p1.partido_id = s.partido_id
@@ -64,6 +70,7 @@ WITH sets_base AS (
 
 expanded_sets AS (
   SELECT
+    partido_id,
     mes_id,
     categoria_id,
     puntos_set,
@@ -76,6 +83,7 @@ expanded_sets AS (
   UNION ALL
 
   SELECT
+    partido_id,
     mes_id,
     categoria_id,
     puntos_set,
@@ -88,6 +96,7 @@ expanded_sets AS (
   UNION ALL
 
   SELECT
+    partido_id,
     mes_id,
     categoria_id,
     puntos_set,
@@ -100,6 +109,7 @@ expanded_sets AS (
   UNION ALL
 
   SELECT
+    partido_id,
     mes_id,
     categoria_id,
     puntos_set,
@@ -113,9 +123,15 @@ expanded_sets AS (
 classification AS (
   SELECT
     player_id,
-    SUM(CASE WHEN win THEN puntos_set ELSE 0 END) + 5 AS points,
+
+    SUM(CASE WHEN win THEN puntos_set ELSE 0 END)
+      + COUNT(DISTINCT partido_id) * 5 AS points,
+
     SUM(gf - ga) AS diff,
-    SUM(gf) AS games_for
+    SUM(gf) AS games_for,
+
+    COUNT(DISTINCT partido_id) AS matches_played
+
   FROM expanded_sets
   WHERE mes_id = p_mes_id
     AND categoria_id = p_categoria_id
@@ -141,7 +157,8 @@ SELECT
   p.nickname,
   COALESCE(c.points, 0) AS points,
   COALESCE(c.diff, 0) AS diff,
-  COALESCE(c.games_for, 0) AS games_for
+  COALESCE(c.games_for, 0) AS games_for,
+  COALESCE(c.matches_played, 0) AS matches_played
 FROM players_in_category p
 LEFT JOIN classification c
   ON c.player_id = p.player_id

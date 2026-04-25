@@ -73,6 +73,17 @@ export default function CookiePolicy() {
                   Persistente (hasta cierre de sesión o expiración del token)
                 </td>
               </tr>
+              <tr className="border-b border-border">
+                <td className="py-3 px-4 text-sm font-medium">temporadaId</td>
+                <td className="py-3 px-4 text-sm">
+                  Recuerda la temporada seleccionada por el usuario para
+                  mantener la preferencia al navegar entre páginas de la
+                  aplicación.
+                </td>
+                <td className="py-3 px-4 text-sm">
+                  Persistente (hasta cierre de sesión)
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

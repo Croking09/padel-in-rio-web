@@ -19,6 +19,7 @@ export default async function LigaNav({
             { href: "/admin/liga/generador", label: "Generador" },
           ]}
           publicLinks={[
+            { href: "/liga/clasificacion", label: "Clasificación General" },
             { href: "/liga/ascensor", label: "Ascensor" },
             { href: "/liga/partidos", label: "Partidos" },
             { href: "/liga/reglamento", label: "Reglamento" },

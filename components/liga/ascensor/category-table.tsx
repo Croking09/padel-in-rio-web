@@ -38,6 +38,9 @@ export function CategoryTable({ data }: Props) {
             <th className="w-14 py-2 px-3 text-center text-xs font-semibold uppercase">
               JG
             </th>
+            <th className="w-14 py-2 px-3 text-center text-xs font-semibold uppercase">
+              PJ
+            </th>
           </tr>
         </thead>
 
