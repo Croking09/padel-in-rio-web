@@ -6,7 +6,8 @@ RETURNS TABLE (
     nickname text,
     points integer,
     diff integer,
-    games_for integer
+    games_for integer,
+    matches_played integer
 )
 LANGUAGE sql
 STABLE
@@ -120,14 +121,16 @@ expanded_sets AS (
 classification AS (
   SELECT
     player_id,
+
     SUM(
-      CASE
-        WHEN win THEN puntos_set
-        ELSE 0
-      END
+      CASE WHEN win THEN puntos_set ELSE 0 END
     ) + COUNT(DISTINCT partido_id) * 5 AS points,
+
     SUM(gf - ga) AS diff,
-    SUM(gf) AS games_for
+    SUM(gf) AS games_for,
+
+    COUNT(DISTINCT partido_id) AS matches_played
+
   FROM expanded_sets
   WHERE player_id IS NOT NULL
   GROUP BY player_id
@@ -138,7 +141,8 @@ SELECT
   s.nickname,
   c.points,
   c.diff,
-  c.games_for
+  c.games_for,
+  c.matches_played
 FROM classification c
 JOIN public."Socios" s
   ON s.id = c.player_id
