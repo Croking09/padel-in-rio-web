@@ -13,7 +13,7 @@ describe("Header", () => {
     const expectedHrefs = [
       "/",
       "/torneos",
-      "/liga/reglamento",
+      "/liga/ascensor",
       "/asociacion",
       "/equipo",
     ];
