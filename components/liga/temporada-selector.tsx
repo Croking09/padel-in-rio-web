@@ -7,6 +7,20 @@ import { useWebHaptics } from "web-haptics/react";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
+const COOKIE_KEY = "temporadaId";
+
+function getTemporadaCookie(): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(`${COOKIE_KEY}=`));
+  return match ? match.split("=")[1] : null;
+}
+
+function setTemporadaCookie(value: string) {
+  document.cookie = `${COOKIE_KEY}=${value}; path=/`;
+}
+
 export default function TemporadaSelector({
   temporadas,
 }: {
@@ -18,7 +32,6 @@ export default function TemporadaSelector({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Close on click outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (
@@ -32,7 +45,6 @@ export default function TemporadaSelector({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Close on Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
@@ -41,10 +53,23 @@ export default function TemporadaSelector({
     return () => document.removeEventListener("keydown", handler);
   }, []);
 
+  useEffect(() => {
+    if (!searchParams.get("temporadaId")) {
+      const fromCookie = getTemporadaCookie();
+      if (fromCookie && temporadas.some((t) => String(t.id) === fromCookie)) {
+        const params = new URLSearchParams(searchParams);
+        params.set("temporadaId", fromCookie);
+        router.replace(`?${params.toString()}`);
+      }
+    }
+  });
+
   if (!temporadas || temporadas.length === 0) return null;
 
   const currentTemporadaId =
-    searchParams.get("temporadaId") || String(temporadas[0]?.id || "");
+    searchParams.get("temporadaId") ||
+    getTemporadaCookie() ||
+    String(temporadas[0]?.id || "");
 
   const currentTemporada = temporadas.find(
     (t) => String(t.id) === currentTemporadaId,
@@ -52,6 +77,7 @@ export default function TemporadaSelector({
 
   const handleSelect = (value: string) => {
     trigger(hapticResponseSettings);
+    setTemporadaCookie(value);
     const params = new URLSearchParams(searchParams);
     params.set("temporadaId", value);
     params.delete("monthId");
