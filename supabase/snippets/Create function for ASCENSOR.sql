@@ -41,9 +41,14 @@ WITH sets_base AS (
     END AS real_p2_j2
 
   FROM public."Sets" s
-  JOIN public."Partidos" m ON m.id = s.partido_id
-  JOIN public."Jornadas" j ON j.id = m.jornada_id
-  JOIN public."Categorias" c ON c.id = m.categoria_id
+  JOIN public."Partidos" m
+    ON m.id = s.partido_id
+
+  JOIN public."Jornadas" j
+    ON j.id = m.jornada_id
+
+  JOIN public."Categorias" c
+    ON c.id = m.categoria_id
 
   LEFT JOIN public."Participacion" p1
     ON p1.partido_id = s.partido_id
@@ -64,6 +69,7 @@ WITH sets_base AS (
 
 expanded_sets AS (
   SELECT
+    partido_id,
     mes_id,
     categoria_id,
     puntos_set,
@@ -76,6 +82,7 @@ expanded_sets AS (
   UNION ALL
 
   SELECT
+    partido_id,
     mes_id,
     categoria_id,
     puntos_set,
@@ -88,6 +95,7 @@ expanded_sets AS (
   UNION ALL
 
   SELECT
+    partido_id,
     mes_id,
     categoria_id,
     puntos_set,
@@ -100,6 +108,7 @@ expanded_sets AS (
   UNION ALL
 
   SELECT
+    partido_id,
     mes_id,
     categoria_id,
     puntos_set,
@@ -113,7 +122,12 @@ expanded_sets AS (
 classification AS (
   SELECT
     player_id,
-    SUM(CASE WHEN win THEN puntos_set ELSE 0 END) + 5 AS points,
+    SUM(
+      CASE
+        WHEN win THEN puntos_set
+        ELSE 0
+      END
+    ) + COUNT(DISTINCT partido_id) * 5 AS points,
     SUM(gf - ga) AS diff,
     SUM(gf) AS games_for
   FROM expanded_sets

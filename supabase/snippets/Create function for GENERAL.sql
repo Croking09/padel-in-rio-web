@@ -1,4 +1,6 @@
-CREATE OR REPLACE FUNCTION public.get_global_classification()
+CREATE OR REPLACE FUNCTION public.get_global_classification(
+    p_temporada_id integer
+)
 RETURNS TABLE (
     player_id integer,
     nickname text,
@@ -36,8 +38,17 @@ WITH sets_base AS (
     END AS real_p2_j2
 
   FROM public."Sets" s
-  JOIN public."Partidos" m ON m.id = s.partido_id
-  JOIN public."Categorias" c ON c.id = m.categoria_id
+  JOIN public."Partidos" m
+    ON m.id = s.partido_id
+
+  JOIN public."Jornadas" jor
+    ON jor.id = m.jornada_id
+
+  JOIN public."Meses" mes
+    ON mes.id = jor.mes_id
+
+  JOIN public."Categorias" c
+    ON c.id = m.categoria_id
 
   LEFT JOIN public."Participacion" p1
     ON p1.partido_id = s.partido_id
@@ -54,10 +65,13 @@ WITH sets_base AS (
   LEFT JOIN public."Participacion" p4
     ON p4.partido_id = s.partido_id
     AND p4.jugador_id = s.pareja2_jugador2_id
+
+  WHERE mes.temporada_id = p_temporada_id
 ),
 
 expanded_sets AS (
   SELECT
+    partido_id,
     categoria_id,
     puntos_set,
     real_p1_j1 AS player_id,
@@ -69,6 +83,7 @@ expanded_sets AS (
   UNION ALL
 
   SELECT
+    partido_id,
     categoria_id,
     puntos_set,
     real_p1_j2,
@@ -80,6 +95,7 @@ expanded_sets AS (
   UNION ALL
 
   SELECT
+    partido_id,
     categoria_id,
     puntos_set,
     real_p2_j1,
@@ -91,6 +107,7 @@ expanded_sets AS (
   UNION ALL
 
   SELECT
+    partido_id,
     categoria_id,
     puntos_set,
     real_p2_j2,
@@ -103,7 +120,12 @@ expanded_sets AS (
 classification AS (
   SELECT
     player_id,
-    SUM(CASE WHEN win THEN puntos_set ELSE 0 END) + 5 AS points,
+    SUM(
+      CASE
+        WHEN win THEN puntos_set
+        ELSE 0
+      END
+    ) + COUNT(DISTINCT partido_id) * 5 AS points,
     SUM(gf - ga) AS diff,
     SUM(gf) AS games_for
   FROM expanded_sets
@@ -113,13 +135,13 @@ classification AS (
 
 SELECT
   c.player_id,
-  j.nickname,
+  s.nickname,
   c.points,
   c.diff,
   c.games_for
 FROM classification c
-JOIN public."Socios" j
-  ON j.id = c.player_id
+JOIN public."Socios" s
+  ON s.id = c.player_id
 ORDER BY
   c.points DESC,
   c.diff DESC,
