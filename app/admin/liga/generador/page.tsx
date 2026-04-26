@@ -31,7 +31,12 @@ export default async function Page({
 
   if (!currentMonthId) {
     return (
-      <div className="p-8">No hay meses configurados para esta temporada.</div>
+      <div className="p-8">
+        <h2 className="text-2xl font-bold pb-8">Generador de Partidos</h2>
+        <div className="text-center py-25 rounded-lg border-2 border-dashed">
+          <p>No hay meses confirmados para mostrar.</p>
+        </div>
+      </div>
     );
   }
 

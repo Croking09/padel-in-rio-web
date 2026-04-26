@@ -20,11 +20,11 @@ export default async function Page({ searchParams }: PageProps) {
   const data = await getGeneralClassification(activeTemporadaId);
 
   return (
-    <div className="max-w-[90%] mx-auto px-4 py-8 space-y-8 flex flex-col items-center">
+    <div className="mx-auto p-8 space-y-8 flex flex-col items-center">
       <h1 className="text-3xl font-bold">Clasificación General</h1>
 
       {!data.length ? (
-        <div className="text-center py-20 rounded-lg border-2 border-dashed">
+        <div className="text-center py-25 px-10 rounded-lg border-2 border-dashed w-full">
           <p>No se encontraron datos para la temporada seleccionada.</p>
         </div>
       ) : (

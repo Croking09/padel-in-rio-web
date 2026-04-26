@@ -7,7 +7,7 @@ type Props = {
 
 export function GeneralTable({ data }: Props) {
   return (
-    <div className="rounded-xl overflow-hidden border border-border w-xl">
+    <div className="rounded-xl overflow-hidden border border-border md:w-xl">
       <table className="w-full text-sm">
         <thead>
           <tr className="bg-primary/40 border-b border-border">
