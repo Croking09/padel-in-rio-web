@@ -110,6 +110,7 @@ export async function registerMatchResults(
   if (error) return { success: false, error };
 
   revalidatePath("/liga/ascensor");
+  revalidatePath("/liga/clasificacion");
   revalidatePath(`/liga/partidos/${partidoId}/resultados`);
 
   return { success: true };

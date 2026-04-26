@@ -3,6 +3,7 @@ CREATE OR REPLACE FUNCTION public.get_global_classification(
 )
 RETURNS TABLE (
     player_id integer,
+    full_name text,
     nickname text,
     points integer,
     diff integer,
@@ -138,6 +139,7 @@ classification AS (
 
 SELECT
   c.player_id,
+  s.full_name,
   s.nickname,
   c.points,
   c.diff,
