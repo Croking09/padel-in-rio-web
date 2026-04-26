@@ -38,8 +38,11 @@ export default async function Page({ searchParams }: PageProps) {
 
   if (!currentMonthId) {
     return (
-      <div className="text-center py-20 rounded-lg border-2 border-dashed">
-        <p>No hay meses confirmados para mostrar.</p>
+      <div className="p-8">
+        <h2 className="text-2xl font-bold pb-8">Ascensor</h2>
+        <div className="text-center py-25 rounded-lg border-2 border-dashed">
+          <p>No hay meses confirmados para mostrar.</p>
+        </div>
       </div>
     );
   }
@@ -59,11 +62,11 @@ export default async function Page({ searchParams }: PageProps) {
       </div>
 
       {confirmedMonths.length === 0 ? (
-        <div className="text-center py-20 rounded-lg border-2 border-dashed">
+        <div className="text-center py-25 rounded-lg border-2 border-dashed">
           <p>No hay meses confirmados para mostrar.</p>
         </div>
       ) : sorted.every((cat) => cat.classification.length === 0) ? (
-        <div className="text-center py-20 rounded-lg border-2 border-dashed">
+        <div className="text-center py-25 rounded-lg border-2 border-dashed">
           <p>No se encontraron datos para el mes seleccionado.</p>
         </div>
       ) : (

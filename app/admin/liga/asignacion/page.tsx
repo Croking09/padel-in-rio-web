@@ -27,13 +27,20 @@ export default async function AssignmentPage({
     monthIdParam ?? getCurrentMonthId(months) ?? months.at(0)?.id;
 
   if (!currentMonthId) {
-    return <div>No hay meses configurados. Por favor crea meses primero.</div>;
+    return (
+      <div className="p-8">
+        <h2 className="text-2xl font-bold pb-8">Asignación de Jugadores</h2>
+        <div className="text-center py-25 rounded-lg border-2 border-dashed">
+          <p>No hay meses confirmados para mostrar.</p>
+        </div>
+      </div>
+    );
   }
 
   const data = await getAssignmentData(currentMonthId);
 
   return (
-    <div className="container mx-auto p-4 flex flex-col gap-4 mt-4">
+    <div className="container mx-auto p-8 flex flex-col gap-4 mt-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Asignación de Jugadores</h2>
         <MonthSelector months={months} currentMonthId={currentMonthId} />

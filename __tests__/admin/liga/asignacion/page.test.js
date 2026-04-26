@@ -184,7 +184,7 @@ describe("AssignmentPage", () => {
 
     expect(
       screen.getByText(
-        "No hay meses configurados. Por favor crea meses primero."
+        "No hay meses confirmados para mostrar."
       )
     ).toBeInTheDocument();
   });

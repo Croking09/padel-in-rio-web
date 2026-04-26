@@ -44,10 +44,13 @@ export default async function Page({
     getCurrentMonthId(confirmedMonths) ??
     confirmedMonths.at(-1)?.id;
 
-  const { matchesByDay } = await getMatchesByDayGlobal(currentMonthId, activeTemporadaId);
+  const { matchesByDay } = await getMatchesByDayGlobal(
+    Number(currentMonthId),
+    activeTemporadaId,
+  );
 
   return (
-    <div className="container mx-auto py-8 px-4 space-y-8">
+    <div className="container mx-auto p-8 space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <h1 className="text-3xl font-bold">Partidos de la Liga</h1>
 
@@ -57,7 +60,7 @@ export default async function Page({
       </div>
 
       {confirmedMonths.length === 0 ? (
-        <div className="text-center py-20 rounded-lg border-2 border-dashed">
+        <div className="text-center py-25 px-10 rounded-lg border-2 border-dashed">
           <p>Todavía no hay partidos confirmados.</p>
         </div>
       ) : Object.keys(matchesByDay).length === 0 ? (
