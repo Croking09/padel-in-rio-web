@@ -3,9 +3,10 @@ import { PlayerRow } from "@/components/liga/ascensor/player-row";
 
 type Props = {
   data: CategoryClassification;
+  isLast: boolean;
 };
 
-export function CategoryTable({ data }: Props) {
+export function CategoryTable({ data, isLast }: Props) {
   const sorted = [...data.classification].sort((a, b) => {
     if (b.points !== a.points) return b.points - a.points;
     if (b.diff !== a.diff) return b.diff - a.diff;
@@ -52,6 +53,7 @@ export function CategoryTable({ data }: Props) {
               index={i}
               categoryId={data.category.id}
               zebra={i % 2 === 0}
+              isLastCategory={isLast}
             />
           ))}
         </tbody>

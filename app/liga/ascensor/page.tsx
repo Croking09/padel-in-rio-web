@@ -36,6 +36,9 @@ export default async function Page({ searchParams }: PageProps) {
     getCurrentMonthId(confirmedMonths) ??
     confirmedMonths.at(-1)?.id;
 
+  const selectedMonth = months.find((m) => m.id === currentMonthId);
+  const showFifthCategory = selectedMonth?.["5_category"] ?? false;
+
   if (!currentMonthId) {
     return (
       <div className="p-8">
@@ -50,6 +53,11 @@ export default async function Page({ searchParams }: PageProps) {
   const data: CategoryClassification[] = await getAscensor(currentMonthId);
 
   const sorted = [...data].sort((a, b) => a.category.id - b.category.id);
+
+  const filtered = sorted.filter((cat) => {
+    if (showFifthCategory) return true;
+    return cat.category.id !== 5;
+  });
 
   return (
     <div className="max-w-[90%] mx-auto px-4 py-8 space-y-8">
@@ -71,8 +79,12 @@ export default async function Page({ searchParams }: PageProps) {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {sorted.map((cat) => (
-            <CategoryTable key={cat.category.id} data={cat} />
+          {filtered.map((cat, idx) => (
+            <CategoryTable
+              key={cat.category.id}
+              data={cat}
+              isLast={idx === filtered.length - 1}
+            />
           ))}
         </div>
       )}

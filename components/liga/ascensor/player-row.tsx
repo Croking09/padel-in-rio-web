@@ -5,11 +5,18 @@ type Props = {
   index: number;
   categoryId: number;
   zebra: boolean;
+  isLastCategory: boolean;
 };
 
-export function PlayerRow({ player, index, categoryId, zebra }: Props) {
+export function PlayerRow({
+  player,
+  index,
+  categoryId,
+  zebra,
+  isLastCategory,
+}: Props) {
   const isTop = index < 3 && categoryId !== 1;
-  const isBottom = index >= 5 && categoryId !== 5;
+  const isBottom = !isLastCategory && index >= 5;
 
   const zebraBg = zebra ? "bg-primary/20" : "bg-background";
 
