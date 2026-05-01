@@ -70,7 +70,45 @@ export function generateCategoryMatches(
   categoryName: string,
   players: Socio[],
 ): Match[] {
-  const j = [...players].sort(() => Math.random() - 0.5);
+  const shuffled = [...players].sort(() => Math.random() - 0.5);
+
+  if (categoryId === 4) {
+    const n = shuffled.length;
+
+    if (n % 4 !== 0) {
+      throw new Error("El número de jugadores debe ser múltiplo de 4");
+    }
+
+    const matches: Match[] = [];
+    const numGroups = n / 4;
+
+    // 🟢 Jornada 1
+    for (let i = 0; i < numGroups; i++) {
+      matches.push({
+        categoryId,
+        categoryName,
+        matchday: 1,
+        players: shuffled.slice(i * 4, i * 4 + 4),
+      });
+    }
+
+    // 🟢 Jornada 2 (rotación simple)
+    const rotated = [...shuffled.slice(n / 2), ...shuffled.slice(0, n / 2)];
+
+    for (let i = 0; i < numGroups; i++) {
+      matches.push({
+        categoryId,
+        categoryName,
+        matchday: 2,
+        players: rotated.slice(i * 4, i * 4 + 4),
+      });
+    }
+
+    return matches;
+  }
+
+  // resto igual
+  const j = shuffled;
 
   return [
     { categoryId, categoryName, matchday: 1, players: j.slice(0, 4) },

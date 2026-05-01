@@ -84,12 +84,20 @@ export default function AssignmentBoard({
   const isConfirmed = data.status === MonthStatus.Confirmed;
 
   const validateCategories = () => {
+    const isFourCategories = data.categories.length === 4;
+
     const invalidCategories = data.categories.filter((category) => {
       const count = data.assignments.filter(
         (a) => a.categoria_id === category.id,
       ).length;
+
+      if (isFourCategories && category.id === 4) {
+        return count % 4 !== 0 || count === 0;
+      }
+
       return count !== 8;
     });
+
     return invalidCategories;
   };
 
@@ -286,6 +294,11 @@ export default function AssignmentBoard({
                 <CategoryColumn
                   key={category.id}
                   category={category}
+                  capacityLabel={
+                    category.id === 4 && data.categories.length !== 5
+                      ? "?"
+                      : "8"
+                  }
                   assignedPlayers={data.players.filter((p) =>
                     data.assignments.find(
                       (a) =>
@@ -351,12 +364,14 @@ function UnassignedColumn({
 
 function CategoryColumn({
   category,
+  capacityLabel,
   assignedPlayers,
   assignments,
   onDrop,
   disabled,
 }: {
   category: Category;
+  capacityLabel: string;
   assignedPlayers: Player[];
   assignments: Assignment[];
   onDrop: (item: DragItem) => void;
@@ -388,7 +403,7 @@ function CategoryColumn({
       <div className="p-3 border-b font-semibold flex justify-between items-center">
         <span>{category.name}</span>
         <span className="text-xs px-2 py-1 rounded-full">
-          {assignedPlayers.length}/8
+          {assignedPlayers.length}/{capacityLabel}
         </span>
       </div>
       <div className="flex-1 overflow-y-auto p-2 space-y-2 custom-scroll">

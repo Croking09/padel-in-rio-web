@@ -10,12 +10,9 @@ const basePlayer = {
   games_for: 8,
 };
 
-function renderRow(
-  overrides = {},
-  props = {},
-) {
+function renderRow(overrides = {}, props = {}) {
   const player = { ...basePlayer, ...overrides };
-  const { index = 0, categoryId = 2, zebra = false } = props;
+  const { index = 0, categoryId = 2, zebra = false, isLastCategory = false } = props;
 
   return render(
     <table>
@@ -25,6 +22,7 @@ function renderRow(
           index={index}
           categoryId={categoryId}
           zebra={zebra}
+          isLastCategory={isLastCategory}
         />
       </tbody>
     </table>,
@@ -111,8 +109,12 @@ describe("PlayerRow", () => {
       expect(getRowClass(container)).not.toMatch(/ef4444/);
     });
 
-    it("NO aplica el gradiente rojo en 5ª categoría aunque esté en bottom 3", () => {
-      const { container } = renderRow({}, { index: 7, categoryId: 5 });
+    it("NO aplica rojo si es la última categoría (dinámico)", () => {
+      const { container } = renderRow(
+        {},
+        { index: 7, isLastCategory: true },
+      );
+
       expect(getRowClass(container)).not.toMatch(/ef4444/);
     });
   });
