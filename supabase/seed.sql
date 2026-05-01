@@ -14,7 +14,7 @@ VALUES
   ('2026', '2026-01-01');
 
 INSERT INTO public."Meses"
-  (temporada_id, month, year) -- status: draft by default
+  (temporada_id, month, year) -- status: draft by default, 5_category: true by default
 VALUES
   (2, 1, 2026),
   (2, 2, 2026),

@@ -46,7 +46,7 @@ export async function getAssignmentData(
   // Fetch month status
   const { data: monthData, error: monthError } = await supabase
     .from("Meses")
-    .select("status")
+    .select('status, "5_category"')
     .eq("id", monthId)
     .single();
 
@@ -76,8 +76,15 @@ export async function getAssignmentData(
 
   if (assignError) throw assignError;
 
+  // 🔥 FILTRO CLAVE
+  let filteredCategories = categories || [];
+
+  if (!monthData["5_category"]) {
+    filteredCategories = filteredCategories.filter((c) => c.id !== 5);
+  }
+
   return {
-    categories: categories || [],
+    categories: filteredCategories,
     players: players || [],
     assignments: assignments || [],
     status: monthData.status as MonthStatus,

@@ -44,12 +44,19 @@ export default async function Page({
   const isMonthLocked = selectedMonth?.status === MonthStatus.Locked;
   const isMonthConfirmed = selectedMonth?.status === MonthStatus.Confirmed;
 
+  const showFifthCategory = selectedMonth?.["5_category"] ?? false;
+
   const matches =
     isMonthLocked || isMonthConfirmed ? await previewMonth(currentMonthId) : [];
 
+  const filteredMatches = matches.filter((match) => {
+    if (showFifthCategory) return true;
+    return match.categoryId !== 5 && match.categoryName !== "5ª";
+  });
+
   const matchesByDay: Record<number, Record<string, Match[]>> = {};
 
-  matches.forEach((match) => {
+  filteredMatches.forEach((match) => {
     if (!matchesByDay[match.matchday]) {
       matchesByDay[match.matchday] = {};
     }
