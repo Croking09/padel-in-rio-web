@@ -27,6 +27,7 @@ export type AssignmentData = {
   players: Player[];
   assignments: Assignment[];
   status: MonthStatus;
+  useFifthCategory: boolean;
 };
 
 export type Month = {
@@ -43,7 +44,7 @@ export async function getAssignmentData(
 ): Promise<AssignmentData> {
   const supabase = createAdmin();
 
-  // Fetch month status
+  // Fetch month status + config
   const { data: monthData, error: monthError } = await supabase
     .from("Meses")
     .select('status, "5_category"')
@@ -52,7 +53,7 @@ export async function getAssignmentData(
 
   if (monthError) throw monthError;
 
-  // Fetch categories
+  // Fetch ALL categories (NO FILTRAR AQUÍ)
   const { data: categories, error: catError } = await supabase
     .from("Categorias")
     .select("*")
@@ -60,7 +61,7 @@ export async function getAssignmentData(
 
   if (catError) throw catError;
 
-  // Fetch all players (Socios)
+  // Fetch active players
   const { data: players, error: playerError } = await supabase
     .from("Socios")
     .select("*")
@@ -68,7 +69,7 @@ export async function getAssignmentData(
 
   if (playerError) throw playerError;
 
-  // Fetch current assignments for the month
+  // Fetch assignments for this month
   const { data: assignments, error: assignError } = await supabase
     .from("Jugador_Categoria_Mes")
     .select("id, jugador_id, categoria_id")
@@ -76,18 +77,12 @@ export async function getAssignmentData(
 
   if (assignError) throw assignError;
 
-  // 🔥 FILTRO CLAVE
-  let filteredCategories = categories || [];
-
-  if (!monthData["5_category"]) {
-    filteredCategories = filteredCategories.filter((c) => c.id !== 5);
-  }
-
   return {
-    categories: filteredCategories,
+    categories: categories || [],
     players: players || [],
     assignments: assignments || [],
     status: monthData.status as MonthStatus,
+    useFifthCategory: monthData["5_category"], // 👈 CLAVE
   };
 }
 

@@ -52,3 +52,17 @@ export async function getMonths(): Promise<Month[]> {
     status: mapMonthStatus(m.status),
   }));
 }
+
+export async function updateUseFithCategory(
+  monthId: number,
+  useFifth: boolean,
+): Promise<void> {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("Meses")
+    .update({ "5_category": useFifth })
+    .eq("id", monthId);
+
+  if (error) console.error(error);
+}
