@@ -2,9 +2,10 @@ import { getAscensor } from "@/app/actions/clasificacion";
 import { CategoryClassification } from "@/lib/types/classification";
 import { CategoryTable } from "@/components/liga/ascensor/category-table";
 import MonthSelector from "@/components/liga/month-selector";
-import { getMonths, getTemporadas } from "@/app/actions/ligas";
+import { getMonths, getTemporadas, hasBonusGiven } from "@/app/actions/ligas";
 import { getCurrentMonthId } from "@/lib/utils";
 import { MonthStatus } from "@/lib/types/month";
+import BonusButton from "@/components/liga/ascensor/bonus-button";
 
 interface PageProps {
   searchParams: Promise<{ monthId?: string; temporadaId?: string }>;
@@ -36,6 +37,10 @@ export default async function Page({ searchParams }: PageProps) {
     getCurrentMonthId(confirmedMonths) ??
     confirmedMonths.at(-1)?.id;
 
+  const bonusExists = currentMonthId
+    ? await hasBonusGiven(currentMonthId)
+    : false;
+
   const selectedMonth = months.find((m) => m.id === currentMonthId);
   const showFifthCategory = selectedMonth?.["5_category"] ?? false;
 
@@ -62,7 +67,17 @@ export default async function Page({ searchParams }: PageProps) {
   return (
     <div className="max-w-[90%] mx-auto px-4 py-8 space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-        <h1 className="text-3xl font-bold">Ascensor</h1>
+        <div className="flex flex-col md:flex-row gap-2 md:gap-4 items-center">
+          <h1 className="text-3xl font-bold">Ascensor</h1>
+          {bonusExists ? (
+            <span className="opacity-50">(Ya se ha aplicado el bonus)</span>
+          ) : (
+            <BonusButton
+              classification={filtered}
+              month_id={currentMonthId}
+            ></BonusButton>
+          )}
+        </div>
 
         {months.length > 0 && (
           <MonthSelector months={months} currentMonthId={currentMonthId} />

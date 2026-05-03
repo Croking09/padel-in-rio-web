@@ -1,7 +1,7 @@
 "use client";
 
 import { DropTargetMonitor, useDrop } from "react-dnd";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   AssignmentData,
   saveAssignments,
@@ -36,6 +36,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useWebHaptics } from "web-haptics/react";
 import { MonthStatus } from "@/lib/types/month";
+import { Checkbox } from "@/components/ui/checkbox";
+import { updateUseFithCategory } from "@/app/actions/ligas";
 
 interface AssignmentBoardProps {
   initialData: AssignmentData;
@@ -72,21 +74,43 @@ export default function AssignmentBoard({
   const [data, setData] = useState(initialData);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [useFifthCategory, setUseFifthCategory] = useState(
+    initialData.useFifthCategory,
+  );
 
   const { trigger } = useWebHaptics();
 
   useEffect(() => {
     setData(initialData);
     setHasChanges(false);
+    setUseFifthCategory(initialData.useFifthCategory);
   }, [initialData]);
+
+  useEffect(() => {
+    setData(initialData);
+    setHasChanges(false);
+  }, [initialData]);
+
+  const handleToggleFifthCategory = async () => {
+    const newValue = !useFifthCategory;
+    setUseFifthCategory(newValue);
+
+    await updateUseFithCategory(monthId, newValue);
+  };
+
+  const visibleCategories = useMemo(() => {
+    return useFifthCategory
+      ? data.categories
+      : data.categories.filter((c) => c.id !== 5);
+  }, [data.categories, useFifthCategory]);
 
   const isLocked = data.status === MonthStatus.Locked;
   const isConfirmed = data.status === MonthStatus.Confirmed;
 
   const validateCategories = () => {
-    const isFourCategories = data.categories.length === 4;
+    const isFourCategories = visibleCategories.length === 4;
 
-    const invalidCategories = data.categories.filter((category) => {
+    return visibleCategories.filter((category) => {
       const count = data.assignments.filter(
         (a) => a.categoria_id === category.id,
       ).length;
@@ -97,8 +121,6 @@ export default function AssignmentBoard({
 
       return count !== 8;
     });
-
-    return invalidCategories;
   };
 
   const invalidCategories = validateCategories();
@@ -203,7 +225,14 @@ export default function AssignmentBoard({
           </div>
 
           {!isLocked && !isConfirmed && (
-            <div className="flex flex-col md:flex-row gap-2">
+            <div className="flex flex-col md:flex-row gap-2 md:items-center">
+              <label className="flex items-center gap-2 text-sm">
+                <span>Fusionar 4ª y 5ª categoría</span>
+                <Checkbox
+                  checked={!useFifthCategory}
+                  onCheckedChange={handleToggleFifthCategory}
+                />
+              </label>
               <Button
                 onClick={() => {
                   trigger([
@@ -290,14 +319,12 @@ export default function AssignmentBoard({
 
           <div className="flex-1 w-full md:w-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-4">
-              {data.categories.map((category) => (
+              {visibleCategories.map((category) => (
                 <CategoryColumn
                   key={category.id}
                   category={category}
                   capacityLabel={
-                    category.id === 4 && data.categories.length !== 5
-                      ? "?"
-                      : "8"
+                    category.id === 4 && !useFifthCategory ? "?" : "8"
                   }
                   assignedPlayers={data.players.filter((p) =>
                     data.assignments.find(
