@@ -11,6 +11,7 @@ jest.mock("@/app/actions/clasificacion", () => ({
 jest.mock("@/app/actions/ligas", () => ({
   getMonths: (...args) => mockGetMonths(...args),
   getTemporadas: (...args) => mockGetTemporadas(...args),
+  hasBonusGiven: jest.fn().mockResolvedValue(false),
 }));
 
 jest.mock("@/components/liga/month-selector", () => ({
