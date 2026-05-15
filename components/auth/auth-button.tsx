@@ -16,7 +16,7 @@ export async function AuthButton() {
   const pathname = headersList.get("x-pathname") ?? "/";
 
   return user ? (
-    <div className="flex items-center gap-4">
+    <div className="flex flex-col md:flex-row items-center gap-4">
       Hola! {user.email}
       <LogoutButton />
     </div>
