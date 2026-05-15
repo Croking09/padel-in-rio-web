@@ -15,14 +15,6 @@ type PageProps = {
 };
 
 export default async function Page({ searchParams }: PageProps) {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const isAdmin = user?.app_metadata?.admin === true;
-
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 items-center mt-8 text-center md:text-left">
@@ -35,24 +27,37 @@ export default async function Page({ searchParams }: PageProps) {
         </div>
       </div>
 
-      {isAdmin && (
-        <div className="px-8 pt-4 md:pt-0 flex justify-center md:justify-start">
-          <Suspense
-            fallback={
-              <Button disabled className="w-full md:w-auto">
-                Crear torneo
-              </Button>
-            }
-          >
-            <CreateTorneoButton className="w-full md:w-auto" />
-          </Suspense>
-        </div>
-      )}
+      <Suspense
+        fallback={
+          <Button disabled className="w-full md:w-auto invisible">
+            Crear torneo
+          </Button>
+        }
+      >
+        <AdminSection />
+      </Suspense>
 
       <Suspense fallback={<TorneosSkeleton />}>
         <TorneosWrapper searchParams={searchParams} />
       </Suspense>
     </>
+  );
+}
+
+async function AdminSection() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const isAdmin = user?.app_metadata?.admin === true;
+
+  if (!isAdmin) return null;
+
+  return (
+    <div className="px-8 pt-4 md:pt-0 flex justify-center md:justify-start">
+      <CreateTorneoButton className="w-full md:w-auto" />
+    </div>
   );
 }
 
