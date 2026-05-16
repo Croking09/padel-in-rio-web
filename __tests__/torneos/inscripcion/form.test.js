@@ -6,6 +6,10 @@ jest.mock("@/app/actions/inscripciones", () => ({
   inscribirTorneo: jest.fn(),
 }));
 
+jest.mock("next/navigation", () => ({
+  redirect: jest.fn(),
+}));
+
 import { inscribirTorneo } from "@/app/actions/inscripciones";
 
 describe("Inscripcion Form", () => {
