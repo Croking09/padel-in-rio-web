@@ -7,6 +7,7 @@ import ToggleInscriptionsButton from "@/components/torneos/admin/toggle-inscript
 import { createClient } from "@/lib/supabase/server";
 import DeleteButton from "@/components/torneos/admin/delete-button";
 import ViewInscriptionsButton from "@/components/torneos/admin/view-inscriptions-button";
+import { getMyInscripcionesOpenTorneos } from "@/app/actions/inscripciones";
 
 interface TorneosProps {
   page?: number;
@@ -22,6 +23,14 @@ export default async function Torneos({ page = 1 }: TorneosProps) {
   } = await supabase.auth.getUser();
 
   const isAdmin = user?.app_metadata?.admin === true;
+
+  const { data: inscripciones } = user
+    ? await getMyInscripcionesOpenTorneos(user.id)
+    : { data: [] };
+  const inscritoEn = new Set(inscripciones?.map((i) => i.torneo_id) ?? []);
+
+  console.log(inscripciones);
+  console.log(inscritoEn);
 
   return (
     <>
@@ -43,22 +52,33 @@ export default async function Torneos({ page = 1 }: TorneosProps) {
                     loading="eager"
                   />
                 </div>
+
                 <div className="flex flex-col p-4">
                   <h3 className="text-2xl font-bold">{torneo.name}</h3>
+
                   <p className="text-sm opacity-80">
                     {formatDate(torneo.start_date)} -{" "}
                     {formatDate(torneo.end_date)}
                   </p>
+
                   <p className="py-2">{torneo.description}</p>
-                  {!isAdmin && (
-                    <InscripcionButton
-                      torneoId={torneo.id}
-                      startDate={torneo.start_date}
-                      inscriptionEndDate={torneo.inscription_end_date}
-                      manuallyClosed={torneo.manually_closed}
-                    />
-                  )}
+
+                  {!isAdmin &&
+                    (inscritoEn.has(torneo.id) ? (
+                      <p className="mt-2 text-green-600 font-medium">
+                        Ya te has inscrito
+                      </p>
+                    ) : (
+                      <InscripcionButton
+                        torneoId={torneo.id}
+                        startDate={torneo.start_date}
+                        inscriptionEndDate={torneo.inscription_end_date}
+                        manuallyClosed={torneo.manually_closed}
+                      />
+                    ))}
+
                   {isAdmin && <ViewInscriptionsButton torneoId={torneo.id} />}
+
                   {isAdmin && (
                     <div className="flex gap-2">
                       <ToggleInscriptionsButton

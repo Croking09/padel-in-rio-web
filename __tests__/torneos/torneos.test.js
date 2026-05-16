@@ -6,6 +6,10 @@ jest.mock("@/app/actions/torneos", () => ({
   getTorneos: jest.fn(),
 }));
 
+jest.mock("@/app/actions/inscripciones", () => ({
+  getMyInscripcionesOpenTorneos: jest.fn(),
+}));
+
 jest.mock("@/lib/supabase/server", () => ({
   createClient: jest.fn().mockResolvedValue({
     auth: {
@@ -38,12 +42,17 @@ jest.mock("@/components/torneos/admin/create-torneo-button", () => ({
 }));
 
 import { getTorneos } from "@/app/actions/torneos";
+import { getMyInscripcionesOpenTorneos } from "@/app/actions/inscripciones";
 import { createClient } from "@/lib/supabase/server";
 
 describe("Torneos", () => {
   beforeAll(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2024-05-09T12:00:00"));
+  });
+
+  beforeEach(() => {
+    getMyInscripcionesOpenTorneos.mockResolvedValue({ data: [] });
   });
 
   afterAll(() => {
