@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useWebHaptics } from "web-haptics/react";
+import { redirect } from "next/navigation";
 
 export default function Form({
   torneo_id,
@@ -60,6 +61,7 @@ export default function Form({
         position: "top-center",
       });
       resetForm();
+      redirect("/torneos");
     }
   };
 
