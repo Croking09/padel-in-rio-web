@@ -173,3 +173,31 @@ export async function toggleInscriptions(
   revalidatePath(`/torneos/inscripcion/${torneoId}`);
   revalidatePath(`/admin/torneos/${torneoId}/inscripciones`);
 }
+
+export async function getMyInscripcionesOpenTorneos(userId: string) {
+  const supabase = createAdmin();
+  const today = new Date().toISOString();
+
+  const { data, error } = await supabase
+    .from("Inscripciones")
+    .select(
+      `
+      torneo_id,
+      torneo:torneo_id (
+        id,
+        inscription_end_date,
+        manually_closed
+      )
+    `,
+    )
+    .eq("user_id", userId)
+    .eq("torneo.manually_closed", false)
+    .gte("torneo.inscription_end_date", today);
+
+  if (error) {
+    console.error(error);
+    return { data: [] };
+  }
+
+  return { data };
+}

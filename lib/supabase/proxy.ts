@@ -80,7 +80,6 @@ export async function updateSession(request: NextRequest) {
     "/auth/forgot-password",
     "/auth/update-password",
     "/torneos",
-    "/torneos/inscripcion",
     "/liga/reglamento",
     "/liga/partidos", // Maybe only for players?
     "/liga/ascensor",
