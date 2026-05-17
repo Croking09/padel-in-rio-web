@@ -6,6 +6,7 @@ import { getMonths, getTemporadas, hasBonusGiven } from "@/app/actions/ligas";
 import { getCurrentMonthId } from "@/lib/utils";
 import { MonthStatus } from "@/lib/types/month";
 import BonusButton from "@/components/liga/ascensor/bonus-button";
+import { createClient } from "@/lib/supabase/server";
 
 interface PageProps {
   searchParams: Promise<{ monthId?: string; temporadaId?: string }>;
@@ -17,6 +18,13 @@ export default async function Page({ searchParams }: PageProps) {
     getTemporadas(),
     searchParams,
   ]);
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const isAdmin = user?.app_metadata?.admin === true;
 
   const temporadaIdParam = params.temporadaId
     ? Number(params.temporadaId)
@@ -69,14 +77,15 @@ export default async function Page({ searchParams }: PageProps) {
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex flex-col md:flex-row gap-2 md:gap-4 items-center">
           <h1 className="text-3xl font-bold">Ascensor</h1>
-          {bonusExists ? (
-            <span className="opacity-50">(Ya se ha aplicado el bonus)</span>
-          ) : (
-            <BonusButton
-              classification={filtered}
-              month_id={currentMonthId}
-            ></BonusButton>
-          )}
+          {isAdmin &&
+            (bonusExists ? (
+              <span className="opacity-50">(Ya se ha aplicado el bonus)</span>
+            ) : (
+              <BonusButton
+                classification={filtered}
+                month_id={currentMonthId}
+              ></BonusButton>
+            ))}
         </div>
 
         {months.length > 0 && (

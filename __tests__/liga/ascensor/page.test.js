@@ -3,6 +3,8 @@ import { render, screen } from "@testing-library/react";
 const mockGetAscensor = jest.fn();
 const mockGetMonths = jest.fn();
 const mockGetTemporadas = jest.fn();
+const mockHasBonusGiven = jest.fn();
+const mockGetUser = jest.fn();
 
 jest.mock("@/app/actions/clasificacion", () => ({
   getAscensor: (...args) => mockGetAscensor(...args),
@@ -11,7 +13,15 @@ jest.mock("@/app/actions/clasificacion", () => ({
 jest.mock("@/app/actions/ligas", () => ({
   getMonths: (...args) => mockGetMonths(...args),
   getTemporadas: (...args) => mockGetTemporadas(...args),
-  hasBonusGiven: jest.fn().mockResolvedValue(false),
+  hasBonusGiven: (...args) => mockHasBonusGiven(...args),
+}));
+
+jest.mock("@/lib/supabase/server", () => ({
+  createClient: jest.fn(async () => ({
+    auth: {
+      getUser: mockGetUser,
+    },
+  })),
 }));
 
 jest.mock("@/components/liga/month-selector", () => ({
@@ -25,6 +35,11 @@ jest.mock("@/components/liga/month-selector", () => ({
       ))}
     </select>
   ),
+}));
+
+jest.mock("@/components/liga/ascensor/bonus-button", () => ({
+  __esModule: true,
+  default: () => <button>Bonus</button>,
 }));
 
 import Page from "@/app/liga/ascensor/page";
@@ -83,15 +98,32 @@ describe("Page (ascensor)", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockGetMonths.mockResolvedValue(confirmedMonths);
-    mockGetTemporadas.mockResolvedValue([{ id: 1, name: "2025/26" }]);
+    mockGetUser.mockResolvedValue({
+      data: {
+        user: null,
+      },
+    });
 
-    mockGetAscensor.mockImplementation(async () => makeAscensorData(true));
+    mockGetMonths.mockResolvedValue(confirmedMonths);
+
+    mockGetTemporadas.mockResolvedValue([
+      {
+        id: 1,
+        name: "2025/26",
+      },
+    ]);
+
+    mockHasBonusGiven.mockResolvedValue(false);
+
+    mockGetAscensor.mockImplementation(async () =>
+      makeAscensorData(true),
+    );
   });
 
   describe("cuando hay meses confirmados y datos", () => {
     it("muestra el título", async () => {
       render(await Page({ searchParams: Promise.resolve({}) }));
+
       expect(screen.getByText("Ascensor")).toBeInTheDocument();
     });
 
@@ -110,6 +142,18 @@ describe("Page (ascensor)", () => {
     it("no renderiza 5ª cuando el mes no la tiene", async () => {
       mockGetAscensor.mockResolvedValue(makeAscensorData(false));
 
+      mockGetMonths.mockResolvedValue([
+        {
+          id: 1,
+          month: 3,
+          year: 2026,
+          status: "confirmed",
+          temporada_name: "2025/26",
+          temporada_id: 1,
+          "5_category": false,
+        },
+      ]);
+
       render(await Page({ searchParams: Promise.resolve({}) }));
 
       expect(screen.getByText("1ª")).toBeInTheDocument();
@@ -119,17 +163,58 @@ describe("Page (ascensor)", () => {
 
     it("llama a getAscensor con el mes actual cuando no hay searchParam", async () => {
       render(await Page({ searchParams: Promise.resolve({}) }));
+
       expect(mockGetAscensor).toHaveBeenCalledWith(1);
     });
 
     it("llama a getAscensor con el monthId del searchParam", async () => {
-      render(await Page({ searchParams: Promise.resolve({ monthId: "2" }) }));
+      render(
+        await Page({
+          searchParams: Promise.resolve({ monthId: "2" }),
+        }),
+      );
+
       expect(mockGetAscensor).toHaveBeenCalledWith(2);
     });
 
     it("renderiza el MonthSelector", async () => {
       render(await Page({ searchParams: Promise.resolve({}) }));
-      expect(screen.getByRole("combobox", { name: "mes" })).toBeInTheDocument();
+
+      expect(
+        screen.getByRole("combobox", { name: "mes" }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("bonus de admin", () => {
+    beforeEach(() => {
+      mockGetUser.mockResolvedValue({
+        data: {
+          user: {
+            app_metadata: {
+              admin: true,
+            },
+          },
+        },
+      });
+    });
+
+    it("muestra BonusButton si es admin y no existe bonus", async () => {
+      mockHasBonusGiven.mockResolvedValue(false);
+
+      render(await Page({ searchParams: Promise.resolve({}) }));
+
+      expect(screen.getByRole("button")).toHaveTextContent("Bonus");
+    });
+
+    it("muestra mensaje si el bonus ya fue aplicado", async () => {
+      mockHasBonusGiven.mockResolvedValue(true);
+
+      render(await Page({ searchParams: Promise.resolve({}) }));
+
+      expect(
+        screen.getByText("(Ya se ha aplicado el bonus)"),
+      ).toBeInTheDocument();
     });
   });
 
@@ -149,6 +234,7 @@ describe("Page (ascensor)", () => {
 
     it("muestra aviso de sin meses", async () => {
       render(await Page({ searchParams: Promise.resolve({}) }));
+
       expect(
         screen.getByText("No hay meses confirmados para mostrar."),
       ).toBeInTheDocument();
@@ -156,19 +242,26 @@ describe("Page (ascensor)", () => {
 
     it("no renderiza selector", async () => {
       render(await Page({ searchParams: Promise.resolve({}) }));
+
       expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
     });
   });
 
   describe("cuando no hay datos", () => {
     beforeEach(() => {
-      mockGetAscensor.mockResolvedValue([]);
+      mockGetAscensor.mockResolvedValue([
+        { category: { id: 1, name: "1ª" }, classification: [] },
+        { category: { id: 2, name: "2ª" }, classification: [] },
+      ]);
     });
 
     it("muestra mensaje de sin datos", async () => {
       render(await Page({ searchParams: Promise.resolve({}) }));
+
       expect(
-        screen.getByText("No se encontraron datos para el mes seleccionado."),
+        screen.getByText(
+          "No se encontraron datos para el mes seleccionado.",
+        ),
       ).toBeInTheDocument();
     });
   });
