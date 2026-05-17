@@ -9,7 +9,7 @@ export default function TemporadasClient({
   temporadas: TemporadaWithMonths[];
 }) {
   return (
-    <div className="mx-auto w-full max-w-[40%] pb-8">
+    <div className="mx-auto w-full">
       <div className="grid grid-cols-1 gap-8">
         {temporadas.length > 0 ? (
           temporadas.map((temporada) => (

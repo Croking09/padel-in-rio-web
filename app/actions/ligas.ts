@@ -148,3 +148,27 @@ export async function getTemporadasWithMonths(): Promise<
 
   return data ?? [];
 }
+
+type CreateTemporadaInput = {
+  name: string;
+  start_date: string; // "YYYY-MM-DD"
+  months: { month: number; year: number }[];
+};
+
+export async function createTemporada(
+  input: CreateTemporadaInput,
+): Promise<{ error: string } | null> {
+  const supabase = createAdmin();
+
+  const { error } = await supabase.rpc("create_temporada_with_months", {
+    p_name: input.name,
+    p_start_date: input.start_date,
+    p_months: input.months,
+  });
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/");
+  revalidatePath("/admin/liga/temporadas");
+  return null;
+}
