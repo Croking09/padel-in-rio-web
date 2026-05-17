@@ -1,7 +1,7 @@
 "use server";
 import { createAdmin } from "@/lib/supabase/admin";
 import { revalidatePath, unstable_cache } from "next/cache";
-import { Temporada } from "@/lib/types/temporada";
+import { Temporada, TemporadaWithMonths } from "@/lib/types/temporada";
 import { createClient } from "@/lib/supabase/server";
 import { Month } from "@/lib/types/month";
 import { mapMonthStatus } from "@/lib/utils";
@@ -127,4 +127,24 @@ export async function hasBonusGiven(monthId: number) {
   }
 
   return (data?.length ?? 0) > 0;
+}
+
+export async function getTemporadasWithMonths(): Promise<
+  TemporadaWithMonths[]
+> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("Temporadas")
+    .select(
+      `
+    *,
+    months:Meses (*)
+  `,
+    )
+    .order("start_date", { ascending: false });
+
+  if (error) throw new Error(error.message);
+
+  return data ?? [];
 }
