@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import CreateTorneoForm from "@/components/torneos/admin/create-torneo-form";
+import userEvent from "@testing-library/user-event";
 
 jest.mock("@/app/actions/torneos", () => ({
   createTorneo: jest.fn(),
@@ -69,6 +70,8 @@ describe("Create Torneo Form", () => {
   });
 
   test("submit should work", async () => {
+    const user = userEvent.setup();
+
     createTorneo.mockResolvedValue({ success: true });
 
     render(<CreateTorneoForm />);
@@ -82,18 +85,18 @@ describe("Create Torneo Form", () => {
     const inscriptionEndDateInput = screen.getByLabelText(/cierre de inscripciones/i);
     const submitButton = screen.getByRole("button", { name: "Crear Torneo" });
 
-    fireEvent.change(nameInput, { target: { value: "Torneo de Primavera" } });
-    fireEvent.change(descriptionInput, { target: { value: "Descripción del torneo" } });
-    fireEvent.change(categoriesInput, { target: { value: "1ª Masculina" } });
-    fireEvent.click(addNewCategoryButton);
-    fireEvent.change(startDateInput, { target: { value: "2022-01-02T10:00" } });
-    fireEvent.change(endDateInput, { target: { value: "2022-01-03T18:00" } });
-    fireEvent.change(inscriptionEndDateInput, { target: { value: "2022-01-01T23:59" } });
+    await user.type(nameInput, "Torneo de Primavera");
+    await user.type(descriptionInput, "Descripción del torneo");
+    await user.type(categoriesInput, "1ª Masculina");
 
-    fireEvent.click(submitButton);
+    await user.click(addNewCategoryButton);
 
-    await waitFor(() => {
-      expect(createTorneo).toHaveBeenCalled();
-    });
+    await user.type(startDateInput, "2022-01-02");
+    await user.type(endDateInput, "2022-01-03");
+    await user.type(inscriptionEndDateInput, "2022-01-01");
+
+    await user.click(submitButton);
+
+    expect(createTorneo).toHaveBeenCalled();
   });
 });

@@ -13,8 +13,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { AuthApiError } from "@supabase/supabase-js";
 
 export function LoginForm({
   className,
@@ -24,14 +25,18 @@ export function LoginForm({
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/";
+
+  const redirectParam = searchParams.get("redirectTo");
+  const redirectTo =
+    redirectParam && redirectParam.startsWith("/") ? redirectParam : "/";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const supabase = createClient();
+
     setIsLoading(true);
     setError(null);
 
@@ -40,11 +45,19 @@ export function LoginForm({
         email,
         password,
       });
+
       if (error) throw error;
-      // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push(redirectTo);
-    } catch {
-      setError("Ha ocurrido un error");
+
+      window.location.href = redirectTo;
+    } catch (error) {
+      if (
+        error instanceof AuthApiError &&
+        error.code === "invalid_credentials"
+      ) {
+        setError("Correo o contraseña incorrectos");
+      } else {
+        setError("Ha ocurrido un error");
+      }
     } finally {
       setIsLoading(false);
     }

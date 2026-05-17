@@ -234,7 +234,7 @@ export default function CreateTorneoForm() {
             name="start_date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            type="datetime-local"
+            type="date"
             required
             className="cursor-pointer"
             onClick={(e) => e.currentTarget.showPicker?.()}
@@ -254,7 +254,7 @@ export default function CreateTorneoForm() {
             name="end_date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            type="datetime-local"
+            type="date"
             required
             className="cursor-pointer"
             onClick={(e) => e.currentTarget.showPicker?.()}
@@ -277,7 +277,7 @@ export default function CreateTorneoForm() {
           name="inscription_end_date"
           value={inscriptionEndDate}
           onChange={(e) => setInscriptionEndDate(e.target.value)}
-          type="datetime-local"
+          type="date"
           required
           className="cursor-pointer"
           onClick={(e) => e.currentTarget.showPicker?.()}

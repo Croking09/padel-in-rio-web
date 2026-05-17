@@ -29,6 +29,13 @@ export default function Page() {
         </li>
 
         <li>
+          Los partidos deben quedar fechados antes de que termine la 3ª semana
+          del mes, pudiendo jugarlos en la 4ª semana como siempre. Si alguien
+          tiene problemas para montar el partido debe ponerse en contacto con la
+          directiva.
+        </li>
+
+        <li>
           En cada jornada jugarás un set con cada uno de los otros tres
           jugadores. En total, se jugarán 3 sets. Sin punto de oro.
         </li>
