@@ -15,6 +15,7 @@ export default async function LigaNav({
       <Suspense>
         <SectionNav
           adminLinks={[
+            { href: "/admin/liga/temporadas", label: "Temporadas" },
             { href: "/admin/liga/asignacion", label: "Asignación" },
             { href: "/admin/liga/generador", label: "Generador" },
           ]}
