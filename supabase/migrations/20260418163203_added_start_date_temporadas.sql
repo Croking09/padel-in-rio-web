@@ -1,4 +1,4 @@
-alter table "public"."Temporadas" add column "start_date" date not null;
+alter table "public"."Temporadas" add column "start_date" date;
 
 set check_function_bodies = off;
 
