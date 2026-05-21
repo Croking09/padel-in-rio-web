@@ -13,6 +13,7 @@ interface PartidoResponse {
   categoria_id: number;
   Categorias: { name: string } | null;
   Jugador_Partido: {
+    id: number;
     Player: Socio | null;
   }[];
 }
@@ -35,6 +36,7 @@ export async function getConfirmedMatches(monthId: number): Promise<Match[]> {
         categoria_id,
         Categorias ( name ),
         Jugador_Partido (
+          id,
           Player:Socios ( id, full_name, nickname )
         )
       )
@@ -57,10 +59,10 @@ export async function getConfirmedMatches(monthId: number): Promise<Match[]> {
         categoryId: partido.categoria_id,
         categoryName: partido.Categorias?.name || "Sin Categoría",
         matchday: jornada.number,
-        players:
-          partido.Jugador_Partido?.map((jp) => jp.Player).filter(
-            (s): s is Socio => Boolean(s),
-          ) || [],
+        players: [...(partido.Jugador_Partido ?? [])]
+          .sort((a, b) => a.id - b.id)
+          .map((jp) => jp.Player)
+          .filter((s): s is Socio => Boolean(s)),
       });
     });
   });
@@ -77,6 +79,7 @@ export async function getPlayersByPartido(partidoId: number) {
       `
       id,
       players:Jugador_Partido (
+        id,
         jugador:Socios (
           id,
           nickname,
@@ -88,10 +91,9 @@ export async function getPlayersByPartido(partidoId: number) {
     .eq("id", partidoId)
     .single();
 
-  return (
-    match?.players?.map((p) => p.jugador as unknown as Omit<Socio, "active">) ??
-    []
-  );
+  return [...(match?.players ?? [])]
+    .sort((a, b) => a.id - b.id)
+    .map((p) => p.jugador as unknown as Omit<Socio, "active">);
 }
 
 export async function registerMatchResults(

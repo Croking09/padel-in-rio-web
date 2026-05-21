@@ -8,6 +8,7 @@ import { HapticButton } from "@/components/ui/haptic-button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import MatchParticipants from "@/lib/types/matchParticipants";
+import { getMatchSetCombos } from "@/lib/utils";
 
 export default function MatchResultsPage({
   partidoId,
@@ -34,14 +35,9 @@ export default function MatchResultsPage({
 
   if (players.length !== 4) {
     redirect("/liga/partidos");
-    return null;
   }
 
-  const combos = [
-    [players[0], players[2], players[1], players[3]],
-    [players[0], players[1], players[2], players[3]],
-    [players[0], players[3], players[1], players[2]],
-  ];
+  const combos = getMatchSetCombos(players);
 
   function updateScore(i: number, side: "p1" | "p2", value: string) {
     if (value !== "" && !/^\d+$/.test(value)) return;
