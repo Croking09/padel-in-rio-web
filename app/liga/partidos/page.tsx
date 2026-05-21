@@ -1,3 +1,4 @@
+import { existsResult } from "@/app/actions/partidos";
 import { getMonths, getTemporadas } from "@/app/actions/ligas";
 import MonthSelector from "@/components/liga/month-selector";
 import { HapticButton } from "@/components/ui/haptic-button";
@@ -49,6 +50,29 @@ export default async function Page({
     activeTemporadaId,
   );
 
+  const matchesWithResults = new Set(
+    (
+      await Promise.all(
+        Object.values(matchesByDay)
+          .flatMap((categories) => Object.values(categories))
+          .flat()
+          .map(async (match) => {
+            if (typeof match.id !== "number") return null;
+
+            return {
+              id: match.id,
+              hasResults: await existsResult(match.id),
+            };
+          }),
+      )
+    )
+      .filter(
+        (match): match is { id: number; hasResults: true } =>
+          match?.hasResults === true,
+      )
+      .map((match) => match.id),
+  );
+
   return (
     <div className="container mx-auto p-8 space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -92,49 +116,65 @@ export default async function Page({
                         </div>
 
                         <div className="p-4 space-y-4">
-                          {categoryMatches.map((match, idx) => (
-                            <div
-                              key={idx}
-                              className="bg-primary p-3 rounded-lg border border-border space-y-4"
-                            >
-                              <div className="grid grid-cols-2 gap-2 text-sm">
-                                {match.players.map((player) => (
-                                  <div
-                                    key={player.id}
-                                    className="flex flex-col"
-                                  >
-                                    <span className="font-semibold">
-                                      {player.nickname || player.full_name}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
+                          {categoryMatches.map((match, idx) => {
+                            const hasResults =
+                              typeof match.id === "number" &&
+                              matchesWithResults.has(match.id);
 
-                              <hr className="border-border" />
+                            return (
+                              <div
+                                key={idx}
+                                className="bg-primary p-3 rounded-lg border border-border space-y-4"
+                              >
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                  {match.players.map((player) => (
+                                    <div
+                                      key={player.id}
+                                      className="flex flex-col"
+                                    >
+                                      <span className="font-semibold">
+                                        {player.nickname || player.full_name}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
 
-                              <div className="flex gap-4">
-                                <HapticButton asChild variant="secondary">
-                                  <Link
-                                    href={`/liga/partidos/${match.id}/resultados`}
-                                    className="text-xs px-3 py-1"
-                                  >
-                                    Ver resultados
-                                  </Link>
-                                </HapticButton>
+                                <hr className="border-border" />
 
-                                {isAdmin && (
-                                  <HapticButton asChild variant="outline">
+                                <div className="flex gap-4">
+                                  <HapticButton asChild variant="secondary">
                                     <Link
-                                      href={`/admin/liga/partidos/${match.id}/resultados`}
+                                      href={`/liga/partidos/${match.id}/resultados`}
                                       className="text-xs px-3 py-1"
                                     >
-                                      Introducir resultados
+                                      Ver resultados
                                     </Link>
                                   </HapticButton>
-                                )}
+
+                                  {isAdmin && (
+                                    <HapticButton
+                                      asChild
+                                      variant="outline"
+                                      className={
+                                        hasResults
+                                          ? "border-success bg-success/20 hover:bg-success/40 text-success"
+                                          : undefined
+                                      }
+                                    >
+                                      <Link
+                                        href={`/admin/liga/partidos/${match.id}/resultados`}
+                                        className="text-xs px-3 py-1"
+                                      >
+                                        {hasResults
+                                          ? "Registrado"
+                                          : "Introducir resultados"}
+                                      </Link>
+                                    </HapticButton>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     ),

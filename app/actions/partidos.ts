@@ -113,6 +113,7 @@ export async function registerMatchResults(
 
   revalidatePath("/liga/ascensor");
   revalidatePath("/liga/clasificacion");
+  revalidatePath(`/liga/partidos`);
   revalidatePath(`/liga/partidos/${partidoId}/resultados`);
 
   return { success: true };
@@ -203,5 +204,28 @@ export const getMatchParticipation = unstable_cache(
   {
     revalidate: 86400, // 1 dia
     tags: ["participation"],
+  },
+);
+
+export const existsResult = unstable_cache(
+  async (matchId: number) => {
+    const supabase = await createClient({ useCookies: false });
+
+    const { data, error } = await supabase
+      .from("Sets")
+      .select("id")
+      .eq("partido_id", matchId);
+
+    if (error) {
+      console.error(error);
+      return false;
+    }
+
+    return data.length > 0;
+  },
+  ["existsResult"],
+  {
+    revalidate: 86400, // 1 dia
+    tags: ["existsResult"],
   },
 );
