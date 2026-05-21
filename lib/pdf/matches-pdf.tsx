@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { Match } from "@/lib/types/match";
+import { getMatchSetCombos } from "@/lib/utils";
 
 const CELL_HEIGHT = 22;
 const BORDER = 1;
@@ -147,11 +148,7 @@ export function MatchesPdf({
 
                 if (players.length !== 4) return null;
 
-                const combos = [
-                  [players[0], players[2], players[1], players[3]], // 0-1 vs 2-3
-                  [players[0], players[1], players[2], players[3]], // 0-2 vs 1-3
-                  [players[0], players[1], players[3], players[2]], // 0-3 vs 1-2
-                ];
+                const combos = getMatchSetCombos(players);
 
                 return (
                   <View key={idx} style={styles.matchRow}>
@@ -167,10 +164,10 @@ export function MatchesPdf({
                               <Text style={styles.text}>{combo[0]}</Text>
                             </View>
                             <View style={styles.cellTopRight}>
-                              <Text style={styles.text}>{combo[1]}</Text>
+                              <Text style={styles.text}>{combo[2]}</Text>
                             </View>
                             <View style={styles.cellBottomLeft}>
-                              <Text style={styles.text}>{combo[2]}</Text>
+                              <Text style={styles.text}>{combo[1]}</Text>
                             </View>
                             <View style={styles.cellBottomRight}>
                               <Text style={styles.text}>{combo[3]}</Text>

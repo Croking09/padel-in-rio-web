@@ -128,6 +128,20 @@ export function generateCategoryMatches(
   ];
 }
 
+export type MatchSetCombo<T> = [T, T, T, T];
+
+export function getMatchSetCombos<T>(players: readonly T[]): MatchSetCombo<T>[] {
+  if (players.length !== 4) return [];
+
+  const [player1, player2, player3, player4] = players;
+
+  return [
+    [player1, player2, player3, player4],
+    [player1, player3, player2, player4],
+    [player1, player4, player2, player3],
+  ];
+}
+
 export function getCurrentMonthId(months: Month[]) {
   if (!months.length) return undefined;
 
