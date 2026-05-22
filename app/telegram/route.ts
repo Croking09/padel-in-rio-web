@@ -6,6 +6,7 @@ import {
   help_answer,
   formatInscripciones,
   buildMatchesAnswer,
+  buildParticipationHistoricAnswer,
 } from "@/lib/telegram/answers";
 import {
   sendMessage,
@@ -17,6 +18,8 @@ import { generateMatchesPdf } from "@/lib/pdf/generate-pdf";
 import { getMatchesByDayGlobal } from "@/lib/partidos";
 import { MonthStatus } from "@/lib/types/month";
 import { getMonths } from "../actions/ligas";
+import { getAllSocios, getParticipationHistoric } from "../actions/socios";
+import type { Socio } from "@/lib/types/socio";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -80,6 +83,77 @@ export async function POST(req: NextRequest) {
             parse_mode: "Markdown",
           });
         }
+        break;
+
+      case text.startsWith("/participacion") ||
+        text.startsWith("/participación"):
+        const socioSearch = text.replace(/^\/participaci[oó]n\s*/i, "").trim();
+
+        if (!socioSearch) {
+          await sendMessage(
+            chatId,
+            "🎾 Dime el nombre del socio.\nEjemplo: /participacion Javier",
+          );
+          break;
+        }
+
+        const socios = await getAllSocios(true);
+        const normalizedInput = socioSearch.toLowerCase();
+        const exactMatches = (socios ?? []).filter((socio: Socio) => {
+          const fullName = socio.full_name.toLowerCase();
+          const nickname = (socio.nickname ?? "").toLowerCase();
+
+          return fullName === normalizedInput || nickname === normalizedInput;
+        });
+
+        const matches =
+          exactMatches.length > 0
+            ? exactMatches
+            : (socios ?? []).filter((socio: Socio) => {
+                const fullName = socio.full_name.toLowerCase();
+                const nickname = (socio.nickname ?? "").toLowerCase();
+
+                return (
+                  fullName.includes(normalizedInput) ||
+                  nickname.includes(normalizedInput)
+                );
+              });
+
+        if (matches.length === 0) {
+          await sendMessage(
+            chatId,
+            `🔎 No encuentro ningun socio con "${socioSearch}".`,
+          );
+          break;
+        }
+
+        if (matches.length > 1) {
+          const options = matches
+            .slice(0, 6)
+            .map((socio) => `• ${socio.full_name}`)
+            .join("\n");
+
+          await sendMessage(
+            chatId,
+            `🤔 He encontrado varios socios. Prueba con el nombre completo:\n\n${options}`,
+          );
+          break;
+        }
+
+        const [selectedSocio] = matches;
+        const [participation, months] = await Promise.all([
+          getParticipationHistoric(selectedSocio.id),
+          getMonths(),
+        ]);
+
+        await sendMessage(
+          chatId,
+          buildParticipationHistoricAnswer(
+            selectedSocio,
+            participation,
+            months,
+          ),
+        );
         break;
 
       case text.startsWith("/pdf"):
