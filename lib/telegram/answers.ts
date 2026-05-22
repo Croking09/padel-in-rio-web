@@ -1,4 +1,8 @@
 import { Match } from "@/lib/types/match";
+import { formatMonth } from "@/lib/utils";
+import type { Month } from "@/lib/types/month";
+import type { MonthParticipation } from "@/lib/types/monthParticipation";
+import type { Socio } from "@/lib/types/socio";
 
 export const default_answer =
   "No entiendo eso 😅, comprueba lo que puedo hacer con /help";
@@ -10,6 +14,7 @@ export const help_answer =
   `🤖: Esto es lo que puedo hacer\n\n` +
   `/start - Inicia el bot\n` +
   `/help - Muestra esta ayuda\n` +
+  `/participacion - Muestra el historico de participacion de un socio\n` +
   `/partidos - Muestra los partidos de la liga, puedes indicar el mes con el formato MM/AAAA, o no poner nada y ver el mes más actual\n\n` +
   `Opciones de admin:\n\n` +
   `/pdf - Genera un PDF con los partidos de la liga para el mes actual\n` +
@@ -100,6 +105,44 @@ export function buildMatchesAnswer(
 
     text += "\n";
   });
+
+  return text;
+}
+
+export function buildParticipationHistoricAnswer(
+  socio: Socio,
+  participation: MonthParticipation[],
+  months: Month[],
+) {
+  const monthById = new Map(months.map((month) => [month.id, month]));
+  const sortedParticipation = [...participation].sort((a, b) => {
+    const monthA = monthById.get(a.monthId);
+    const monthB = monthById.get(b.monthId);
+
+    if (!monthA || !monthB) return a.monthId - b.monthId;
+    if (monthA.year !== monthB.year) return monthA.year - monthB.year;
+    return monthA.month - monthB.month;
+  });
+
+  let text = `🎾 Historico de participacion\n`;
+  text += `👤 ${socio.full_name}`;
+  if (socio.nickname) text += ` (${socio.nickname})`;
+  text += "\n\n";
+
+  if (!sortedParticipation.length) {
+    return text + "📭 No hay participacion registrada para este socio.";
+  }
+
+  sortedParticipation.forEach((item) => {
+    const month = monthById.get(item.monthId);
+    const monthText = month
+      ? `${formatMonth(month.month)} ${month.year}`
+      : "Mes no encontrado";
+
+    text += `📅 ${monthText}: Categoria ${item.categoryId}\n`;
+  });
+
+  text += `\n✅ Total: ${sortedParticipation.length} meses`;
 
   return text;
 }
