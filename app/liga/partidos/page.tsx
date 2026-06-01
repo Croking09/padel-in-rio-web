@@ -1,38 +1,90 @@
-import { getMonths } from "@/app/actions/monthly-assignment";
-import MonthSelector from "@/components/liga/admin/asignaciones/month-selector";
+import { existsResult } from "@/app/actions/partidos";
+import { getMonths, getTemporadas } from "@/app/actions/ligas";
+import MonthSelector from "@/components/liga/month-selector";
+import { HapticButton } from "@/components/ui/haptic-button";
 import { getMatchesByDayGlobal } from "@/lib/partidos";
+import { createClient } from "@/lib/supabase/server";
+import { MonthStatus } from "@/lib/types/month";
+import { getCurrentMonthId } from "@/lib/utils";
+import Link from "next/link";
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ monthId: string }>;
+  searchParams: Promise<{ monthId?: string; temporadaId?: string }>;
 }) {
-  const sP = await searchParams;
-  const monthInput = Number(sP.monthId);
+  const supabase = await createClient();
 
-  const { matchesByDay, monthId: currentMonthId } =
-    await getMatchesByDayGlobal(monthInput);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const allMonths = await getMonths();
-  const confirmedMonths = allMonths.filter((m) => m.status === "confirmed");
-  const orderedConfirmedMonths = [...confirmedMonths].sort((a, b) =>
-    a.year !== b.year ? a.year - b.year : a.month - b.month,
+  const isAdmin = user?.app_metadata?.admin === true;
+
+  const [allMonthsRaw, temporadas, params] = await Promise.all([
+    getMonths(),
+    getTemporadas(),
+    searchParams,
+  ]);
+
+  const temporadaIdParam = params.temporadaId
+    ? Number(params.temporadaId)
+    : undefined;
+  const activeTemporadaId = temporadaIdParam ?? temporadas.at(0)?.id ?? 0;
+
+  const months = allMonthsRaw.filter(
+    (m) => m.temporada_id === activeTemporadaId,
+  );
+  const confirmedMonths = months.filter(
+    (m) => m.status === MonthStatus.Confirmed,
+  );
+
+  const monthIdParam = params.monthId ? Number(params.monthId) : undefined;
+  const currentMonthId =
+    monthIdParam ??
+    getCurrentMonthId(confirmedMonths) ??
+    confirmedMonths.at(-1)?.id;
+
+  const { matchesByDay } = await getMatchesByDayGlobal(
+    Number(currentMonthId),
+    activeTemporadaId,
+  );
+
+  const matchesWithResults = new Set(
+    (
+      await Promise.all(
+        Object.values(matchesByDay)
+          .flatMap((categories) => Object.values(categories))
+          .flat()
+          .map(async (match) => {
+            if (typeof match.id !== "number") return null;
+
+            return {
+              id: match.id,
+              hasResults: await existsResult(match.id),
+            };
+          }),
+      )
+    )
+      .filter(
+        (match): match is { id: number; hasResults: true } =>
+          match?.hasResults === true,
+      )
+      .map((match) => match.id),
   );
 
   return (
-    <div className="container mx-auto py-8 px-4 space-y-8">
+    <div className="container mx-auto p-8 space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <h1 className="text-3xl font-bold">Partidos de la Liga</h1>
-        {confirmedMonths.length > 0 && (
-          <MonthSelector
-            months={orderedConfirmedMonths}
-            currentMonthId={currentMonthId}
-          />
+
+        {months.length > 0 && (
+          <MonthSelector months={months} currentMonthId={currentMonthId} />
         )}
       </div>
 
       {confirmedMonths.length === 0 ? (
-        <div className="text-center py-20 rounded-lg border-2 border-dashed">
+        <div className="text-center py-25 px-10 rounded-lg border-2 border-dashed">
           <p>Todavía no hay partidos confirmados.</p>
         </div>
       ) : Object.keys(matchesByDay).length === 0 ? (
@@ -64,25 +116,65 @@ export default async function Page({
                         </div>
 
                         <div className="p-4 space-y-4">
-                          {categoryMatches.map((match, idx) => (
-                            <div
-                              key={idx}
-                              className="bg-primary p-3 rounded-lg border border-border"
-                            >
-                              <div className="grid grid-cols-2 gap-2 text-sm">
-                                {match.players.map((player) => (
-                                  <div
-                                    key={player.id}
-                                    className="flex flex-col"
-                                  >
-                                    <span className="font-semibold">
-                                      {player.nickname || player.full_name}
-                                    </span>
-                                  </div>
-                                ))}
+                          {categoryMatches.map((match, idx) => {
+                            const hasResults =
+                              typeof match.id === "number" &&
+                              matchesWithResults.has(match.id);
+
+                            return (
+                              <div
+                                key={idx}
+                                className="bg-primary p-3 rounded-lg border border-border space-y-4"
+                              >
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                  {match.players.map((player) => (
+                                    <div
+                                      key={player.id}
+                                      className="flex flex-col"
+                                    >
+                                      <span className="font-semibold">
+                                        {player.nickname || player.full_name}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+
+                                <hr className="border-border" />
+
+                                <div className="flex gap-4">
+                                  <HapticButton asChild variant="secondary">
+                                    <Link
+                                      href={`/liga/partidos/${match.id}/resultados`}
+                                      className="text-xs px-3 py-1"
+                                    >
+                                      Ver resultados
+                                    </Link>
+                                  </HapticButton>
+
+                                  {isAdmin && (
+                                    <HapticButton
+                                      asChild
+                                      variant="outline"
+                                      className={
+                                        hasResults
+                                          ? "border-success bg-success/20 hover:bg-success/40 text-success"
+                                          : undefined
+                                      }
+                                    >
+                                      <Link
+                                        href={`/admin/liga/partidos/${match.id}/resultados`}
+                                        className="text-xs px-3 py-1"
+                                      >
+                                        {hasResults
+                                          ? "Registrado"
+                                          : "Introducir resultados"}
+                                      </Link>
+                                    </HapticButton>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     ),

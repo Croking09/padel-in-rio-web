@@ -1,20 +1,20 @@
 INSERT INTO public."Categorias"
-  (name, "order")
+  (name, "order", puntos_set)
 VALUES
-  ('1ª', 1),
-  ('2ª', 2),
-  ('3ª', 3),
-  ('4ª', 4),
-  ('5ª', 5);
+  ('1ª', 1, 7),
+  ('2ª', 2, 6),
+  ('3ª', 3, 5),
+  ('4ª', 4, 4),
+  ('5ª', 5, 3);
 
 INSERT INTO public."Temporadas"
-  (name)
+  (name, start_date)
 VALUES
-  ('2025'),
-  ('2026');
+  ('2025', '2025-01-01'),
+  ('2026', '2026-01-01');
 
 INSERT INTO public."Meses"
-  (temporada_id, month, year) -- status: draft by default
+  (temporada_id, month, year) -- status: draft by default, 5_category: true by default
 VALUES
   (2, 1, 2026),
   (2, 2, 2026),

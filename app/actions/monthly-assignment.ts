@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdmin } from "@/lib/supabase/admin";
+import { MonthStatus } from "@/lib/types/month";
 import { revalidatePath } from "next/cache";
 
 export type Player = {
@@ -21,13 +22,12 @@ export type Assignment = {
   id?: number; // Optional for new assignments before save
 };
 
-export type MonthStatus = "draft" | "locked" | "confirmed";
-
 export type AssignmentData = {
   categories: Category[];
   players: Player[];
   assignments: Assignment[];
   status: MonthStatus;
+  useFifthCategory: boolean;
 };
 
 export type Month = {
@@ -39,42 +39,21 @@ export type Month = {
   temporada_name?: string;
 };
 
-type MonthWithTemporada = Month & {
-  Temporadas: {
-    name: string;
-  };
-};
-
-export async function getMonths(): Promise<Month[]> {
-  const supabase = createAdmin();
-  const { data: months, error } = await supabase
-    .from("Meses")
-    .select("*, Temporadas ( name )")
-    .order("id", { ascending: false });
-
-  if (error) throw error;
-
-  return (months as MonthWithTemporada[]).map((m) => ({
-    ...m,
-    temporada_name: m.Temporadas?.name,
-  }));
-}
-
 export async function getAssignmentData(
   monthId: number,
 ): Promise<AssignmentData> {
   const supabase = createAdmin();
 
-  // Fetch month status
+  // Fetch month status + config
   const { data: monthData, error: monthError } = await supabase
     .from("Meses")
-    .select("status")
+    .select('status, "5_category"')
     .eq("id", monthId)
     .single();
 
   if (monthError) throw monthError;
 
-  // Fetch categories
+  // Fetch ALL categories (NO FILTRAR AQUÍ)
   const { data: categories, error: catError } = await supabase
     .from("Categorias")
     .select("*")
@@ -82,7 +61,7 @@ export async function getAssignmentData(
 
   if (catError) throw catError;
 
-  // Fetch all players (Socios)
+  // Fetch active players
   const { data: players, error: playerError } = await supabase
     .from("Socios")
     .select("*")
@@ -90,7 +69,7 @@ export async function getAssignmentData(
 
   if (playerError) throw playerError;
 
-  // Fetch current assignments for the month
+  // Fetch assignments for this month
   const { data: assignments, error: assignError } = await supabase
     .from("Jugador_Categoria_Mes")
     .select("id, jugador_id, categoria_id")
@@ -103,6 +82,7 @@ export async function getAssignmentData(
     players: players || [],
     assignments: assignments || [],
     status: monthData.status as MonthStatus,
+    useFifthCategory: monthData["5_category"], // 👈 CLAVE
   };
 }
 

@@ -2,8 +2,14 @@ jest.mock("@/app/actions/generador-partidos", () => ({
   previewMonth: jest.fn(),
 }));
 
-jest.mock("@/app/actions/monthly-assignment", () => ({
+jest.mock("@/app/actions/ligas", () => ({
   getMonths: jest.fn(),
+  getTemporadas: jest.fn(),
+}));
+
+jest.mock("@/lib/utils", () => ({
+  ...jest.requireActual("@/lib/utils"),
+  getCurrentMonthId: jest.fn(),
 }));
 
 jest.mock("@/components/liga/admin/generador/confirm-button", () => {
@@ -12,7 +18,7 @@ jest.mock("@/components/liga/admin/generador/confirm-button", () => {
   };
 });
 
-jest.mock("@/components/liga/admin/asignaciones/month-selector", () => {
+jest.mock("@/components/liga/month-selector", () => {
   return function MonthSelector({ months, currentMonthId }) {
     return (
       <select data-testid="month-selector" value={currentMonthId}>
@@ -29,20 +35,27 @@ jest.mock("@/components/liga/admin/asignaciones/month-selector", () => {
 import { render, screen } from "@testing-library/react";
 import Page from "@/app/admin/liga/generador/page";
 import { previewMonth } from "@/app/actions/generador-partidos";
-import { getMonths } from "@/app/actions/monthly-assignment";
+import { getMonths, getTemporadas } from "@/app/actions/ligas";
+import { getCurrentMonthId } from "@/lib/utils";
 
 const mockGetMonths = getMonths;
 const mockPreviewMonth = previewMonth;
+const mockGetTemporadas = getTemporadas;
+const mockGetCurrentMonthId = getCurrentMonthId;
+
+const TEMPORADA_ID = 1;
 
 describe("Match Generator Page", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetTemporadas.mockResolvedValue([{ id: TEMPORADA_ID, name: "2024" }]);
+    mockGetCurrentMonthId.mockReturnValue(undefined);
   });
 
   const mockMonths = [
-    { id: 1, month: 1, year: 2024, status: "locked" },
-    { id: 2, month: 2, year: 2024, status: "confirmed" },
-    { id: 3, month: 3, year: 2024, status: "draft" },
+    { id: 1, month: 1, year: 2024, status: "locked", temporada_id: TEMPORADA_ID },
+    { id: 2, month: 2, year: 2024, status: "confirmed", temporada_id: TEMPORADA_ID },
+    { id: 3, month: 3, year: 2024, status: "draft", temporada_id: TEMPORADA_ID },
   ];
 
   const mockMatches = [
@@ -73,7 +86,7 @@ describe("Match Generator Page", () => {
   ];
 
   it("should render the title correctly", async () => {
-    mockGetMonths.mockResolvedValue([]);
+    mockGetMonths.mockResolvedValue([{ id: 1, month: 1, year: 2024, status: "draft", temporada_id: TEMPORADA_ID }]);
 
     const jsx = await Page({
       searchParams: Promise.resolve({ monthId: "" }),
@@ -161,29 +174,10 @@ describe("Match Generator Page", () => {
   });
 
   it("should select current month by default if no monthId", async () => {
-    const now = new Date();
-    const currentMonth = now.getMonth() + 1;
-    const currentYear = now.getFullYear();
-
-    const monthsWithCurrent = [
-      { id: 10, month: currentMonth, year: currentYear, status: "locked" },
-      ...mockMonths,
-    ];
-
-    mockGetMonths.mockResolvedValue(monthsWithCurrent);
-    mockPreviewMonth.mockResolvedValue(mockMatches);
-
-    const jsx = await Page({
-      searchParams: Promise.resolve({ monthId: "" }),
-    });
-    render(jsx);
-
-    expect(mockPreviewMonth).toHaveBeenCalledWith(10);
-  });
-
-  it("should use first month if current month doesn't exist", async () => {
     mockGetMonths.mockResolvedValue(mockMonths);
     mockPreviewMonth.mockResolvedValue(mockMatches);
+    // Simula que enero (id=1) es el mes actual
+    mockGetCurrentMonthId.mockReturnValue(1);
 
     const jsx = await Page({
       searchParams: Promise.resolve({ monthId: "" }),
@@ -193,7 +187,21 @@ describe("Match Generator Page", () => {
     expect(mockPreviewMonth).toHaveBeenCalledWith(1);
   });
 
-  it("should not call previewMonth when month is not locked", async () => {
+  it("should use first month if current month doesn't exist", async () => {
+    mockGetMonths.mockResolvedValue(mockMonths);
+    mockPreviewMonth.mockResolvedValue(mockMatches);
+    // getCurrentMonthId no encuentra ningún mes coincidente
+    mockGetCurrentMonthId.mockReturnValue(undefined);
+
+    const jsx = await Page({
+      searchParams: Promise.resolve({ monthId: "" }),
+    });
+    render(jsx);
+
+    expect(mockPreviewMonth).toHaveBeenCalledWith(1);
+  });
+
+  it("should not call previewMonth when month is not locked or confirmed", async () => {
     mockGetMonths.mockResolvedValue(mockMonths);
 
     const jsx = await Page({
@@ -202,5 +210,17 @@ describe("Match Generator Page", () => {
     render(jsx);
 
     expect(mockPreviewMonth).not.toHaveBeenCalled();
+  });
+
+  it("should call previewMonth when month is confirmed", async () => {
+    mockGetMonths.mockResolvedValue(mockMonths);
+    mockPreviewMonth.mockResolvedValue(mockMatches);
+
+    const jsx = await Page({
+      searchParams: Promise.resolve({ monthId: "2" }),
+    });
+    render(jsx);
+
+    expect(mockPreviewMonth).toHaveBeenCalledWith(2);
   });
 });

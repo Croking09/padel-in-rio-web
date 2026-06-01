@@ -82,11 +82,17 @@ export async function updateSession(request: NextRequest) {
     "/torneos",
     "/liga/reglamento",
     "/liga/partidos", // Maybe only for players?
+    "/liga/ascensor",
+    "/liga/clasificacion",
     "/asociacion",
     "/equipo",
   ];
 
-  if (!PUBLIC_PATHS.includes(request.nextUrl.pathname) && !user) {
+  const isPublicPath =
+    PUBLIC_PATHS.includes(request.nextUrl.pathname) ||
+    /^\/liga\/partidos\/[^/]+\/resultados$/.test(request.nextUrl.pathname);
+
+  if (!isPublicPath && !user) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";

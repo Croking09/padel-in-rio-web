@@ -6,6 +6,7 @@ import {
   help_answer,
   formatInscripciones,
   buildMatchesAnswer,
+  buildParticipationHistoricAnswer,
 } from "@/lib/telegram/answers";
 import {
   sendMessage,
@@ -14,8 +15,11 @@ import {
   sendDocument,
 } from "@/lib/telegram/utils";
 import { generateMatchesPdf } from "@/lib/pdf/generate-pdf";
-import { getMonths } from "../actions/monthly-assignment";
 import { getMatchesByDayGlobal } from "@/lib/partidos";
+import { MonthStatus } from "@/lib/types/month";
+import { getMonths } from "../actions/ligas";
+import { getAllSocios, getParticipationHistoric } from "../actions/socios";
+import type { Socio } from "@/lib/types/socio";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -81,6 +85,77 @@ export async function POST(req: NextRequest) {
         }
         break;
 
+      case text.startsWith("/participacion") ||
+        text.startsWith("/participación"):
+        const socioSearch = text.replace(/^\/participaci[oó]n\s*/i, "").trim();
+
+        if (!socioSearch) {
+          await sendMessage(
+            chatId,
+            "🎾 Dime el nombre del socio.\nEjemplo: /participacion Javier",
+          );
+          break;
+        }
+
+        const socios = await getAllSocios(true);
+        const normalizedInput = socioSearch.toLowerCase();
+        const exactMatches = (socios ?? []).filter((socio: Socio) => {
+          const fullName = socio.full_name.toLowerCase();
+          const nickname = (socio.nickname ?? "").toLowerCase();
+
+          return fullName === normalizedInput || nickname === normalizedInput;
+        });
+
+        const matches =
+          exactMatches.length > 0
+            ? exactMatches
+            : (socios ?? []).filter((socio: Socio) => {
+                const fullName = socio.full_name.toLowerCase();
+                const nickname = (socio.nickname ?? "").toLowerCase();
+
+                return (
+                  fullName.includes(normalizedInput) ||
+                  nickname.includes(normalizedInput)
+                );
+              });
+
+        if (matches.length === 0) {
+          await sendMessage(
+            chatId,
+            `🔎 No encuentro ningun socio con "${socioSearch}".`,
+          );
+          break;
+        }
+
+        if (matches.length > 1) {
+          const options = matches
+            .slice(0, 6)
+            .map((socio) => `• ${socio.full_name}`)
+            .join("\n");
+
+          await sendMessage(
+            chatId,
+            `🤔 He encontrado varios socios. Prueba con el nombre completo:\n\n${options}`,
+          );
+          break;
+        }
+
+        const [selectedSocio] = matches;
+        const [participation, months] = await Promise.all([
+          getParticipationHistoric(selectedSocio.id),
+          getMonths(),
+        ]);
+
+        await sendMessage(
+          chatId,
+          buildParticipationHistoricAnswer(
+            selectedSocio,
+            participation,
+            months,
+          ),
+        );
+        break;
+
       case text.startsWith("/pdf"):
         if (!ADMINS.has(chatId)) {
           await sendMessage(chatId, "No tienes permiso para usar este comando");
@@ -96,7 +171,7 @@ export async function POST(req: NextRequest) {
           (m) =>
             m.month === currentMonthNumber &&
             m.year === currentYear &&
-            m.status === "confirmed",
+            m.status === MonthStatus.Confirmed,
         );
 
         if (!currentMonth) {
@@ -107,8 +182,10 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        const monthId = currentMonth.id;
-        const pdfBuffer = await generateMatchesPdf(monthId);
+        const pdfBuffer = await generateMatchesPdf(
+          currentMonth.id,
+          currentMonth.temporada_id,
+        );
 
         await sendDocument(
           chatId,
@@ -119,7 +196,33 @@ export async function POST(req: NextRequest) {
       case text.startsWith("/partidos"):
         const monthInput = text.split(" ")[1];
 
-        const { matchesByDay } = await getMatchesByDayGlobal(monthInput);
+        const allMonthsForPartidos = await getMonths();
+
+        let temporadaIdForPartidos: number | undefined;
+
+        if (monthInput) {
+          const [mm, yyyy] = monthInput.split("/").map(Number);
+          const matched = allMonthsForPartidos.find(
+            (m) => m.month === mm && m.year === yyyy,
+          );
+          temporadaIdForPartidos = matched?.temporada_id;
+        }
+
+        // Fallback: temporada del último mes confirmado
+        if (!temporadaIdForPartidos) {
+          const lastConfirmed = allMonthsForPartidos
+            .filter((m) => m.status === MonthStatus.Confirmed)
+            .sort((a, b) =>
+              a.year !== b.year ? a.year - b.year : a.month - b.month,
+            )
+            .at(-1);
+          temporadaIdForPartidos = lastConfirmed?.temporada_id;
+        }
+
+        const { matchesByDay } = await getMatchesByDayGlobal(
+          monthInput,
+          temporadaIdForPartidos,
+        );
 
         if (!matchesByDay || Object.keys(matchesByDay).length === 0) {
           await sendMessage(

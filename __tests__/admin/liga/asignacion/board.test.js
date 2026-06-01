@@ -32,6 +32,10 @@ jest.mock("@/app/actions/monthly-assignment", () => ({
   confirmMonth: jest.fn(),
 }));
 
+jest.mock("@/app/actions/ligas", () => ({
+  updateUseFifthCategory: jest.fn(),
+}));
+
 jest.mock("@/components/liga/admin/asignaciones/player-card", () => {
   return function PlayerCard({ player, isDraggable, assignmentId }) {
     return (

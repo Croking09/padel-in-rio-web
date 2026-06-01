@@ -29,9 +29,6 @@ export default async function Torneos({ page = 1 }: TorneosProps) {
     : { data: [] };
   const inscritoEn = new Set(inscripciones?.map((i) => i.torneo_id) ?? []);
 
-  console.log(inscripciones);
-  console.log(inscritoEn);
-
   return (
     <>
       <ul className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">

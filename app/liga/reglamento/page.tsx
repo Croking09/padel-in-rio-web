@@ -1,7 +1,7 @@
 export default function Page() {
   return (
     <>
-      <h1 className="text-2xl sm:text-4xl font-bold text-center pt-4 px-4">
+      <h1 className="text-2xl sm:text-4xl font-bold text-center p-8">
         Normativa Liga 2026
       </h1>
 

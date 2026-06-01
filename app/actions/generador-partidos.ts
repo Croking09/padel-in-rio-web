@@ -14,25 +14,45 @@ interface JugadorCategoriaMes {
 export async function previewMonth(mesId: number) {
   const supabase = createAdmin();
 
-  const { data: categories } = await supabase
+  // 1. Obtener configuración del mes
+  const { data: month, error: monthError } = await supabase
+    .from("Meses")
+    .select("5_category")
+    .eq("id", mesId)
+    .single();
+
+  if (monthError) throw monthError;
+
+  const showFifthCategory = month?.["5_category"] ?? false;
+
+  // 2. Obtener categorías
+  const { data: categories, error: catError } = await supabase
     .from("Categorias")
     .select("id,name");
 
+  if (catError) throw catError;
+
+  // 3. Filtrar categorías según configuración del mes
+  const filteredCategories = (categories ?? []).filter((cat) => {
+    if (showFifthCategory) return true;
+    return cat.name !== "5ª";
+  });
+
   const result = [];
 
-  for (const cat of categories!) {
-    const { data } = await supabase
+  // 4. Generar partidos por categoría
+  for (const cat of filteredCategories) {
+    const { data, error } = await supabase
       .from("Jugador_Categoria_Mes")
       .select("jugador_id, Socios(id, full_name, nickname, active)")
       .eq("mes_id", mesId)
       .eq("categoria_id", cat.id);
 
-    if (!data || data.length !== 8) {
-      throw new Error(`Categoria ${cat.name} inválida`);
-    }
+    if (error) throw error;
 
-    const players = data.map((p: JugadorCategoriaMes) => {
+    const players = (data ?? []).map((p: JugadorCategoriaMes) => {
       const socio = Array.isArray(p.Socios) ? p.Socios[0] : p.Socios;
+
       return {
         id: socio.id,
         full_name: socio.full_name,
@@ -41,7 +61,9 @@ export async function previewMonth(mesId: number) {
       };
     });
 
-    result.push(...generateCategoryMatches(cat.id, cat.name, players));
+    const matches = generateCategoryMatches(cat.id, cat.name, players);
+
+    result.push(...matches);
   }
 
   return result;

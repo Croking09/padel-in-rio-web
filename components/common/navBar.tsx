@@ -1,5 +1,6 @@
 "use client";
 
+import { hapticResponseSettings } from "@/lib/haptic";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useWebHaptics } from "web-haptics/react";
@@ -8,10 +9,6 @@ export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const { trigger } = useWebHaptics();
-  const hapticResponseSettings = [
-    { duration: 30 },
-    { delay: 60, duration: 40, intensity: 1 },
-  ];
 
   useEffect(() => {
     if (isOpen) {
@@ -68,7 +65,7 @@ export default function NavBar() {
           </li>
           <li className="w-full text-center py-4 md:w-auto md:py-0">
             <Link
-              href="/liga/reglamento"
+              href="/liga/ascensor"
               className="hover:text-secondary transition-colors"
               onClick={() => {
                 trigger(hapticResponseSettings);
