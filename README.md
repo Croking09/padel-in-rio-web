@@ -7,7 +7,6 @@ Web application for Padel in Rio, built with Next.js, Supabase, and Tailwind CSS
 - **Framework**: [Next.js](https://nextjs.org/) (App Router)
 - **Database & Auth**: [Supabase](https://supabase.com/)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Drag & Drop**: [React DND](https://react-dnd.github.io/react-dnd/about)
 - **Maps**: [Google Maps API](https://developers.google.com/maps)
 - **Testing**: [Jest](https://jestjs.io/) & [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
 
@@ -15,7 +14,7 @@ Web application for Padel in Rio, built with Next.js, Supabase, and Tailwind CSS
 
 ### Prerequisites
 
-- Node.js (developed origianlly in v22.20)
+- Node.js (developed originally in v22.20)
 - npm (developed originally in v11.7)
 - [Supabase CLI](https://supabase.com/docs/guides/cli) (optional)
 
