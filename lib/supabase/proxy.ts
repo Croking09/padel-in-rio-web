@@ -85,6 +85,7 @@ export async function updateSession(request: NextRequest) {
     "/liga/ascensor",
     "/liga/clasificacion",
     "/asociacion",
+    "/asociacion/historico",
     "/equipo",
   ];
 
