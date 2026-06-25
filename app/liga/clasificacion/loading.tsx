@@ -10,7 +10,7 @@ export default function Loading() {
       <Skeleton className="h-4 w-80" />
 
       {/* Tabla */}
-      <div className="w-xl rounded-xl overflow-hidden border border-border">
+      <div className="w-full max-w-xl rounded-xl overflow-hidden border border-border">
         {/* Header */}
         <div className="bg-primary/40 border-b border-border flex gap-2 px-2 py-2">
           <Skeleton className="h-4 w-8" />
