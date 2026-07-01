@@ -162,19 +162,15 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        const now = new Date();
-        const currentMonthNumber = now.getMonth() + 1;
-        const currentYear = now.getFullYear();
-
         const allMonths = await getMonths();
-        const currentMonth = allMonths.find(
-          (m) =>
-            m.month === currentMonthNumber &&
-            m.year === currentYear &&
-            m.status === MonthStatus.Confirmed,
-        );
+        const lastConfirmedMonth = allMonths
+          .filter((m) => m.status === MonthStatus.Confirmed)
+          .sort((a, b) =>
+            a.year !== b.year ? a.year - b.year : a.month - b.month,
+          )
+          .at(-1);
 
-        if (!currentMonth) {
+        if (!lastConfirmedMonth) {
           await sendMessage(
             chatId,
             "Todavía no se han confirmado los partidos.",
@@ -183,14 +179,14 @@ export async function POST(req: NextRequest) {
         }
 
         const pdfBuffer = await generateMatchesPdf(
-          currentMonth.id,
-          currentMonth.temporada_id,
+          lastConfirmedMonth.id,
+          lastConfirmedMonth.temporada_id,
         );
 
         await sendDocument(
           chatId,
           pdfBuffer,
-          `partidos_${currentMonthNumber}.pdf`,
+          `partidos_${lastConfirmedMonth.year}_${String(lastConfirmedMonth.month).padStart(2, "0")}.pdf`,
         );
         break;
       case text.startsWith("/partidos"):
