@@ -8,7 +8,6 @@ Web application for Padel in Rio, built with Next.js, Supabase, and Tailwind CSS
 - **Database & Auth**: [Supabase](https://supabase.com/)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **Maps**: [Google Maps API](https://developers.google.com/maps)
-- **Testing**: [Jest](https://jestjs.io/) & [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
 
 ## 💻 Getting Started
 
@@ -63,16 +62,3 @@ Web application for Padel in Rio, built with Next.js, Supabase, and Tailwind CSS
    npm run dev
    ```
 
-## 🧪 Testing
-
-Run the test suite using Jest:
-
-```bash
-npm run test
-```
-
-To run tests in watch mode:
-
-```bash
-npm run test:watch
-```
