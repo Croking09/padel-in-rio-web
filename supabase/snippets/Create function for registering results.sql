@@ -7,15 +7,11 @@ RETURNS void
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  -- Borramos sets anteriores
+  -- Borramos los sets anteriores
   DELETE FROM public."Sets"
   WHERE partido_id = p_partido_id;
 
-  -- Borramos participaciones anteriores
-  DELETE FROM public."Participacion"
-  WHERE partido_id = p_partido_id;
-
-  -- Insertamos sets
+  -- Insertamos los nuevos sets
   INSERT INTO public."Sets" (
     partido_id,
     orden,
@@ -37,17 +33,22 @@ BEGIN
     (s->>'pareja2_juegos')::int
   FROM jsonb_array_elements(p_sets) AS s;
 
-  -- Insertamos participación
-  INSERT INTO public."Participacion" (
-    partido_id,
-    jugador_id,
-    sustituto_id
-  )
-  SELECT
-    p_partido_id,
-    (p->>'jugador_id')::int,
-    (p->>'sustituto_id')::int
-  FROM jsonb_array_elements(p_participacion) AS p;
+  -- Reiniciamos los sustitutos de todos los participantes del partido
+  UPDATE public."Participacion"
+  SET sustituto_id = NULL
+  WHERE partido_id = p_partido_id;
+
+  -- Actualizamos los sustitutos indicados
+  UPDATE public."Participacion" AS part
+  SET sustituto_id = data.sustituto_id
+  FROM (
+    SELECT
+      (p->>'jugador_id')::int AS jugador_id,
+      (p->>'sustituto_id')::int AS sustituto_id
+    FROM jsonb_array_elements(p_participacion) AS p
+  ) AS data
+  WHERE part.partido_id = p_partido_id
+    AND part.jugador_id = data.jugador_id;
 
 END;
 $$;

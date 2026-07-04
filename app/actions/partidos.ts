@@ -12,7 +12,7 @@ interface PartidoResponse {
   id: number;
   categoria_id: number;
   Categorias: { name: string } | null;
-  Jugador_Partido: {
+  Participacion: {
     id: number;
     Player: Socio | null;
   }[];
@@ -35,9 +35,9 @@ export async function getConfirmedMatches(monthId: number): Promise<Match[]> {
         id,
         categoria_id,
         Categorias ( name ),
-        Jugador_Partido (
+        Participacion (
           id,
-          Player:Socios ( id, full_name, nickname )
+          Player:Socios!participacion_jugador_id_fkey ( id, full_name, nickname )
         )
       )
     `,
@@ -59,7 +59,7 @@ export async function getConfirmedMatches(monthId: number): Promise<Match[]> {
         categoryId: partido.categoria_id,
         categoryName: partido.Categorias?.name || "Sin Categoría",
         matchday: jornada.number,
-        players: [...(partido.Jugador_Partido ?? [])]
+        players: [...(partido.Participacion ?? [])]
           .sort((a, b) => a.id - b.id)
           .map((jp) => jp.Player)
           .filter((s): s is Socio => Boolean(s)),
@@ -78,9 +78,9 @@ export async function getPlayersByPartido(partidoId: number) {
     .select(
       `
       id,
-      players:Jugador_Partido (
+      players:Participacion (
         id,
-        jugador:Socios (
+        jugador:Socios!participacion_jugador_id_fkey (
           id,
           nickname,
           full_name
