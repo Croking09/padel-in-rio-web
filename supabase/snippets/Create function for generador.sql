@@ -1,72 +1,79 @@
-create or replace function generar_partidos_mes(
+CREATE OR REPLACE FUNCTION generar_partidos_mes(
   p_mes_id bigint,
   p_partidos jsonb
 )
-returns void
-language plpgsql
-as $$
-declare
+RETURNS void
+LANGUAGE plpgsql
+AS $$
+DECLARE
   m jsonb;
 
   jornada1_id bigint;
   jornada2_id bigint;
 
   partido_id bigint;
-begin
+BEGIN
 
   /*
     Creamos / recuperamos las 2 jornadas del mes
     usando UPSERT + RETURNING (sin race conditions)
   */
 
-  with jornadas_upsert as (
-    insert into "Jornadas" (mes_id, number)
-    values (p_mes_id, 1), (p_mes_id, 2)
-    on conflict (mes_id, number)
-    do update set mes_id = excluded.mes_id
-    returning id, number
+  WITH jornadas_upsert AS (
+    INSERT INTO "Jornadas" (mes_id, number)
+    VALUES (p_mes_id, 1), (p_mes_id, 2)
+    ON CONFLICT (mes_id, number)
+    DO UPDATE SET mes_id = EXCLUDED.mes_id
+    RETURNING id, number
   )
-  select
-    max(id) filter (where number = 1),
-    max(id) filter (where number = 2)
-  into jornada1_id, jornada2_id
-  from jornadas_upsert;
+  SELECT
+    MAX(id) FILTER (WHERE number = 1),
+    MAX(id) FILTER (WHERE number = 2)
+  INTO jornada1_id, jornada2_id
+  FROM jornadas_upsert;
 
-  if jornada1_id is null or jornada2_id is null then
-    raise exception 'No se pudieron crear las jornadas';
-  end if;
+  IF jornada1_id IS NULL OR jornada2_id IS NULL THEN
+    RAISE EXCEPTION 'No se pudieron crear las jornadas';
+  END IF;
 
   /*
     Insertamos partidos
   */
 
-  for m in select * from jsonb_array_elements(p_partidos)
-  loop
+  FOR m IN
+    SELECT *
+    FROM jsonb_array_elements(p_partidos)
+  LOOP
 
-    insert into "Partidos"(jornada_id, categoria_id)
-    values (
-      case (m->>'matchday')::int
-        when 1 then jornada1_id
-        else jornada2_id
-      end,
+    INSERT INTO "Partidos" (jornada_id, categoria_id)
+    VALUES (
+      CASE (m->>'matchday')::int
+        WHEN 1 THEN jornada1_id
+        ELSE jornada2_id
+      END,
       (m->>'categoryId')::bigint
     )
-    returning id into partido_id;
+    RETURNING id INTO partido_id;
 
     /*
-      Insertamos jugadores del partido
+      Insertamos participación de los jugadores
     */
 
-    insert into "Jugador_Partido"(partido_id, jugador_id)
-    select
+    INSERT INTO "Participacion" (
       partido_id,
-      jsonb_array_elements_text(m->'players')::bigint;
+      jugador_id,
+      sustituto_id
+    )
+    SELECT
+      partido_id,
+      jsonb_array_elements_text(m->'players')::bigint,
+      NULL;
 
-  end loop;
+  END LOOP;
 
-  update "Meses"
-  set status = 'confirmed'
-  where id = p_mes_id;
+  UPDATE "Meses"
+  SET status = 'confirmed'
+  WHERE id = p_mes_id;
 
-end;
+END;
 $$;
