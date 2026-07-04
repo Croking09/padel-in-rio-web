@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { HapticButton } from "@/components/ui/haptic-button";
+import { Button } from "@/components/ui/button";
 
 export default async function SectionNav({
   adminLinks,
@@ -33,16 +33,16 @@ export default async function SectionNav({
         {isAdmin &&
           adminLinks.map((link) => (
             <li key={link.href}>
-              <HapticButton asChild variant="ghost" className="p-0" size="xs">
+              <Button asChild variant="ghost" className="p-0" size="xs">
                 <Link href={link.href}>{link.label}</Link>
-              </HapticButton>
+              </Button>
             </li>
           ))}
         {publicLinks.map((link) => (
           <li key={link.href}>
-            <HapticButton asChild variant="ghost" className="p-0" size="xs">
+            <Button asChild variant="ghost" className="p-0" size="xs">
               <Link href={link.href}>{link.label}</Link>
-            </HapticButton>
+            </Button>
           </li>
         ))}
       </ul>

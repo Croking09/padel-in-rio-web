@@ -34,7 +34,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useWebHaptics } from "web-haptics/react";
 import { MonthStatus } from "@/lib/types/month";
 import { Checkbox } from "@/components/ui/checkbox";
 import { updateUseFithCategory } from "@/app/actions/ligas";
@@ -77,8 +76,6 @@ export default function AssignmentBoard({
   const [useFifthCategory, setUseFifthCategory] = useState(
     initialData.useFifthCategory,
   );
-
-  const { trigger } = useWebHaptics();
 
   useEffect(() => {
     setData(initialData);
@@ -235,10 +232,6 @@ export default function AssignmentBoard({
               </label>
               <Button
                 onClick={() => {
-                  trigger([
-                    { duration: 30 },
-                    { delay: 60, duration: 40, intensity: 1 },
-                  ]);
                   onSave();
                 }}
                 disabled={!hasChanges || isSaving}
@@ -260,12 +253,6 @@ export default function AssignmentBoard({
                 <AlertDialogTrigger asChild>
                   <Button
                     disabled={isSaving || !isValid}
-                    onClick={() =>
-                      trigger([
-                        { duration: 30 },
-                        { delay: 60, duration: 40, intensity: 1 },
-                      ])
-                    }
                     className={cn(
                       "px-4 py-2 text-sm font-medium rounded-md bg-success text-white shadow-sm flex items-center gap-2",
                       !isValid

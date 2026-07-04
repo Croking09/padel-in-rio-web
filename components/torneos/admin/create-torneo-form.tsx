@@ -17,7 +17,6 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useWebHaptics } from "web-haptics/react";
 
 export default function CreateTorneoForm() {
   const [name, setName] = useState("");
@@ -31,8 +30,6 @@ export default function CreateTorneoForm() {
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
-
-  const { trigger } = useWebHaptics();
 
   const handleAddCategory = () => {
     if (newCategory.trim()) {
@@ -284,14 +281,7 @@ export default function CreateTorneoForm() {
         />
       </div>
 
-      <Button
-        type="submit"
-        className="w-full"
-        variant="secondary"
-        onClick={() =>
-          trigger([{ duration: 30 }, { delay: 60, duration: 40, intensity: 1 }])
-        }
-      >
+      <Button type="submit" className="w-full" variant="secondary">
         Crear Torneo
       </Button>
     </form>

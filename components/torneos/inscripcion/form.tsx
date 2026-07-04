@@ -14,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useWebHaptics } from "web-haptics/react";
 import { redirect } from "next/navigation";
 
 export default function Form({
@@ -28,8 +27,6 @@ export default function Form({
   const [player2Name, setPlayer2Name] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [category, setCategory] = useState("");
-
-  const { trigger } = useWebHaptics();
 
   const categoriesNeeded = Boolean(categories && categories.length > 0);
 
@@ -152,14 +149,7 @@ export default function Form({
         </p>
       </div>
 
-      <Button
-        className="w-fit font-bold"
-        type="submit"
-        variant="secondary"
-        onClick={() =>
-          trigger([{ duration: 30 }, { delay: 60, duration: 40, intensity: 1 }])
-        }
-      >
+      <Button className="w-fit font-bold" type="submit" variant="secondary">
         Confirmar Inscripción
       </Button>
     </form>

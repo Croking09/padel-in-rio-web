@@ -2,10 +2,10 @@ import { previewMonth } from "@/app/actions/generador-partidos";
 import ConfirmButton from "@/components/liga/admin/generador/confirm-button";
 import MonthSelector from "@/components/liga/month-selector";
 import { Match } from "@/lib/types/match";
-import { HapticButton } from "@/components/ui/haptic-button";
 import { getMonths, getTemporadas } from "@/app/actions/ligas";
 import { getCurrentMonthId } from "@/lib/utils";
 import { MonthStatus } from "@/lib/types/month";
+import { Button } from "@/components/ui/button";
 
 export default async function Page({
   searchParams,
@@ -135,14 +135,14 @@ export default async function Page({
         )}
 
         {isMonthConfirmed && (
-          <HapticButton asChild variant="secondary">
+          <Button asChild variant="secondary">
             <a
               href={`/admin/liga/generador/matches-pdf?monthId=${currentMonthId}`}
               target="_blank"
             >
               Descargar PDF
             </a>
-          </HapticButton>
+          </Button>
         )}
       </div>
     </div>

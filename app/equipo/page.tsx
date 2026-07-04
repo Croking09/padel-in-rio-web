@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { HapticButton } from "@/components/ui/haptic-button";
+import { Button } from "@/components/ui/button";
 
 export default function Equipo() {
   return (
@@ -74,11 +74,7 @@ export default function Equipo() {
           partidos en el siguiente enlace:
         </p>
 
-        <HapticButton
-          className="w-fit self-center mt-4"
-          asChild
-          variant="secondary"
-        >
+        <Button className="w-fit self-center mt-4" asChild variant="secondary">
           <a
             href="https://www.sport2fit.com/liga/liga-gallega-por-equipos-de-clubes-liga-gallega-por-equipos-de-clubes-2026-zona-norte-820/4144/17102/2620"
             target="_blank"
@@ -86,7 +82,7 @@ export default function Equipo() {
           >
             Liga Gallega de Pádel
           </a>
-        </HapticButton>
+        </Button>
       </div>
     </>
   );
