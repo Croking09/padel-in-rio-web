@@ -4,11 +4,11 @@ import { useState } from "react";
 import { registerMatchResults } from "@/app/actions/partidos";
 import { redirect } from "next/navigation";
 import { Socio } from "@/lib/types/socio";
-import { HapticButton } from "@/components/ui/haptic-button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import MatchParticipants from "@/lib/types/matchParticipants";
 import { getMatchSetCombos } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export default function MatchResultsPage({
   partidoId,
@@ -260,13 +260,13 @@ export default function MatchResultsPage({
         ))}
       </div>
 
-      <HapticButton
+      <Button
         variant="secondary"
         onClick={handleSubmit}
         className="block mx-auto"
       >
         Guardar resultados
-      </HapticButton>
+      </Button>
     </div>
   );
 }

@@ -1,12 +1,12 @@
 import { existsResult } from "@/app/actions/partidos";
 import { getMonths, getTemporadas } from "@/app/actions/ligas";
 import MonthSelector from "@/components/liga/month-selector";
-import { HapticButton } from "@/components/ui/haptic-button";
 import { getMatchesByDayGlobal } from "@/lib/partidos";
 import { createClient } from "@/lib/supabase/server";
 import { MonthStatus } from "@/lib/types/month";
 import { getCurrentMonthId } from "@/lib/utils";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default async function Page({
   searchParams,
@@ -142,17 +142,17 @@ export default async function Page({
                                 <hr className="border-border" />
 
                                 <div className="flex gap-4">
-                                  <HapticButton asChild variant="secondary">
+                                  <Button asChild variant="secondary">
                                     <Link
                                       href={`/liga/partidos/${match.id}/resultados`}
                                       className="text-xs px-3 py-1"
                                     >
                                       Ver resultados
                                     </Link>
-                                  </HapticButton>
+                                  </Button>
 
                                   {isAdmin && (
-                                    <HapticButton
+                                    <Button
                                       asChild
                                       variant="outline"
                                       className={
@@ -169,7 +169,7 @@ export default async function Page({
                                           ? "Registrado"
                                           : "Introducir resultados"}
                                       </Link>
-                                    </HapticButton>
+                                    </Button>
                                   )}
                                 </div>
                               </div>

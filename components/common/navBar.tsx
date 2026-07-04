@@ -1,14 +1,10 @@
 "use client";
 
-import { hapticResponseSettings } from "@/lib/haptic";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useWebHaptics } from "web-haptics/react";
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
-
-  const { trigger } = useWebHaptics();
 
   useEffect(() => {
     if (isOpen) {
@@ -56,7 +52,6 @@ export default function NavBar() {
               href="/torneos"
               className="hover:text-secondary transition-colors"
               onClick={() => {
-                trigger(hapticResponseSettings);
                 setIsOpen(false);
               }}
             >
@@ -68,7 +63,6 @@ export default function NavBar() {
               href="/liga/ascensor"
               className="hover:text-secondary transition-colors"
               onClick={() => {
-                trigger(hapticResponseSettings);
                 setIsOpen(false);
               }}
             >
@@ -80,7 +74,6 @@ export default function NavBar() {
               href="/asociacion"
               className="hover:text-secondary transition-colors"
               onClick={() => {
-                trigger(hapticResponseSettings);
                 setIsOpen(false);
               }}
             >
@@ -92,7 +85,6 @@ export default function NavBar() {
               href="/equipo"
               className="hover:text-secondary transition-colors"
               onClick={() => {
-                trigger(hapticResponseSettings);
                 setIsOpen(false);
               }}
             >

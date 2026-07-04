@@ -13,10 +13,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { hapticResponseSettings } from "@/lib/haptic";
 import { CategoryClassification } from "@/lib/types/classification";
 import { toast } from "sonner";
-import { useWebHaptics } from "web-haptics/react";
 
 export default function CreateSocioButton({
   classification,
@@ -25,8 +23,6 @@ export default function CreateSocioButton({
   classification: CategoryClassification[];
   month_id: number;
 }) {
-  const { trigger } = useWebHaptics();
-
   const onConfirm = async () => {
     try {
       const result = await giveMonthlyBonus(classification, month_id);
@@ -48,12 +44,7 @@ export default function CreateSocioButton({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button
-          variant="secondary"
-          onClick={() => trigger(hapticResponseSettings)}
-        >
-          Dar bonus
-        </Button>
+        <Button variant="secondary">Dar bonus</Button>
       </AlertDialogTrigger>
 
       <AlertDialogContent>

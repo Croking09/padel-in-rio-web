@@ -11,8 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useWebHaptics } from "web-haptics/react";
-import { hapticResponseSettings } from "@/lib/haptic";
 
 export default function MonthSelector({
   months,
@@ -21,8 +19,6 @@ export default function MonthSelector({
   months: Month[];
   currentMonthId: number | undefined;
 }) {
-  const { trigger } = useWebHaptics();
-
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -37,7 +33,6 @@ export default function MonthSelector({
       <Select
         value={currentMonthId ? String(currentMonthId) : ""}
         onValueChange={(value) => {
-          trigger(hapticResponseSettings);
           handleChange(value);
         }}
       >

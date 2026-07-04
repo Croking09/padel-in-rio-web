@@ -15,8 +15,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { useWebHaptics } from "web-haptics/react";
-import { hapticResponseSettings } from "@/lib/haptic";
 
 export default function ConfirmButton({
   className,
@@ -27,8 +25,6 @@ export default function ConfirmButton({
   matches: Match[];
   monthId: number;
 }) {
-  const { trigger } = useWebHaptics();
-
   const onConfirm = async () => {
     const response = await confirmMonth(monthId, matches);
 
@@ -45,11 +41,7 @@ export default function ConfirmButton({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button
-          className={className}
-          variant="secondary"
-          onClick={() => trigger(hapticResponseSettings)}
-        >
+        <Button className={className} variant="secondary">
           Confirmar
         </Button>
       </AlertDialogTrigger>

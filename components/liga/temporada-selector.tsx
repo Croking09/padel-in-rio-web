@@ -1,9 +1,7 @@
 "use client";
-import { hapticResponseSettings } from "@/lib/haptic";
 import { Temporada } from "@/lib/types/temporada";
 import { Check, ChevronDown } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useWebHaptics } from "web-haptics/react";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +24,6 @@ export default function TemporadaSelector({
 }: {
   temporadas: Temporada[];
 }) {
-  const { trigger } = useWebHaptics();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -76,7 +73,6 @@ export default function TemporadaSelector({
   );
 
   const handleSelect = (value: string) => {
-    trigger(hapticResponseSettings);
     setTemporadaCookie(value);
     const params = new URLSearchParams(searchParams);
     params.set("temporadaId", value);
