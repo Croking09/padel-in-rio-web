@@ -2,7 +2,7 @@ import Carousel from "@/components/home/carousel";
 import IconCard from "@/components/home/iconCard";
 import IconCardFromBD from "@/components/home/iconCardFromBD";
 import IconCardSkeleton from "@/components/home/iconCardSkeleton";
-import Map from "@/components/home/map";
+import InteractiveMap from "@/components/home/map";
 import { Dumbell, Medal, Person, Trophy } from "@/components/icons";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -41,7 +41,7 @@ export default function Home() {
           </h6>
         </div>
 
-        <Map />
+        <InteractiveMap />
 
         <Button
           asChild
