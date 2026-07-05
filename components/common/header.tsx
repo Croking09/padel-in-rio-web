@@ -19,7 +19,7 @@ import AuthButtonSkeleton from "@/components/auth/auth-button-skeleton";
 export default function Header() {
   return (
     <>
-      <header className="bg-card flex flex-row p-4 justify-between items-center">
+      <header className="bg-card grid grid-cols-2 lg:grid-cols-3 items-center p-4">
         <div className="flex items-center gap-2 md:gap-4">
           <Link href="/">
             <Logo className="w-15 h-15 hover:text-primary hover:scale-110 transition-all duration-300" />
@@ -53,11 +53,13 @@ export default function Header() {
           </Dialog>
         </div>
 
-        <NavBar />
+        <NavBar className="justify-self-center" />
 
-        <Suspense fallback={<AuthButtonSkeleton />}>
-          <AuthButton compact />
-        </Suspense>
+        <div className="justify-self-end">
+          <Suspense fallback={<AuthButtonSkeleton />}>
+            <AuthButton compact />
+          </Suspense>
+        </div>
       </header>
     </>
   );

@@ -8,8 +8,8 @@ import { buttonVariants } from "@/components/ui/button";
 export async function AuthButton({ compact = false }: { compact?: boolean }) {
   const supabase = await createClient();
 
-  const { data, error } = await supabase.auth.getUser();
-  const user = error ? null : data.user;
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims;
 
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") ?? "/";
