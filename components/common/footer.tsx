@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-primary p-8 shadow-top grid gap-8 items-center text-center md:grid-cols-3 md:grid-rows-1">
+    <footer className="bg-card p-8 grid gap-8 items-center text-center md:grid-cols-3 md:grid-rows-1">
       <Logo className="w-auto h-32 mx-auto md:justify-self-start md:ml-16" />
 
       <hr className="w-full border-border md:hidden" />
@@ -13,7 +13,7 @@ export default function Footer() {
 
       <hr className="w-full border-border md:hidden" />
 
-      <div className="text-sm opacity-40 self-end">
+      <div className="text-muted-foreground text-sm self-end">
         <Link href="/politica-de-cookies" className="hover:underline">
           Política de Cookies
         </Link>

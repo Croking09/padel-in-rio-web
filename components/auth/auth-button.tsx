@@ -1,35 +1,39 @@
 import Link from "next/link";
-import { Button } from "../ui/button";
 import { createClient } from "@/lib/supabase/server";
-import { LogoutButton } from "./logout-button";
 import { headers } from "next/headers";
+import { LogIn } from "lucide-react";
+import { AvatarMenu } from "./avatar-menu";
+import { buttonVariants } from "@/components/ui/button";
 
-export async function AuthButton() {
+export async function AuthButton({ compact = false }: { compact?: boolean }) {
   const supabase = await createClient();
 
-  // You can also use getUser() which will be slower.
-  const { data } = await supabase.auth.getClaims();
-
-  const user = data?.claims;
+  const { data, error } = await supabase.auth.getUser();
+  const user = error ? null : data.user;
 
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") ?? "/";
 
   return user ? (
-    <div className="flex flex-col md:flex-row items-center gap-4">
-      Hola! {user.email}
-      <LogoutButton />
-    </div>
+    <AvatarMenu email={user.email} />
   ) : (
     <div className="flex gap-2">
-      <Button asChild size="sm" variant={"outline"}>
-        <Link href={`/auth/login?redirectTo=${encodeURIComponent(pathname)}`}>
-          Inicia Sesión
+      <Link
+        href={`/auth/login?redirectTo=${encodeURIComponent(pathname)}`}
+        className={buttonVariants({ variant: "outline", size: "default" })}
+      >
+        {compact && <LogIn data-icon="inline-start" />}
+        Inicia Sesión
+      </Link>
+
+      {!compact && (
+        <Link
+          href="/auth/sign-up"
+          className={buttonVariants({ variant: "default", size: "default" })}
+        >
+          Regístrate
         </Link>
-      </Button>
-      <Button asChild size="sm" variant={"default"}>
-        <Link href="/auth/sign-up">Regístrate</Link>
-      </Button>
+      )}
     </div>
   );
 }

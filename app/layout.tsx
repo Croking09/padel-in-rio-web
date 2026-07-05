@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google";
 import "./globals.css";
 
 import Header from "@/components/common/header";
+import BottomTabBar from "@/components/common/bottomBar";
 import Footer from "@/components/common/footer";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -50,12 +51,14 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Padel in Rio" />
       </head>
       <body
-        className={`${montserrat.className} antialiased bg-background text-text-primary min-h-dvh flex flex-col`}
+        className={`${montserrat.className} antialiased min-h-dvh flex flex-col`}
       >
         <Header />
 
         <main className="flex-1">{children}</main>
         <Toaster richColors />
+
+        <BottomTabBar />
 
         <Footer />
       </body>

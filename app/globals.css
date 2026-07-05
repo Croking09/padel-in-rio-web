@@ -1,49 +1,122 @@
 @import "tailwindcss";
-
-@theme {
-  /* Colors */
-  --color-background: #01020f;
-  --color-primary: #17253f;
-  --color-secondary: #29aae1;
-  --color-border: #334155;
-
-  --color-text-primary: #e5e7eb;
-
-  --color-success: #22c55e;
-  --color-error: #ef4444;
-
-  --color-destructive: #ef4444;
-}
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
 :root {
-  --color-background: #01020f;
-  --color-primary: #17253f;
-  --color-secondary: #29aae1;
-  --color-border: #334155;
+  --background: #01020f;
+  --foreground: #e5e7eb;
 
-  --color-text-primary: #e5e7eb;
+  --card: #17253f;
+  --card-foreground: #e5e7eb;
 
-  --color-success: #22c55e;
-  --color-error: #ef4444;
+  --popover: #1e2d4a;
+  --popover-foreground: #e5e7eb;
 
-  --color-destructive: #ef4444;
+  --primary: #29aae1;
+  --primary-foreground: #01020f;
+
+  --secondary: #243452;
+  --secondary-foreground: #e5e7eb;
+
+  --muted: #0d1526;
+  --muted-foreground: #94a3b8;
+
+  --accent: #1a3a52;
+  --accent-foreground: #e5e7eb;
+
+  --destructive: #ef4444;
+
+  --border: #334155;
+
+  --input: #2b3a52;
+
+  --ring: #29aae1;
+
+  --chart-1: #29aae1;
+
+  --chart-2: #22c55e;
+
+  --chart-3: #a78bfa;
+
+  --chart-4: #fbbf24;
+
+  --chart-5: #f472b6;
+
+  --radius: 0.875rem;
+
+  --sidebar: #05070f;
+
+  --sidebar-foreground: #e5e7eb;
+
+  --sidebar-primary: #29aae1;
+
+  --sidebar-primary-foreground: #01020f;
+
+  --sidebar-accent: #16283f;
+
+  --sidebar-accent-foreground: #e5e7eb;
+
+  --sidebar-border: #1e293b;
+
+  --sidebar-ring: #29aae1;
 }
 
-.shadow-bottom {
-  @apply shadow-[0_10px_10px_rgba(0,0,0,0.25)];
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-.shadow-top {
-  @apply shadow-[0_-10px_10px_rgba(0,0,0,0.25)];
-}
-
-.shadow-card {
-  @apply shadow-[10px_10px_10px_rgba(0,0,0,0.25)];
-}
-
-@media (display-mode: standalone) {
-  .hide-in-standalone {
-    display: none;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  html {
+    @apply font-sans;
   }
 }
 
@@ -60,4 +133,10 @@
 .custom-scroll::-webkit-scrollbar-thumb {
   background-color: var(--color-border);
   border-radius: 9999px;
+}
+
+@media (display-mode: standalone) {
+  .hide-in-standalone {
+    display: none;
+  }
 }
