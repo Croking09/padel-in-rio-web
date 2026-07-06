@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function AuthButtonSkeleton({
+export default function AuthControlsSkeleton({
   compact = false,
 }: {
   compact?: boolean;

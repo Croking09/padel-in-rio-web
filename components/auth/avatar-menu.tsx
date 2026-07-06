@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
@@ -34,10 +36,16 @@ export function AvatarMenu({ email }: { email?: string }) {
           </Button>
         }
       />
-      <DropdownMenuContent className="w-32">
-        <DropdownMenuItem variant="destructive" onClick={logout}>
-          Cerrar Sesión
-        </DropdownMenuItem>
+      <DropdownMenuContent className="w-fit">
+        <DropdownMenuGroup>
+          <DropdownMenuItem>{email}</DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem variant="destructive" onClick={logout}>
+            Cerrar Sesión
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -1,6 +1,6 @@
 import { getTorneoById } from "@/app/actions/torneos";
 import { redirect } from "next/navigation";
-import { AuthButton } from "@/components/auth/auth-button";
+import { AuthButton } from "@/components/auth/auth-controls";
 import Form from "@/components/torneos/inscripcion/form";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";

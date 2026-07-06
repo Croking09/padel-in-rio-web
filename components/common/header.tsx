@@ -12,9 +12,9 @@ import {
 import Link from "next/link";
 import { Logo } from "@/components/icons";
 import { Separator } from "@/components/ui/separator";
-import { AuthButton } from "@/components/auth/auth-button";
+import { AuthControls } from "@/components/auth/auth-controls";
 import { Suspense } from "react";
-import AuthButtonSkeleton from "@/components/auth/auth-button-skeleton";
+import AuthControlsSkeleton from "@/components/auth/auth-controls-skeleton";
 
 export default function Header() {
   return (
@@ -56,8 +56,8 @@ export default function Header() {
         <NavBar className="justify-self-center" />
 
         <div className="justify-self-end">
-          <Suspense fallback={<AuthButtonSkeleton />}>
-            <AuthButton compact />
+          <Suspense fallback={<AuthControlsSkeleton compact />}>
+            <AuthControls compact />
           </Suspense>
         </div>
       </header>

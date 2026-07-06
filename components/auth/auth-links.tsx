@@ -1,22 +1,14 @@
+"use client";
+
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { headers } from "next/headers";
 import { LogIn } from "lucide-react";
-import { AvatarMenu } from "./avatar-menu";
 import { buttonVariants } from "@/components/ui/button";
+import { usePathname } from "next/navigation";
 
-export async function AuthButton({ compact = false }: { compact?: boolean }) {
-  const supabase = await createClient();
+export default function AuthLinks({ compact = false }: { compact?: boolean }) {
+  const pathname = usePathname();
 
-  const { data } = await supabase.auth.getClaims();
-  const user = data?.claims;
-
-  const headersList = await headers();
-  const pathname = headersList.get("x-pathname") ?? "/";
-
-  return user ? (
-    <AvatarMenu email={user.email} />
-  ) : (
+  return (
     <div className="flex gap-2">
       <Link
         href={`/auth/login?redirectTo=${encodeURIComponent(pathname)}`}

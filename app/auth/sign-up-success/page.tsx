@@ -11,8 +11,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 export default function Page() {
   const supabase = createClient();
@@ -68,12 +73,12 @@ export default function Page() {
   };
 
   return (
-    <div className="flex w-full items-center justify-center p-10">
+    <div className="flex w-full min-h-[80dvh] items-center justify-center">
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">
+              <CardTitle className="text-2xl font-bold">
                 ¡Gracias por registrarte!
               </CardTitle>
               <CardDescription>¡Casi has terminado!</CardDescription>
@@ -84,29 +89,40 @@ export default function Page() {
                 Introduce el código que hemos enviado a tu correo:
               </p>
 
-              <Input
-                placeholder="Código de 6 dígitos"
+              <InputOTP
                 value={code}
+                onChange={(value) => {
+                  setCode(value);
+                }}
                 maxLength={6}
-                onChange={(e) => setCode(e.target.value)}
-              />
+              >
+                <InputOTPGroup className="mx-auto">
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
 
               {error && <p className="text-sm text-error">{error}</p>}
 
               <Button
                 onClick={verify}
                 disabled={loading || code.length < 6}
-                variant="secondary"
+                className="w-fit mx-auto"
               >
                 Verificar
               </Button>
 
-              <button
+              <Button
+                variant="link"
                 onClick={resend}
-                className="text-sm underline hover:cursor-pointer"
+                className="text-sm underline text-foreground"
               >
                 {cooldown > 0 ? `Reenviar en ${cooldown}s` : "Reenviar código"}
-              </button>
+              </Button>
             </CardContent>
           </Card>
         </div>

@@ -1,7 +1,7 @@
 import Torneos from "@/components/torneos/torneos";
 import TorneosSkeleton from "@/components/torneos/torneos-skeleton";
 import { Suspense } from "react";
-import { AuthButton } from "@/components/auth/auth-button";
+import { AuthControls } from "@/components/auth/auth-controls";
 import { Button } from "@/components/ui/button";
 import CreateTorneoButton from "@/components/torneos/admin/create-torneo-button";
 import { createClient } from "@/lib/supabase/server";
@@ -22,7 +22,7 @@ export default async function Page({ searchParams }: PageProps) {
         <h2 className="text-3xl font-bold text-center">NUESTROS TORNEOS</h2>
         <div className="flex justify-center md:justify-end md:pr-8 py-4 md:pt-0">
           <Suspense>
-            <AuthButton />
+            <AuthControls />
           </Suspense>
         </div>
       </div>
