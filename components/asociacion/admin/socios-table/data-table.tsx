@@ -29,6 +29,8 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
+import { Card } from "@/components/ui/card";
+
 import { Input } from "@/components/ui/input";
 import CreateSocio from "@/components/asociacion/admin/create-socio";
 import { Socio } from "@/lib/types/socio";
@@ -66,8 +68,8 @@ export default function DataTable<TData, TValue>({
   });
 
   return (
-    <div className={className}>
-      <div className="flex items-center justify-between py-4 gap-4">
+    <Card className={className}>
+      <div className="flex items-center justify-between gap-4">
         <Input
           placeholder="Buscar socio..."
           value={globalFilter}
@@ -133,7 +135,7 @@ export default function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <Pagination className="py-4">
+      <Pagination>
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
@@ -181,6 +183,6 @@ export default function DataTable<TData, TValue>({
           </PaginationItem>
         </PaginationContent>
       </Pagination>
-    </div>
+    </Card>
   );
 }

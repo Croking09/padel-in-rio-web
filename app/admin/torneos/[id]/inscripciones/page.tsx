@@ -11,14 +11,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Card } from "@/components/ui/card";
 
 export default async function Page({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await new Promise((r) => setTimeout(r, 5000));
-
   const { id } = await params;
 
   const [{ data: inscripciones }, torneo] = await Promise.all([
@@ -42,28 +41,28 @@ export default async function Page({
         )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="rounded-lg border p-4">
-            <p className="text-xs font-medium text-muted-foreground">Inicio</p>
+          <Card className="rounded-lg border p-4">
+            <p className="text-sm font-medium text-muted-foreground">Inicio</p>
             <p className="font-semibold">{formatDate(torneo.start_date)}</p>
-          </div>
+          </Card>
 
-          <div className="rounded-lg border p-4">
-            <p className="text-xs font-medium text-muted-foreground">Fin</p>
+          <Card className="rounded-lg border p-4">
+            <p className="text-sm font-medium text-muted-foreground">Fin</p>
             <p className="font-semibold">{formatDate(torneo.end_date)}</p>
-          </div>
+          </Card>
 
-          <div className="rounded-lg border p-4">
-            <p className="text-xs font-medium text-muted-foreground">
+          <Card className="rounded-lg border p-4">
+            <p className="text-sm font-medium text-muted-foreground">
               Cierre de inscripciones
             </p>
             <p className="font-semibold">
               {formatDate(torneo.inscription_end_date)}
             </p>
-          </div>
+          </Card>
         </div>
 
         {torneo.manually_closed && (
-          <p className="text-center font-medium text-destructive">
+          <p className="text-center font-medium text-destructive pt-4">
             Inscripciones cerradas manualmente
           </p>
         )}
@@ -84,7 +83,7 @@ export default async function Page({
           <div className="overflow-hidden rounded-lg">
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="*:font-bold">
                   <TableHead>Jugador 1</TableHead>
                   <TableHead>Jugador 2</TableHead>
                   <TableHead>Teléfono</TableHead>

@@ -70,18 +70,13 @@ export default function MatchResultsPage({
 
   async function handleSubmit() {
     if (results.some((r) => r.p1 === "" || r.p2 === "")) {
-      toast.error("No se han introducido todos los resultados", {
-        position: "top-center",
-      });
+      toast.error("No se han introducido todos los resultados");
       return;
     }
 
     if (participation.some((p) => !p.asiste && p.sustituto_id === null)) {
       toast.error(
         "Debes seleccionar un sustituto para todos los jugadores ausentes",
-        {
-          position: "top-center",
-        },
       );
       return;
     }
@@ -104,14 +99,10 @@ export default function MatchResultsPage({
     const result = await registerMatchResults(partidoId, sets, participacion);
 
     if (!result.success) {
-      return toast.error("Ha ocurrido un error al registrar los resultados", {
-        position: "top-center",
-      });
+      return toast.error("Ha ocurrido un error al registrar los resultados");
     }
 
-    toast.success("Resultados registrados correctamente", {
-      position: "top-center",
-    });
+    toast.success("Resultados registrados correctamente");
 
     redirect("/liga/partidos");
   }

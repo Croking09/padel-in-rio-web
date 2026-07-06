@@ -93,9 +93,9 @@ export default function CreateTorneoForm() {
     });
 
     if (!response.success) {
-      toast.error(response.error, { position: "top-center" });
+      toast.error(response.error);
     } else {
-      toast.success("Torneo creado correctamente", { position: "top-center" });
+      toast.success("Torneo creado correctamente");
       resetForm();
       router.push("/torneos");
     }
@@ -129,7 +129,7 @@ export default function CreateTorneoForm() {
 
           <label
             htmlFor="image"
-            className="min-w-0 cursor-pointer flex items-center justify-center gap-2 rounded-md border px-4 py-2 text-sm h-9 hover:bg-accent transition-colors"
+            className="bg-popover min-w-0 cursor-pointer flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm h-9"
           >
             <ImageIcon className="w-4 h-4 shrink-0" />
             <span className="truncate">{fileName || "Seleccionar imagen"}</span>

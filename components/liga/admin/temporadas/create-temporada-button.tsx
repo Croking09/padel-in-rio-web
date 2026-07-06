@@ -88,13 +88,11 @@ export default function CreateTemporadaButton() {
     setLoading(false);
 
     if (error) {
-      toast.error(error.error, { position: "top-center" });
+      toast.error(error.error);
       return;
     }
 
-    toast.success("Temporada creada correctamente!", {
-      position: "top-center",
-    });
+    toast.success("Temporada creada correctamente!");
     handleClose();
   };
 

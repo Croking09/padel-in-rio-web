@@ -30,11 +30,9 @@ export default function DeleteTorneoButton({ torneoId }: DeleteButtonProps) {
     setLoading(false);
 
     if (error) {
-      toast.error(error.error, { position: "top-center" });
+      toast.error(error.error);
     } else {
-      toast.success("Torneo eliminado correctamente", {
-        position: "top-center",
-      });
+      toast.success("Torneo eliminado correctamente");
     }
   };
 

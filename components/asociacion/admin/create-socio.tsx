@@ -30,11 +30,11 @@ export default function CreateSocio() {
     });
 
     if (error) {
-      toast.error(error.error, { position: "top-center" });
+      toast.error(error.error);
       return;
     }
 
-    toast.success("Socio creado correctamente!", { position: "top-center" });
+    toast.success("Socio creado correctamente!");
     setFullName("");
     setNickname("");
     setOpen(false);

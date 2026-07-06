@@ -4,7 +4,7 @@ import type { IconCardProps } from "./types";
 
 export default function IconCard({ title, subtitle, icon }: IconCardProps) {
   return (
-    <Card className="aspect-square md:h-36 overflow-hidden transition-transform duration-300 hover:scale-105">
+    <Card className="bg-secondary aspect-square md:h-36 overflow-hidden transition-transform duration-300 hover:scale-105">
       <CardContent className="flex h-full flex-col items-center justify-center gap-4 p-0">
         <div className="flex items-center justify-center rounded-full p-2 transition-colors duration-300">
           {cloneElement(icon, {

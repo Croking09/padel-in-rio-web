@@ -54,11 +54,9 @@ export default function Form({
     );
 
     if (!response.success) {
-      toast.error(response.error, { position: "top-center" });
+      toast.error(response.error);
     } else {
-      toast.success("Inscripción realizada correctamente", {
-        position: "top-center",
-      });
+      toast.success("Inscripción realizada correctamente");
       resetForm();
       redirect("/torneos");
     }

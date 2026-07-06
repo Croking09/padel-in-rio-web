@@ -79,8 +79,8 @@ function BottomTabBarContent() {
     >
       <ul
         className="flex items-center justify-around mx-auto max-w-sm
-                   rounded-full border bg-card/70
-                   backdrop-blur-sm px-2 py-2"
+                   rounded-full border bg-secondary/75
+                   backdrop-blur-md px-2 py-2"
       >
         {tabs.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href || pathname.startsWith(`${href}/`);

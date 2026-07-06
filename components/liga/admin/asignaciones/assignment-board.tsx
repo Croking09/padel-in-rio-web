@@ -160,11 +160,9 @@ export default function AssignmentBoard({
     try {
       await saveAssignments(monthId, data.assignments);
       setHasChanges(false);
-      toast.info("Cambios guardados correctamente", {
-        position: "top-center",
-      });
+      toast.info("Cambios guardados correctamente");
     } catch {
-      toast.error("Error al guardar cambios", { position: "top-center" });
+      toast.error("Error al guardar cambios");
     } finally {
       setIsSaving(false);
     }
@@ -173,8 +171,7 @@ export default function AssignmentBoard({
   const onConfirm = async () => {
     if (!isValid) {
       toast.warning(
-        "Todos las categorías deben tener 8 jugadores para confirmar.",
-        { position: "top-center" },
+        "Todos las categorías deben tener 8 jugadores para confirmar."
       );
       return;
     }
@@ -184,11 +181,9 @@ export default function AssignmentBoard({
       await saveAssignments(monthId, data.assignments);
       await confirmMonth(monthId);
 
-      toast.success("Mes confirmado correctamente", {
-        position: "top-center",
-      });
+      toast.success("Mes confirmado correctamente");
     } catch {
-      toast.error("Error al confirmar mes", { position: "top-center" });
+      toast.error("Error al confirmar mes");
     } finally {
       setIsSaving(false);
     }

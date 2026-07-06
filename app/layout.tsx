@@ -55,7 +55,7 @@ export default function RootLayout({
         className={`${montserrat.className} antialiased min-h-dvh flex flex-col`}
       >
         <AuthListener />
-        <Toaster richColors />
+        <Toaster richColors position="top-right" />
 
         <Header />
 

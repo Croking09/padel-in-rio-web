@@ -29,12 +29,10 @@ export default function ConfirmButton({
     const response = await confirmMonth(monthId, matches);
 
     if (!response.success) {
-      toast.error(response.error?.message, { position: "top-center" });
+      toast.error(response.error?.message);
       return;
     } else {
-      toast.success("Mes confirmado correctamente", {
-        position: "top-center",
-      });
+      toast.success("Mes confirmado correctamente");
     }
   };
 

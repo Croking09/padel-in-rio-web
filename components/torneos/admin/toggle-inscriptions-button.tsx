@@ -21,12 +21,10 @@ export default function ToggleInscriptionsButton({
         const error = await toggleInscriptions(torneoId, !isClosed);
 
         if (error) {
-          toast.error(error.error, { position: "top-center" });
+          toast.error(error.error);
         } else {
           const text = isClosed ? "abiertas" : "cerradas";
-          toast.success("Inscripciones " + text + " correctamente", {
-            position: "top-center",
-          });
+          toast.success("Inscripciones " + text + " correctamente");
         }
       }}
     >
