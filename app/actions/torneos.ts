@@ -20,23 +20,17 @@ export const getTorneosCount = unstable_cache(
 );
 
 export const getTorneos = unstable_cache(
-  async (page: number = 1, pageSize: number = 5) => {
+  async () => {
     const supabase = createAdmin();
 
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
-
-    const { data, error, count } = await supabase
+    const { data, error } = await supabase
       .from("Torneos")
       .select("*", { count: "exact" })
-      .order("start_date", { ascending: false })
-      .range(from, to);
+      .order("start_date", { ascending: false });
 
     if (error) {
-      return { data: [], page, pageSize };
+      return [];
     }
-
-    const totalPages = count ? Math.ceil(count / pageSize) : 0;
 
     const dataWithImg = data.map((torneo) => {
       return {
@@ -48,14 +42,9 @@ export const getTorneos = unstable_cache(
       };
     });
 
-    return {
-      data: dataWithImg || [],
-      page,
-      pageSize,
-      totalPages,
-    };
+    return (dataWithImg as Torneo[]) || [];
   },
-  ["torneos-paginated"],
+  ["torneos"],
   {
     revalidate: 86400, // 24 horas
     tags: ["torneos"],

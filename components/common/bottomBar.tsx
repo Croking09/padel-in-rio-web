@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Trophy, Award, Users, Shield } from "lucide-react";
@@ -22,7 +22,7 @@ function getScrollY() {
   );
 }
 
-export default function BottomTabBar() {
+function BottomTabBarContent() {
   const pathname = usePathname();
   const [visible, setVisible] = useState(true);
   const lastY = useRef(0);
@@ -104,5 +104,17 @@ export default function BottomTabBar() {
         })}
       </ul>
     </nav>
+  );
+}
+
+export default function BottomTabBar() {
+  return (
+    <Suspense
+      fallback={
+        <div className="lg:hidden fixed bottom-0 left-0 w-full h-16 bg-card/70 backdrop-blur-sm z-50 border-t animate-pulse" />
+      }
+    >
+      <BottomTabBarContent />
+    </Suspense>
   );
 }

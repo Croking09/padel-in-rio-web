@@ -147,7 +147,7 @@ export function SocioActions({ socio }: { socio: Socio }) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleToggle}>
+            <AlertDialogAction variant="destructive" onClick={handleToggle}>
               Confirmar
             </AlertDialogAction>
           </AlertDialogFooter>

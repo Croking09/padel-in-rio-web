@@ -20,7 +20,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { Button } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
 import { Input } from "@/components/ui/input";
 import CreateSocio from "@/components/asociacion/admin/create-socio";
 import { Socio } from "@/lib/types/socio";
@@ -59,7 +67,7 @@ export default function DataTable<TData, TValue>({
 
   return (
     <div className={className}>
-      <div className="flex items-center justify-between py-4">
+      <div className="flex items-center justify-between py-4 gap-4">
         <Input
           placeholder="Buscar socio..."
           value={globalFilter}
@@ -125,22 +133,54 @@ export default function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-center space-x-2 py-4">
-        <Button
-          variant="outline"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Anterior
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Siguiente
-        </Button>
-      </div>
+      <Pagination className="py-4">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              href="#"
+              text="Anterior"
+              onClick={(e) => {
+                e.preventDefault();
+                table.previousPage();
+              }}
+              className={
+                !table.getCanPreviousPage()
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }
+            />
+          </PaginationItem>
+
+          {Array.from({ length: table.getPageCount() }, (_, i) => (
+            <PaginationItem key={i}>
+              <PaginationLink
+                href="#"
+                isActive={table.getState().pagination.pageIndex === i}
+                onClick={(e) => {
+                  e.preventDefault();
+                  table.setPageIndex(i);
+                }}
+              >
+                {i + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+
+          <PaginationItem>
+            <PaginationNext
+              href="#"
+              text="Siguiente"
+              onClick={(e) => {
+                e.preventDefault();
+                table.nextPage();
+              }}
+              className={
+                !table.getCanNextPage() ? "pointer-events-none opacity-50" : ""
+              }
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }

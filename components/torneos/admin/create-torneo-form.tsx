@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
-import { cn, formatDate } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Upload,
   ImageIcon,
@@ -17,6 +18,8 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
+import DatePicker from "@/components/ui/date-picker";
 
 export default function CreateTorneoForm() {
   const [name, setName] = useState("");
@@ -30,6 +33,8 @@ export default function CreateTorneoForm() {
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
+
+  const router = useRouter();
 
   const handleAddCategory = () => {
     if (newCategory.trim()) {
@@ -92,18 +97,19 @@ export default function CreateTorneoForm() {
     } else {
       toast.success("Torneo creado correctamente", { position: "top-center" });
       resetForm();
+      router.push("/torneos");
     }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-6 mb-8 items-center max-w-2xl mx-auto px-4"
+      className="flex flex-col gap-4 mb-8 items-center max-w-2xl mx-auto px-4"
     >
       <div className="flex flex-col md:flex-row w-full gap-4 md:items-end">
         <div className="grid gap-2 md:w-4/5">
-          <Label className="font-bold px-1" htmlFor="name">
-            Nombre <span className="text-xs text-red-500">*</span>
+          <Label className="font-bold" htmlFor="name">
+            Nombre <span className="text-destructive">*</span>
           </Label>
           <Input
             id="name"
@@ -116,10 +122,7 @@ export default function CreateTorneoForm() {
         </div>
 
         <div className="grid gap-2 md:w-2/5">
-          <Label
-            className="font-bold flex items-center gap-2 px-1"
-            htmlFor="image"
-          >
+          <Label className="font-bold flex items-center" htmlFor="image">
             <Upload className="w-4 h-4" />
             Cartel
           </Label>
@@ -148,26 +151,22 @@ export default function CreateTorneoForm() {
       </div>
 
       <div className="grid gap-2 w-full">
-        <Label className="font-bold px-1" htmlFor="description">
+        <Label className="font-bold" htmlFor="description">
           Descripción
         </Label>
 
-        <textarea
+        <Textarea
           id="description"
           name="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          rows={5}
-          className={cn(
-            "flex w-full rounded-md border border-input px-3 py-2 text-sm",
-          )}
           placeholder="Detalles sobre el torneo..."
         />
       </div>
 
-      <div className="grid gap-3 w-full">
+      <div className="grid gap-2 w-full">
         <Label
-          className="font-bold flex items-center gap-2 px-1"
+          className="font-bold flex items-center gap-2"
           htmlFor="new-category"
         >
           <Tags className="w-4 h-4" />
@@ -189,7 +188,7 @@ export default function CreateTorneoForm() {
             }}
           />
 
-          <Button type="button" onClick={handleAddCategory}>
+          <Button variant="secondary" onClick={handleAddCategory}>
             Añadir
           </Button>
         </div>
@@ -199,7 +198,7 @@ export default function CreateTorneoForm() {
             {categories.map((cat, index) => (
               <div
                 key={index}
-                className="bg-secondary px-3 py-1 rounded-full text-sm flex items-center gap-2 shadow"
+                className="bg-secondary px-3 py-1 rounded-full text-sm flex items-center gap-2"
               >
                 {cat}
                 <button
@@ -208,7 +207,7 @@ export default function CreateTorneoForm() {
                   onClick={() => handleRemoveCategory(index)}
                   className="cursor-pointer"
                 >
-                  <X className="w-3 h-3" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             ))}
@@ -216,72 +215,35 @@ export default function CreateTorneoForm() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full pr-6 md:pr-0">
-        <div className="grid gap-2">
-          <Label
-            className="font-bold flex items-center gap-2 px-1"
-            htmlFor="start_date"
-          >
-            <Calendar className="w-4 h-4" />
-            Fecha de inicio <span className="text-xs text-red-500">*</span>
-          </Label>
-
-          <Input
-            id="start_date"
-            name="start_date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            type="date"
-            required
-            className="cursor-pointer"
-            onClick={(e) => e.currentTarget.showPicker?.()}
-          />
-        </div>
-
-        <div className="grid gap-2">
-          <Label
-            className="font-bold flex items-center gap-2 px-1"
-            htmlFor="end_date"
-          >
-            <CalendarCheck className="w-4 h-4" />
-            Fecha de fin <span className="text-xs text-red-500">*</span>
-          </Label>
-          <Input
-            id="end_date"
-            name="end_date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            type="date"
-            required
-            className="cursor-pointer"
-            onClick={(e) => e.currentTarget.showPicker?.()}
-          />
-        </div>
-      </div>
-
-      <div className="grid gap-2 w-full pr-6 md:pr-0">
-        <Label
-          className="font-bold flex items-center gap-2 px-1"
-          htmlFor="inscription_end_date"
-        >
-          <Clock className="w-4 h-4" />
-          Cierre de inscripciones{" "}
-          <span className="text-xs text-red-500">*</span>
-        </Label>
-
-        <Input
-          id="inscription_end_date"
-          name="inscription_end_date"
-          value={inscriptionEndDate}
-          onChange={(e) => setInscriptionEndDate(e.target.value)}
-          type="date"
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <DatePicker
+          label="Fecha de inicio"
+          value={startDate}
+          onChange={setStartDate}
           required
-          className="cursor-pointer"
-          onClick={(e) => e.currentTarget.showPicker?.()}
+          icon={<Calendar className="w-4 h-4" />}
+        />
+
+        <DatePicker
+          label="Fecha de fin"
+          value={endDate}
+          onChange={setEndDate}
+          required
+          icon={<CalendarCheck className="w-4 h-4" />}
         />
       </div>
 
-      <Button type="submit" className="w-full" variant="secondary">
+      <div className="grid gap-2 w-full">
+        <DatePicker
+          label="Cierre de inscripciones"
+          value={inscriptionEndDate}
+          onChange={setInscriptionEndDate}
+          required
+          icon={<Clock className="w-4 h-4" />}
+        />
+      </div>
+
+      <Button type="submit" className="w-full">
         Crear Torneo
       </Button>
     </form>

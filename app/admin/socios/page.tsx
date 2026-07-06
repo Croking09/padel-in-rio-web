@@ -12,7 +12,7 @@ export default async function Page() {
       <h1 className="text-4xl font-bold text-center pt-8">Socios</h1>
       <Suspense fallback={<SociosTableSkeleton />}>
         <DataTable
-          className="container mx-auto"
+          className="container mx-auto px-4"
           columns={columns}
           data={socios ?? []}
         />

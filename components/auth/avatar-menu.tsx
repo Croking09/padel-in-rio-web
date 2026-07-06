@@ -10,16 +10,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export function AvatarMenu({ email }: { email?: string }) {
-  const router = useRouter();
-
   const logout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/");
   };
 
   return (
