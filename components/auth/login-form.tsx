@@ -47,7 +47,6 @@ export function LoginForm() {
       if (error) throw error;
 
       router.push(redirectTo);
-      router.refresh();
     } catch (error) {
       if (
         error instanceof AuthApiError &&

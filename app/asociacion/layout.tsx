@@ -7,12 +7,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <Suspense>
         <SectionNav
           adminLinks={[{ href: "/admin/socios", label: "Socios" }]}
-          publicLinks={[
-            {
-              href: "/asociacion/historico",
-              label: "Historial de participación",
-            },
-          ]}
+          publicLinks={[]}
         />
       </Suspense>
       {children}

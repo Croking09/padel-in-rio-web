@@ -34,7 +34,6 @@ const PUBLIC_PATHS = [
   "/liga/ascensor",
   "/liga/clasificacion",
   "/asociacion",
-  "/asociacion/historico",
   "/equipo",
 ];
 

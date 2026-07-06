@@ -6,13 +6,14 @@ import Header from "@/components/common/header";
 import BottomTabBar from "@/components/common/bottomBar";
 import Footer from "@/components/common/footer";
 import { Toaster } from "@/components/ui/sonner";
+import AuthListener from "@/components/auth/auth-listener";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
 
 export const metadata: Metadata = {
-  title: "Padel in Rio",
+  title: "Pádel in Río",
   metadataBase: new URL(defaultUrl),
 };
 
@@ -48,18 +49,19 @@ export default function RootLayout({
           sizes="180x180"
           href="/icons/apple-touch-icon.png"
         />
-        <meta name="apple-mobile-web-app-title" content="Padel in Rio" />
+        <meta name="apple-mobile-web-app-title" content="Pádel in Río" />
       </head>
       <body
         className={`${montserrat.className} antialiased min-h-dvh flex flex-col`}
       >
+        <AuthListener />
+        <Toaster richColors />
+
         <Header />
 
         <main className="flex-1">{children}</main>
-        <Toaster richColors />
 
         <BottomTabBar />
-
         <Footer />
       </body>
     </html>

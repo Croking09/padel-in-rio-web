@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { createSocio } from "@/app/actions/socios";
 import { Label } from "@/components/ui/label";
 
-export default function CreateSocioButton() {
+export default function CreateSocio() {
   const [open, setOpen] = useState(false);
   const [fullName, setFullName] = useState("");
   const [nickname, setNickname] = useState("");
@@ -42,22 +42,26 @@ export default function CreateSocioButton() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <PlusIcon className="h-4 w-4" />
-          Añadir socio
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button>
+            <PlusIcon className="h-4 w-4" />
+            Añadir socio
+          </Button>
+        }
+      ></DialogTrigger>
 
-      <DialogContent className="max-w-sm" aria-describedby={undefined}>
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Crear nuevo socio</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">
+            Añadir nuevo socio
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <Label className="text-xs">
-              Nombre completo <span className="text-red-500">*</span>
+          <div className="space-y-2">
+            <Label>
+              Nombre completo<span className="text-destructive">*</span>
             </Label>
             <Input
               value={fullName}
@@ -66,25 +70,23 @@ export default function CreateSocioButton() {
             />
           </div>
 
-          <div className="flex flex-col gap-1">
-            <Label className="text-xs">Nickname</Label>
+          <div className="space-y-2">
+            <Label>Apodo</Label>
             <Input
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
             />
           </div>
 
-          <DialogFooter className="flex justify-end gap-2">
+          <DialogFooter>
             <Button
               type="button"
-              variant="ghost"
+              variant="secondary"
               onClick={() => setOpen(false)}
             >
               Cancelar
             </Button>
-            <Button type="submit" variant="secondary">
-              Crear
-            </Button>
+            <Button type="submit">Crear</Button>
           </DialogFooter>
         </form>
       </DialogContent>

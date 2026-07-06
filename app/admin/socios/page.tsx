@@ -1,14 +1,21 @@
-import Socios from "@/components/asociacion/admin/socios";
+import { getAllSocios } from "@/app/actions/socios";
+import DataTable from "@/components/asociacion/admin/socios-table/data-table";
+import { columns } from "@/components/asociacion/admin/socios-table/columns";
 import { Suspense } from "react";
-import SociosListSkeleton from "@/components/asociacion/admin/socios-list-skeleton";
+import SociosTableSkeleton from "@/components/asociacion/admin/socios-table/socios-table-skeleton";
 
-export default function Page() {
+export default async function Page() {
+  const socios = await getAllSocios();
+
   return (
     <>
-      <h1 className="text-3xl font-bold text-center mt-8">Socios</h1>
-
-      <Suspense fallback={<SociosListSkeleton />}>
-        <Socios />
+      <h1 className="text-4xl font-bold text-center pt-8">Socios</h1>
+      <Suspense fallback={<SociosTableSkeleton />}>
+        <DataTable
+          className="container mx-auto"
+          columns={columns}
+          data={socios ?? []}
+        />
       </Suspense>
     </>
   );
