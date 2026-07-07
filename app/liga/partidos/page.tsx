@@ -2,7 +2,7 @@ import { existResultsBatch } from "@/app/actions/partidos";
 import { getMonths, getTemporadas } from "@/app/actions/ligas";
 import MonthSelector from "@/components/liga/month-selector";
 import MatchCard from "@/components/liga/partidos/match-card";
-import { getMatchesByDayGlobal } from "@/lib/partidos";
+import { getMatchesByDayGlobal } from "@/lib/liga/partidos";
 import { createClient } from "@/lib/supabase/server";
 import { resolveActiveMonth } from "@/lib/liga/resolve-active-month";
 import { isAdmin } from "@/lib/auth/permissions";

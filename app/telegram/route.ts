@@ -15,7 +15,7 @@ import {
   sendDocument,
 } from "@/lib/telegram/utils";
 import { generateMatchesPdf } from "@/lib/pdf/generate-pdf";
-import { getMatchesByDayGlobal } from "@/lib/partidos";
+import { getMatchesByDayGlobal } from "@/lib/liga/partidos";
 import { MonthStatus } from "@/lib/types/month";
 import { getMonths } from "../actions/ligas";
 import { getAllSocios, getParticipationHistoric } from "../actions/socios";

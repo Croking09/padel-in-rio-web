@@ -1,7 +1,7 @@
 import { getMonths } from "@/app/actions/ligas";
 import { getConfirmedMatches } from "@/app/actions/partidos";
 import { Match } from "@/lib/types/match";
-import { MonthStatus } from "./types/month";
+import { MonthStatus } from "../types/month";
 
 export async function getMatchesByDayGlobal(
   monthInput: string | number,
