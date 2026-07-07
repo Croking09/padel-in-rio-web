@@ -19,7 +19,7 @@ import AuthControlsSkeleton from "@/components/auth/auth-controls-skeleton";
 export default function Header() {
   return (
     <>
-      <header className="bg-secondary grid grid-cols-2 lg:grid-cols-3 items-center p-4">
+      <header className="bg-secondary grid grid-cols-2 md:grid-cols-3 items-center p-4">
         <div className="flex items-center gap-2 md:gap-4">
           <Link href="/">
             <Logo className="w-15 h-15 hover:text-primary hover:scale-110 transition-all duration-300" />

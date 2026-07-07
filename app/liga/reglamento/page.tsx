@@ -1,11 +1,11 @@
 export default function Page() {
   return (
     <>
-      <h1 className="text-2xl sm:text-4xl font-bold text-center p-8">
+      <h1 className="text-4xl font-bold text-center p-8">
         Normativa Liga 2026
       </h1>
 
-      <ol className="list-decimal pl-8 sm:pl-10 space-y-3 sm:space-y-4 max-w-4xl mx-auto pt-4 pb-8 px-4 text-sm sm:text-base leading-relaxed">
+      <ol className="list-decimal pl-8 space-y-4 max-w-4xl mx-auto pt-4 pb-8 px-4 text-sm sm:text-base leading-relaxed">
         <li>
           Para participar en la liga tienes que hacerte socio de Pádel in Río,
           que solo cuesta 20 € al año. No existe otro coste por inscripción.
@@ -85,7 +85,7 @@ export default function Page() {
           entre categorías:
         </li>
 
-        <ol className="list-decimal pl-4 sm:pl-6 space-y-1">
+        <ol className="list-decimal pl-4">
           <li>Los 3 últimos de la primera división descienden a segunda.</li>
           <li>Los 3 primeros de segunda ascienden a primera.</li>
           <li>Los 3 últimos de segunda descienden a tercera.</li>

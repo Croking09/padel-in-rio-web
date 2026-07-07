@@ -1,151 +1,74 @@
 "use client";
+
 import { Temporada } from "@/lib/types/temporada";
-import { Check, ChevronDown } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const COOKIE_KEY = "temporadaId";
-
-function getTemporadaCookie(): string | null {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith(`${COOKIE_KEY}=`));
-  return match ? match.split("=")[1] : null;
-}
+const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365; // 1 año
 
 function setTemporadaCookie(value: string) {
-  document.cookie = `${COOKIE_KEY}=${value}; path=/`;
+  document.cookie = `${COOKIE_KEY}=${value}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}`;
 }
 
 export default function TemporadaSelector({
   temporadas,
+  currentTemporadaId,
 }: {
   temporadas: Temporada[];
+  currentTemporadaId: number;
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, []);
-
-  useEffect(() => {
-    if (!searchParams.get("temporadaId")) {
-      const fromCookie = getTemporadaCookie();
-      if (fromCookie && temporadas.some((t) => String(t.id) === fromCookie)) {
-        const params = new URLSearchParams(searchParams);
-        params.set("temporadaId", fromCookie);
-        router.replace(`?${params.toString()}`);
-      }
-    }
-  });
 
   if (!temporadas || temporadas.length === 0) return null;
 
-  const currentTemporadaId =
-    searchParams.get("temporadaId") ||
-    getTemporadaCookie() ||
-    String(temporadas[0]?.id || "");
+  const items = temporadas.map((t) => ({
+    label: `Temporada ${t.name}`,
+    value: t.id,
+  }));
 
-  const currentTemporada = temporadas.find(
-    (t) => String(t.id) === currentTemporadaId,
-  );
+  const temporadaIdFromUrl = searchParams.get("temporadaId");
+  const activeTemporadaId = temporadaIdFromUrl
+    ? Number(temporadaIdFromUrl)
+    : currentTemporadaId;
 
-  const handleSelect = (value: string) => {
-    setTemporadaCookie(value);
+  const handleChange = (temporadaId: number | null) => {
+    if (temporadaId === null) return;
+
+    setTemporadaCookie(String(temporadaId));
+
     const params = new URLSearchParams(searchParams);
-    params.set("temporadaId", value);
+    params.set("temporadaId", String(temporadaId));
     params.delete("monthId");
     router.push(`?${params.toString()}`);
-    setOpen(false);
   };
 
   return (
-    <div ref={containerRef} className="relative w-fit">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className={cn(
-          "flex h-8 items-center justify-between gap-2 rounded-md px-4 py-2 cursor-pointer",
-          "text-sm transition-colors",
-          "focus-visible:outline-none",
-          "disabled:cursor-not-allowed disabled:opacity-50",
-        )}
-        aria-expanded={open}
-        aria-haspopup="listbox"
-      >
-        <span className="truncate">
-          {currentTemporada
-            ? `Temporada ${currentTemporada.name}`
-            : "Seleccionar"}
-        </span>
-        <ChevronDown
-          className={cn(
-            "h-4 w-4 transition-transform duration-200",
-            open && "rotate-180",
-          )}
-        />
-      </button>
-
-      {open && (
-        <div
-          role="listbox"
-          className={cn(
-            "absolute left-0 top-full z-50 mt-1 w-full",
-            "overflow-hidden rounded-md border border-border bg-background",
-            "animate-in fade-in-0 duration-100",
-          )}
-          style={{ minWidth: containerRef.current?.offsetWidth }}
-        >
-          <div>
-            {temporadas.map((t) => {
-              const isSelected = String(t.id) === currentTemporadaId;
-              return (
-                <button
-                  key={t.id}
-                  role="option"
-                  aria-selected={isSelected}
-                  type="button"
-                  onClick={() => handleSelect(String(t.id))}
-                  className={cn(
-                    "relative flex w-full cursor-pointer select-none items-center rounded-sm py-2 pl-8 pr-2",
-                    "text-sm outline-none transition-colors",
-                    "hover:bg-primary",
-                  )}
-                >
-                  {isSelected && (
-                    <span className="absolute left-2 flex h-4 w-4 items-center justify-center">
-                      <Check className="h-4 w-4" />
-                    </span>
-                  )}
-                  Temporada {t.name}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
+    <Select
+      items={items}
+      value={activeTemporadaId}
+      onValueChange={handleChange}
+    >
+      <SelectTrigger>
+        <SelectValue placeholder="Selecciona una temporada" />
+      </SelectTrigger>
+      <SelectContent alignItemWithTrigger={false}>
+        <SelectGroup>
+          {temporadas.map((t) => (
+            <SelectItem key={t.id} value={t.id}>
+              Temporada {t.name}
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
   );
 }

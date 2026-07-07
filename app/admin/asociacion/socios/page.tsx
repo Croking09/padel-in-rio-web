@@ -11,11 +11,13 @@ export default async function Page() {
     <>
       <h1 className="text-4xl font-bold text-center pt-8">Socios</h1>
       <Suspense fallback={<SociosTableSkeleton />}>
-        <DataTable
-          className="container mx-auto px-4 my-8"
-          columns={columns}
-          data={socios ?? []}
-        />
+        <div className="px-4">
+          <DataTable
+            className="container mx-auto px-4 my-8"
+            columns={columns}
+            data={socios ?? []}
+          />
+        </div>
       </Suspense>
     </>
   );

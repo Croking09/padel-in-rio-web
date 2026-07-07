@@ -12,7 +12,7 @@ export default function AuthLinks({ compact = false }: { compact?: boolean }) {
     <div className="flex gap-2">
       <Link
         href={`/auth/login?redirectTo=${encodeURIComponent(pathname)}`}
-        className={buttonVariants({ variant: "default", size: "default" })}
+        className={buttonVariants({ variant: "muted", size: "default" })}
       >
         {compact && <LogIn data-icon="inline-start" />}
         Inicia Sesión
@@ -21,7 +21,7 @@ export default function AuthLinks({ compact = false }: { compact?: boolean }) {
       {!compact && (
         <Link
           href="/auth/sign-up"
-          className={buttonVariants({ variant: "outline", size: "default" })}
+          className={buttonVariants({ variant: "default", size: "default" })}
         >
           Regístrate
         </Link>

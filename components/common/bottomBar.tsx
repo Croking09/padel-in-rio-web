@@ -7,10 +7,30 @@ import { Trophy, Award, Users, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tabs = [
-  { href: "/torneos", label: "Torneos", icon: Trophy },
-  { href: "/liga/ascensor", label: "Liga", icon: Award },
-  { href: "/asociacion", label: "Asociación", icon: Users },
-  { href: "/equipo", label: "Equipo", icon: Shield },
+  {
+    href: "/torneos",
+    label: "Torneos",
+    icon: Trophy,
+    match: ["/torneos", "/admin/torneos"],
+  },
+  {
+    href: "/liga/ascensor",
+    label: "Liga",
+    icon: Award,
+    match: ["/liga", "/admin/liga"],
+  },
+  {
+    href: "/asociacion",
+    label: "Asociación",
+    icon: Users,
+    match: ["/asociacion", "/admin/asociacion"],
+  },
+  {
+    href: "/equipo",
+    label: "Equipo",
+    icon: Shield,
+    match: ["/equipo", "/admin/equipo"],
+  },
 ];
 
 function getScrollY() {
@@ -37,22 +57,22 @@ function BottomTabBarContent() {
 
       const maxScroll =
         document.documentElement.scrollHeight - window.innerHeight;
+
       if (y < 0 || y > maxScroll) {
         ticking.current = false;
         return;
       }
 
       if (Math.abs(delta) > 12) {
-        const goingDown = delta > 0;
-
         if (y < 60) {
           setVisible(true);
         } else {
-          setVisible(!goingDown);
+          setVisible(delta < 0);
         }
 
         lastY.current = y;
       }
+
       ticking.current = false;
     };
 
@@ -65,25 +85,26 @@ function BottomTabBarContent() {
 
     window.addEventListener("scroll", onScroll, { passive: true });
 
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-    };
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
     <nav
       className={cn(
-        "lg:hidden fixed bottom-0 left-0 w-full z-50 px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] transition-transform duration-300 will-change-transform",
+        "fixed bottom-0 left-0 z-50 w-full px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] transition-transform duration-300 will-change-transform md:hidden",
         visible ? "translate-y-0" : "translate-y-full",
       )}
     >
       <ul
-        className="flex items-center justify-around mx-auto max-w-sm
-                   rounded-full border bg-secondary/75
-                   backdrop-blur-md px-2 py-2"
+        className={cn(
+          "mx-auto flex max-w-sm items-center justify-around rounded-full",
+          "border bg-secondary/75 backdrop-blur-md px-2 py-2",
+        )}
       >
-        {tabs.map(({ href, label, icon: Icon }) => {
-          const isActive = pathname === href || pathname.startsWith(`${href}/`);
+        {tabs.map(({ href, label, icon: Icon, match }) => {
+          const isActive = match.some(
+            (route) => pathname === route || pathname.startsWith(`${route}/`),
+          );
 
           return (
             <li key={href} className="flex-1">
@@ -93,10 +114,10 @@ function BottomTabBarContent() {
                   "flex flex-col items-center justify-center gap-2 rounded-full py-2 text-xs font-medium transition-all duration-300",
                   isActive
                     ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground",
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                <Icon className="h-5 w-5" />
+                <Icon className="size-5" />
                 <span>{label}</span>
               </Link>
             </li>
@@ -111,7 +132,7 @@ export default function BottomTabBar() {
   return (
     <Suspense
       fallback={
-        <div className="lg:hidden fixed bottom-0 left-0 w-full h-16 bg-card/70 backdrop-blur-sm z-50 border-t animate-pulse" />
+        <div className="fixed bottom-0 left-0 z-50 h-16 w-full animate-pulse border-t bg-card/70 backdrop-blur-sm md:hidden" />
       }
     >
       <BottomTabBarContent />

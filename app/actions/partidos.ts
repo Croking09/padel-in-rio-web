@@ -229,3 +229,41 @@ export const existsResult = unstable_cache(
     tags: ["existsResult"],
   },
 );
+
+/**
+ * Versión batch de `existsResult`: en vez de hacer una query por partido
+ * (N+1), hace una única query con `.in(...)` y devuelve los IDs que ya
+ * tienen algún set registrado.
+ *
+ * Importante: `unstable_cache` serializa el valor de retorno (pasa por
+ * JSON), así que NO puede devolver un `Set` (se convertiría en `{}` al
+ * deserializar y perdería `.has`). Por eso devuelve `number[]`; quien la
+ * consuma puede envolverlo en `new Set(...)` si le conviene para lookups.
+ *
+ * Reemplaza el patrón `Promise.all(matches.map(m => existsResult(m.id)))`
+ * que se usaba en la página de partidos.
+ */
+export const existResultsBatch = unstable_cache(
+  async (matchIds: number[]): Promise<number[]> => {
+    if (matchIds.length === 0) return [];
+
+    const supabase = await createClient({ useCookies: false });
+
+    const { data, error } = await supabase
+      .from("Sets")
+      .select("partido_id")
+      .in("partido_id", matchIds);
+
+    if (error) {
+      console.error(error);
+      return [];
+    }
+
+    return data.map((row) => row.partido_id as number);
+  },
+  ["existResultsBatch"],
+  {
+    revalidate: 86400, // 1 dia
+    tags: ["existsResult"],
+  },
+);

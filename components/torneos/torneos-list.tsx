@@ -38,7 +38,7 @@ export default function TorneosList({
 
   return (
     <>
-      <ul className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 p-8">
+      <ul className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-8 p-8">
         {currentTorneos.map((torneo) => (
           <TorneoItem
             key={torneo.id}
