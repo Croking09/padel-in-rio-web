@@ -1,5 +1,13 @@
 import { CategoryClassification } from "@/lib/types/classification";
 import { PlayerRow } from "@/components/liga/ascensor/player-row";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 type Props = {
   data: CategoryClassification;
@@ -14,50 +22,52 @@ export function CategoryTable({ data, isLast }: Props) {
   });
 
   return (
-    <div className="mb-8 rounded-xl overflow-hidden border border-border">
-      <div className="bg-primary px-4 py-3 border-b border-border">
-        <span className="text-xs font-bold tracking-widest uppercase text-text-primary">
+    <Card className="overflow-hidden py-0 gap-0">
+      <CardHeader className="px-4 py-3 gap-0">
+        <CardTitle className="font-bold tracking-widest uppercase">
           {data.category.name}
-        </span>
-      </div>
+        </CardTitle>
+      </CardHeader>
 
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="bg-primary/40 border-b border-border">
-            <th className="w-10 py-2 px-3 text-center text-xs font-semibold uppercase">
-              #
-            </th>
-            <th className="py-2 px-3 text-left text-xs font-semibold uppercase">
-              Jugador
-            </th>
-            <th className="w-14 py-2 px-3 text-center text-xs font-semibold uppercase">
-              Pts
-            </th>
-            <th className="w-14 py-2 px-3 text-center text-xs font-semibold uppercase">
-              Dif
-            </th>
-            <th className="w-14 py-2 px-3 text-center text-xs font-semibold uppercase">
-              JG
-            </th>
-            <th className="w-14 py-2 px-3 text-center text-xs font-semibold uppercase">
-              PJ
-            </th>
-          </tr>
-        </thead>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-10 text-center text-xs font-semibold uppercase text-muted-foreground">
+                #
+              </TableHead>
+              <TableHead className="text-xs font-semibold uppercase text-muted-foreground">
+                Jugador
+              </TableHead>
+              <TableHead className="w-14 text-center text-xs font-semibold uppercase text-muted-foreground">
+                Pts
+              </TableHead>
+              <TableHead className="w-14 text-center text-xs font-semibold uppercase text-muted-foreground">
+                Dif
+              </TableHead>
+              <TableHead className="w-14 text-center text-xs font-semibold uppercase text-muted-foreground">
+                JG
+              </TableHead>
+              <TableHead className="w-14 text-center text-xs font-semibold uppercase text-muted-foreground">
+                PJ
+              </TableHead>
+            </TableRow>
+          </TableHeader>
 
-        <tbody className="divide-y divide-border">
-          {sorted.map((player, i) => (
-            <PlayerRow
-              key={player.player_id}
-              player={player}
-              index={i}
-              categoryId={data.category.id}
-              zebra={i % 2 === 0}
-              isLastCategory={isLast}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
+          <TableBody>
+            {sorted.map((player, i) => (
+              <PlayerRow
+                key={player.player_id}
+                player={player}
+                index={i}
+                categoryId={data.category.id}
+                zebra={i % 2 === 0}
+                isLastCategory={isLast}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }

@@ -39,9 +39,9 @@ export default function CreateSocioButton({
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="secondary">Dar bonus</Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger
+        render={<Button>Dar bonus</Button>}
+      ></AlertDialogTrigger>
 
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -54,7 +54,7 @@ export default function CreateSocioButton({
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} variant="secondary">
+          <AlertDialogAction onClick={onConfirm}>
             Sí, dar bonus
           </AlertDialogAction>
         </AlertDialogFooter>

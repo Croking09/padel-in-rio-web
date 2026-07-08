@@ -56,7 +56,7 @@ export default async function Page({
       <div className="flex flex-col md:grid md:grid-cols-3 items-center py-8 md:px-8 lg:px-24">
         <div />
 
-        <h1 className="text-4xl font-bold text-center pb-8 md:pb-0">
+        <h1 className="text-4xl font-bold text-center pb-4 md:pb-0">
           Partidos de Liga
         </h1>
 
