@@ -5,23 +5,39 @@ import { Match } from "@/lib/types/match";
 import { getMonths, getTemporadas } from "@/app/actions/ligas";
 import { getCurrentMonthId } from "@/lib/utils";
 import { MonthStatus } from "@/lib/types/month";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { resolveTemporadaId } from "@/lib/liga/resolve-active-month";
+import { cookies } from "next/headers";
+import EmptyMonths from "@/components/liga/empty-months";
+import Link from "next/link";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { Check, CircleAlert } from "lucide-react";
+import MatchdaysList from "@/components/liga/admin/generador/matchdays-list";
 
 export default async function Page({
   searchParams,
 }: {
   searchParams: Promise<{ monthId?: string; temporadaId?: string }>;
 }) {
-  const [allMonths, temporadas, params] = await Promise.all([
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+
+  const [allMonths, temporadas, params, cookieStore] = await Promise.all([
     getMonths(),
     getTemporadas(),
     searchParams,
+    cookies(),
   ]);
 
-  const temporadaIdParam = params.temporadaId
-    ? Number(params.temporadaId)
-    : undefined;
-  const activeTemporadaId = temporadaIdParam ?? temporadas.at(0)?.id ?? 0;
+  const activeTemporadaId = resolveTemporadaId(
+    [params.temporadaId, cookieStore.get("temporadaId")?.value],
+    temporadas,
+  );
 
   const months = allMonths.filter((m) => m.temporada_id === activeTemporadaId);
 
@@ -29,25 +45,25 @@ export default async function Page({
   const currentMonthId =
     monthIdParam ?? getCurrentMonthId(months) ?? months.at(0)?.id;
 
-  if (!currentMonthId) {
-    return (
-      <div className="p-8">
-        <h2 className="text-2xl font-bold pb-8">Generador de Partidos</h2>
-        <div className="text-center py-25 rounded-lg border-2 border-dashed">
-          <p>No hay meses confirmados para mostrar.</p>
-        </div>
-      </div>
-    );
+  const selectedMonth = months.find((m) => m.id === currentMonthId);
+
+  const monthIndex = months.findIndex((m) => m.id === currentMonthId);
+
+  if (monthIndex === -1) {
+    throw new Error("Mes no encontrado");
   }
 
-  const selectedMonth = months.find((m) => m.id === currentMonthId);
+  const firstMatchday = monthIndex * 2 + 1;
+
   const isMonthLocked = selectedMonth?.status === MonthStatus.Locked;
   const isMonthConfirmed = selectedMonth?.status === MonthStatus.Confirmed;
 
   const showFifthCategory = selectedMonth?.["5_category"] ?? false;
 
   const matches =
-    isMonthLocked || isMonthConfirmed ? await previewMonth(currentMonthId) : [];
+    currentMonthId && (isMonthLocked || isMonthConfirmed)
+      ? await previewMonth(currentMonthId)
+      : [];
 
   const filteredMatches = matches.filter((match) => {
     if (showFifthCategory) return true;
@@ -57,94 +73,89 @@ export default async function Page({
   const matchesByDay: Record<number, Record<string, Match[]>> = {};
 
   filteredMatches.forEach((match) => {
-    if (!matchesByDay[match.matchday]) {
-      matchesByDay[match.matchday] = {};
+    const realMatchday = firstMatchday + match.matchday - 1;
+
+    if (!matchesByDay[realMatchday]) {
+      matchesByDay[realMatchday] = {};
     }
 
-    if (!matchesByDay[match.matchday][match.categoryName]) {
-      matchesByDay[match.matchday][match.categoryName] = [];
+    if (!matchesByDay[realMatchday][match.categoryName]) {
+      matchesByDay[realMatchday][match.categoryName] = [];
     }
 
-    matchesByDay[match.matchday][match.categoryName].push(match);
+    matchesByDay[realMatchday][match.categoryName].push(match);
   });
 
   return (
-    <div className="space-y-8 p-8 flex flex-col">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Generador de Partidos</h2>
+    <>
+      <div className="flex flex-col md:grid md:grid-cols-3 items-center py-8 px-4 md:px-8 lg:px-24">
+        <div />
 
-        <MonthSelector months={months} currentMonthId={currentMonthId} />
+        <h1 className="text-4xl font-bold text-center pb-4 md:pb-0">
+          Generador de Partidos
+        </h1>
+
+        {months.length > 0 ? (
+          <div className="justify-self-end">
+            <MonthSelector months={months} currentMonthId={currentMonthId} />
+          </div>
+        ) : (
+          <div />
+        )}
       </div>
 
-      {isMonthConfirmed ? (
-        <div className="bg-success/20 border-l-4 border-success p-4">
-          <p className="text-sm text-success">
-            Los partidos para este mes ya han sido generados y confirmados.
-          </p>
-        </div>
-      ) : !isMonthLocked ? (
-        <div className="bg-amber-100 border-l-4 border-amber-200 p-4">
-          <p className="text-sm text-amber-600">
-            No se pueden generar partidos para un mes sin confirmar. Por favor,
-            confirme la asignación de jugadores primero.
-          </p>
-        </div>
-      ) : (
-        <>
-          {Object.entries(matchesByDay).map(([day, categories]) => (
-            <div key={day} className="space-y-4">
-              <h3 className="text-xl font-semibold pb-2">Jornada {day}</h3>
+      <div className="px-4 md:px-8 lg:px-24 pb-8">
+        {!currentMonthId ? (
+          <EmptyMonths />
+        ) : isMonthConfirmed ? (
+          <Empty className="border-success/30 bg-success/10">
+            <EmptyHeader>
+              <EmptyMedia variant="icon" className="bg-success">
+                <Check />
+              </EmptyMedia>
+              <EmptyTitle className="text-success">
+                Partidos ya generados
+              </EmptyTitle>
+              <EmptyDescription className="text-success/90">
+                Los partidos para este mes ya han sido generados y confirmados.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        ) : !isMonthLocked ? (
+          <Empty className="border-warning/30 bg-warning/10">
+            <EmptyHeader>
+              <EmptyMedia variant="icon" className="bg-warning">
+                <CircleAlert />
+              </EmptyMedia>
+              <EmptyTitle className="text-warning">
+                Mes pendiente de confirmar
+              </EmptyTitle>
+              <EmptyDescription className="text-warning/90">
+                Antes de generar los partidos debes confirmar la asignación de
+                jugadores para este mes.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        ) : (
+          <MatchdaysList matchesByDay={matchesByDay} />
+        )}
+      </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {Object.entries(categories).map(
-                  ([category, categoryMatches]) => (
-                    <div
-                      key={category}
-                      className="p-4 rounded-lg shadow space-y-3 border"
-                    >
-                      <h4 className="font-medium text-lg">{category}</h4>
-
-                      <div className="space-y-2">
-                        {categoryMatches.map((match, idx) => (
-                          <div
-                            key={idx}
-                            className="text-sm bg-primary p-2 rounded border border-border"
-                          >
-                            <div className="grid grid-cols-2 pl-2">
-                              {match.players.map((player) => (
-                                <p key={player.id} className="truncate">
-                                  {player.nickname || player.full_name}
-                                </p>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ),
-                )}
-              </div>
-            </div>
-          ))}
-        </>
-      )}
-
-      <div className="flex items-center justify-center gap-2">
-        {currentMonthId && !isMonthConfirmed && (
+      <div className="flex items-center justify-center gap-2 pb-8">
+        {currentMonthId && !isMonthConfirmed && isMonthLocked && (
           <ConfirmButton matches={matches} monthId={currentMonthId} />
         )}
 
         {isMonthConfirmed && (
-          <Button asChild variant="secondary">
-            <a
-              href={`/admin/liga/generador/matches-pdf?monthId=${currentMonthId}`}
-              target="_blank"
-            >
-              Descargar PDF
-            </a>
-          </Button>
+          <Link
+            href={`/admin/liga/generador/matches-pdf?monthId=${currentMonthId}`}
+            target="_blank"
+            className={buttonVariants({ variant: "default", size: "default" })}
+          >
+            Descargar PDF
+          </Link>
         )}
       </div>
-    </div>
+    </>
   );
 }

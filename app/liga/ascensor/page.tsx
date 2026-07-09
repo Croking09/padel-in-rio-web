@@ -15,7 +15,8 @@ import {
   EmptyTitle,
   EmptyDescription,
 } from "@/components/ui/empty";
-import { CalendarX, SearchX } from "lucide-react";
+import { SearchX } from "lucide-react";
+import EmptyMonths from "@/components/liga/empty-months";
 
 interface PageProps {
   searchParams: Promise<{ monthId?: string; temporadaId?: string }>;
@@ -98,17 +99,7 @@ export default async function Page({ searchParams }: PageProps) {
 
       <div className="px-4 md:px-8 lg:px-24 pb-8">
         {confirmedMonths.length === 0 ? (
-          <Empty className="border-2 border-dashed">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <CalendarX />
-              </EmptyMedia>
-              <EmptyTitle>No hay meses confirmados</EmptyTitle>
-              <EmptyDescription>
-                Todavía no se ha confirmado ningún mes de esta temporada.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
+          <EmptyMonths />
         ) : !currentMonthId || !hasData ? (
           <Empty className="border-2 border-dashed">
             <EmptyHeader>

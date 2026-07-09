@@ -16,6 +16,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import EmptyMonths from "@/components/liga/empty-months";
 
 export default async function Page({
   searchParams,
@@ -71,18 +72,7 @@ export default async function Page({
 
       <div className="px-4 md:px-8 lg:px-24 pb-8">
         {confirmedMonths.length === 0 ? (
-          <Empty className="border-2 border-dashed">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <CalendarX2 />
-              </EmptyMedia>
-              <EmptyTitle>Todavía no hay meses confirmados</EmptyTitle>
-              <EmptyDescription>
-                Cuando se confirme el primer mes de la liga aparecerán aquí los
-                partidos correspondientes.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
+          <EmptyMonths />
         ) : Object.keys(matchesByDay).length === 0 ? (
           <Empty className="border-2 border-dashed">
             <EmptyHeader>
@@ -115,7 +105,7 @@ export default async function Page({
                       ([category, categoryMatches]) => (
                         <Card
                           key={category}
-                          className="flex flex-col rounded-lg border overflow-hidden py-0 gap-0 shadow-none"
+                          className="flex flex-col overflow-hidden py-0 gap-0"
                         >
                           <CardHeader className="px-4 py-2 border-b gap-0 [.border-b]:pb-2">
                             <CardTitle className="font-bold text-lg">

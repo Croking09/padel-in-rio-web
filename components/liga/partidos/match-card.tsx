@@ -14,8 +14,8 @@ export default function MatchCard({
   showAdminControls: boolean;
 }) {
   return (
-    <Card className="bg-secondary p-4 rounded-lg gap-4">
-      <div className="grid grid-cols-2 gap-2">
+    <Card className="bg-secondary p-4 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {match.players.map((player) => (
           <div key={player.id} className="flex flex-col">
             <span className="font-semibold">

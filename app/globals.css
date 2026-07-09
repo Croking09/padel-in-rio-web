@@ -26,6 +26,8 @@
 
   --success: #199948;
 
+  --warning: #d97706;
+
   --destructive: #ef4444;
 
   --border: #1e293b;
@@ -83,6 +85,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
