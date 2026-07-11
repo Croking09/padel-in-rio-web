@@ -1,12 +1,12 @@
 import { Torneo } from "@/lib/types/torneo";
 import { formatDate } from "@/lib/utils";
-import Image from "next/image";
 import InscriptionButton from "./inscription-button";
 import ToggleInscriptionsButton from "./admin/toggle-inscriptions-button";
 import DeleteTorneoButton from "./admin/delete-torneo-button";
 import Link from "next/link";
 import { Eye } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import TorneoImage from "@/components/torneos/torneo-image";
 
 export default function TorneoItem({
   torneo,
@@ -19,15 +19,8 @@ export default function TorneoItem({
 }) {
   return (
     <li className="flex flex-col lg:flex-row gap-4 overflow-hidden">
-      <div className="relative w-full h-120 md:h-90 md:w-90">
-        <Image
-          src={torneo.imageUrl ?? "/torneos/fallback.png"}
-          alt={torneo.name}
-          fill
-          className="object-cover"
-          unoptimized
-          loading="eager"
-        />
+      <div className="relative w-full h-130 md:h-90 md:w-100">
+        <TorneoImage imageUrl={torneo.imageUrl} name={torneo.name} />
       </div>
 
       <div className="flex flex-col lg:p-4 w-full">

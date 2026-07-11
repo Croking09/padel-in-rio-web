@@ -28,7 +28,7 @@ export default async function Page() {
     <>
       <div className="flex flex-col md:grid md:grid-cols-3 items-center gap-4 pt-8 px-8">
         <div className="hidden md:block" />
-        <h1 className="text-4xl font-bold text-center">NUESTROS TORNEOS</h1>
+        <h1 className="text-4xl font-bold text-center">Nuestros Torneos</h1>
         {showAdminControls ? (
           <Link
             href="/admin/torneos/create-torneo"

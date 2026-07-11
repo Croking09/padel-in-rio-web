@@ -5,7 +5,7 @@ export default function Loading() {
     <>
       <div className="flex items-center justify-between pt-8 px-8">
         <div /> {/* Spacer to center the title */}
-        <h1 className="text-4xl font-bold">NUESTROS TORNEOS</h1>
+        <h1 className="text-4xl font-bold">Nuestros Torneos</h1>
         <div /> {/* Spacer to center the title */}
       </div>
       <TorneosSkeleton />
