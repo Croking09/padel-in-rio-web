@@ -91,7 +91,7 @@ function BottomTabBarContent() {
   return (
     <nav
       className={cn(
-        "fixed bottom-0 left-0 z-50 w-full px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] transition-transform duration-300 will-change-transform md:hidden",
+        "fixed bottom-0 left-0 z-50 w-full px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] transition-transform duration-300 will-change-transform lg:hidden",
         visible ? "translate-y-0" : "translate-y-full",
       )}
     >

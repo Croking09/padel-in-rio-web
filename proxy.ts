@@ -3,7 +3,7 @@ import { updateSession } from "@/lib/supabase/proxy";
 import {
   isAdminPath,
   isBypassPath,
-  isPublicPath,
+  isProtectedPath,
 } from "./lib/auth/route-rules";
 import { isAdmin } from "./lib/auth/permissions";
 
@@ -25,7 +25,7 @@ export async function proxy(request: NextRequest) {
     return supabaseResponse;
   }
 
-  if (!isPublicPath(pathname) && !user) {
+  if (isProtectedPath(pathname) && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     url.searchParams.set("redirectTo", pathname);
@@ -37,14 +37,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - telegram (webhook POST, sin sesión de usuario)
-     * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
-     */
     "/((?!_next/static|_next/image|favicon.ico|telegram|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
