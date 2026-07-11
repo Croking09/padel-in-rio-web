@@ -1,4 +1,4 @@
-import { Button } from "../ui/button";
+import Link from "next/link";
 
 export default function SocialItem({
   className,
@@ -14,9 +14,14 @@ export default function SocialItem({
   return (
     <div className={`flex flex-row items-center gap-6 ${className}`}>
       {icon}
-      <Button asChild className="font-bold text-sm p-0" variant="link">
-        <a href={href}>{text}</a>
-      </Button>
+      <Link
+        href={href}
+        target="_blank"
+        rel="noopener norrefer"
+        className="hover:underline text-sm font-medium"
+      >
+        {text}
+      </Link>
     </div>
   );
 }

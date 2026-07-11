@@ -17,11 +17,9 @@ import {
 import { toast } from "sonner";
 
 export default function ConfirmButton({
-  className,
   matches,
   monthId,
 }: {
-  className?: string;
   matches: Match[];
   monthId: number;
 }) {
@@ -29,22 +27,18 @@ export default function ConfirmButton({
     const response = await confirmMonth(monthId, matches);
 
     if (!response.success) {
-      toast.error(response.error?.message, { position: "top-center" });
+      toast.error(response.error?.message);
       return;
     } else {
-      toast.success("Mes confirmado correctamente", {
-        position: "top-center",
-      });
+      toast.success("Partidos confirmados correctamente");
     }
   };
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button className={className} variant="secondary">
-          Confirmar
-        </Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger
+        render={<Button>Confirmar</Button>}
+      ></AlertDialogTrigger>
 
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -57,7 +51,7 @@ export default function ConfirmButton({
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} variant="secondary">
+          <AlertDialogAction onClick={onConfirm}>
             Sí, confirmar
           </AlertDialogAction>
         </AlertDialogFooter>

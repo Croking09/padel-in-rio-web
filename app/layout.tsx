@@ -1,21 +1,27 @@
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
+import { JetBrains_Mono, Montserrat } from "next/font/google";
 import "./globals.css";
 
 import Header from "@/components/common/header";
+import BottomTabBar from "@/components/common/bottomBar";
 import Footer from "@/components/common/footer";
 import { Toaster } from "@/components/ui/sonner";
+import AuthListener from "@/components/auth/auth-listener";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
 
 export const metadata: Metadata = {
-  title: "Padel in Rio",
+  title: "Pádel in Río",
   metadataBase: new URL(defaultUrl),
 };
 
 const montserrat = Montserrat({
+  subsets: ["latin"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
@@ -25,7 +31,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html
+      lang="es"
+      suppressHydrationWarning
+      className={`${montserrat.className} ${jetbrainsMono.className}`}
+    >
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -47,16 +57,19 @@ export default function RootLayout({
           sizes="180x180"
           href="/icons/apple-touch-icon.png"
         />
-        <meta name="apple-mobile-web-app-title" content="Padel in Rio" />
+        <meta name="apple-mobile-web-app-title" content="Pádel in Río" />
       </head>
       <body
-        className={`${montserrat.className} antialiased bg-background text-text-primary min-h-dvh flex flex-col`}
+        className={`${montserrat.className} antialiased min-h-dvh flex flex-col`}
       >
+        <AuthListener />
+        <Toaster richColors position="top-right" />
+
         <Header />
 
         <main className="flex-1">{children}</main>
-        <Toaster richColors />
 
+        <BottomTabBar />
         <Footer />
       </body>
     </html>

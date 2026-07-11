@@ -4,6 +4,7 @@ export interface Torneo {
   description: string | null;
   start_date: string;
   img_path: string | null;
+  imageUrl?: string;
   categories: string[] | null;
   end_date: string;
   inscription_end_date: string;

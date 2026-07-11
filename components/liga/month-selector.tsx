@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Month } from "@/app/actions/monthly-assignment";
+import { Month } from "@/lib/types/month";
 import { formatMonth } from "@/lib/utils";
+
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -17,42 +17,42 @@ export default function MonthSelector({
   currentMonthId,
 }: {
   months: Month[];
-  currentMonthId: number | undefined;
+  currentMonthId?: number;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const handleChange = (value: string) => {
+  const items = months.map((m) => ({
+    value: String(m.id),
+    label: `${formatMonth(m.month)} - ${m.year}`,
+  }));
+
+  const handleChange = (value: string | null) => {
+    if (!value) return;
+
     const params = new URLSearchParams(searchParams);
     params.set("monthId", value);
+
     router.push(`?${params.toString()}`);
   };
 
   return (
-    <div className="flex items-center justify-center gap-2">
-      <Select
-        value={currentMonthId ? String(currentMonthId) : ""}
-        onValueChange={(value) => {
-          handleChange(value);
-        }}
-      >
-        <SelectTrigger className="w-full">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent position="popper" className="bg-background">
-          <SelectGroup>
-            {months.map((m) => (
-              <SelectItem
-                key={m.id}
-                value={String(m.id)}
-                className="hover:bg-primary py-1 px-4"
-              >
-                {formatMonth(m.month) + " - " + m.year}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-    </div>
+    <Select
+      items={items}
+      value={currentMonthId ? String(currentMonthId) : null}
+      onValueChange={handleChange}
+    >
+      <SelectTrigger>
+        <SelectValue placeholder="Selecciona un mes" />
+      </SelectTrigger>
+
+      <SelectContent alignItemWithTrigger={false}>
+        {items.map((item) => (
+          <SelectItem key={item.value} value={item.value}>
+            {item.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

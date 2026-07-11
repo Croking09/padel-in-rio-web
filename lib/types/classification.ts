@@ -12,6 +12,7 @@ export type CategoryClassification = {
   category: {
     id: number;
     name: string;
+    order: number;
   };
   classification: PlayerClassification[];
 };

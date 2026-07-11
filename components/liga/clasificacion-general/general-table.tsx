@@ -1,47 +1,54 @@
-import { GeneralPlayerRow } from "./general-player-row";
+import PlayerRow from "./player-row";
 import { PlayerClassification } from "@/lib/types/classification";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 type Props = {
   data: PlayerClassification[];
 };
 
-export function GeneralTable({ data }: Props) {
+export default function GeneralClassificationTable({ data }: Props) {
   return (
-    <div className="rounded-xl overflow-hidden border border-border md:w-xl">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="bg-primary/40 border-b border-border">
-            <th className="w-8 py-2 px-2 text-center text-xs font-semibold uppercase">
+    <div className="rounded-xl overflow-hidden border md:w-xl">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-8 text-center text-xs font-semibold uppercase text-muted-foreground">
               #
-            </th>
-            <th className="py-2 px-2 text-left text-xs font-semibold uppercase">
+            </TableHead>
+            <TableHead className="text-xs font-semibold uppercase text-muted-foreground">
               Jugador
-            </th>
-            <th className="w-20 py-2 px-2 text-center text-xs font-semibold uppercase">
+            </TableHead>
+            <TableHead className="w-20 text-center text-xs font-semibold uppercase text-muted-foreground">
               Pts
-            </th>
-            <th className="w-20 py-2 px-2 text-center text-xs font-semibold uppercase">
+            </TableHead>
+            <TableHead className="w-20 text-center text-xs font-semibold uppercase text-muted-foreground">
               Dif
-            </th>
-            <th className="w-20 py-2 px-2 text-center text-xs font-semibold uppercase">
+            </TableHead>
+            <TableHead className="w-20 text-center text-xs font-semibold uppercase text-muted-foreground">
               JG
-            </th>
-            <th className="w-20 py-2 px-2 text-center text-xs font-semibold uppercase">
+            </TableHead>
+            <TableHead className="w-20 text-center text-xs font-semibold uppercase text-muted-foreground">
               PJ
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border">
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {data.map((player, i) => (
-            <GeneralPlayerRow
+            <PlayerRow
               key={player.player_id}
               player={player}
               index={i}
               zebra={i % 2 === 0}
             />
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

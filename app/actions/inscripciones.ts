@@ -196,8 +196,8 @@ export async function getMyInscripcionesOpenTorneos(userId: string) {
 
   if (error) {
     console.error(error);
-    return { data: [] };
+    return [];
   }
 
-  return { data };
+  return data;
 }

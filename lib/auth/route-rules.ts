@@ -27,13 +27,13 @@ const PUBLIC_PATHS = [
   "/auth/sign-up-success",
   "/auth/forgot-password",
   "/auth/update-password",
+  "/auth/error",
   "/torneos",
   "/liga/reglamento",
   "/liga/partidos",
   "/liga/ascensor",
   "/liga/clasificacion",
   "/asociacion",
-  "/asociacion/historico",
   "/equipo",
 ];
 

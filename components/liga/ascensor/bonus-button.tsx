@@ -28,24 +28,20 @@ export default function CreateSocioButton({
       const result = await giveMonthlyBonus(classification, month_id);
 
       if (result.success) {
-        toast.success("Bonus aplicado correctamente", {
-          position: "top-center",
-        });
+        toast.success("Bonus aplicado correctamente");
       } else {
-        toast.info("Bonus ya aplicado para este mes", {
-          position: "top-center",
-        });
+        toast.info("Bonus ya aplicado para este mes");
       }
     } catch {
-      toast.error("Error aplicando bonus", { position: "top-center" });
+      toast.error("Error aplicando bonus");
     }
   };
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="secondary">Dar bonus</Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger
+        render={<Button>Dar bonus</Button>}
+      ></AlertDialogTrigger>
 
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -58,7 +54,7 @@ export default function CreateSocioButton({
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} variant="secondary">
+          <AlertDialogAction onClick={onConfirm}>
             Sí, dar bonus
           </AlertDialogAction>
         </AlertDialogFooter>

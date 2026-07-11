@@ -14,6 +14,15 @@ export default async function Page({
   const allSocios = await getAllSocios();
 
   return (
-    <ResultsForm partidoId={matchId} players={players} allSocios={allSocios} />
+    <>
+      <h1 className="text-4xl font-bold text-center py-8 px-8 lg:px-0">
+        Registrar resultados
+      </h1>
+      <ResultsForm
+        partidoId={matchId}
+        players={players}
+        allSocios={allSocios}
+      />
+    </>
   );
 }

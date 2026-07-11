@@ -16,11 +16,13 @@ import {
 } from "@/components/ui/select";
 import { redirect } from "next/navigation";
 
+import { Card } from "@/components/ui/card";
+
 export default function Form({
-  torneo_id,
+  torneoId,
   categories,
 }: {
-  torneo_id: number;
+  torneoId: number;
   categories: string[] | null;
 }) {
   const [player1Name, setPlayer1Name] = useState("");
@@ -42,7 +44,7 @@ export default function Form({
 
     const response = await inscribirTorneo(
       {
-        torneo_id,
+        torneo_id: torneoId,
         player_1_full_name: player1Name,
         player_2_full_name: player2Name,
         phone_number: phoneNumber,
@@ -52,11 +54,9 @@ export default function Form({
     );
 
     if (!response.success) {
-      toast.error(response.error, { position: "top-center" });
+      toast.error(response.error);
     } else {
-      toast.success("Inscripción realizada correctamente", {
-        position: "top-center",
-      });
+      toast.success("Inscripción realizada correctamente");
       resetForm();
       redirect("/torneos");
     }
@@ -70,24 +70,20 @@ export default function Form({
       {categories && categories.length > 0 && (
         <div className="grid gap-2 w-full">
           <Label htmlFor="category" className="font-semibold">
-            Categoría <span className="text-xs text-red-500">*</span>
+            Categoría <span className="text-destructive">*</span>
           </Label>
 
           <Select
             value={category}
-            onValueChange={(value) => setCategory(value)}
+            onValueChange={(value) => setCategory(value ?? "")}
           >
             <SelectTrigger className="w-full" id="category">
               <SelectValue placeholder="Selecciona una categoría" />
             </SelectTrigger>
-            <SelectContent position="popper" className="bg-background">
+            <SelectContent>
               <SelectGroup>
                 {categories.map((category) => (
-                  <SelectItem
-                    key={category}
-                    value={category}
-                    className="hover:bg-primary py-1 px-4"
-                  >
+                  <SelectItem key={category} value={category}>
                     {category}
                   </SelectItem>
                 ))}
@@ -98,9 +94,9 @@ export default function Form({
       )}
 
       <div className="flex flex-col md:flex-row gap-4 md:gap-8 w-full justify-between">
-        <div className="grid gap-2 md:w-1/2 bg-primary rounded-lg p-4 shadow-card">
+        <Card className="grid gap-2 md:w-1/2 p-4">
           <Label className="font-bold" htmlFor="player_1_full_name">
-            Jugador 1 <span className="text-xs text-red-500">*</span>
+            Jugador 1 <span className="text-destructive">*</span>
           </Label>
           <Input
             id="player_1_full_name"
@@ -110,13 +106,12 @@ export default function Form({
             type="text"
             placeholder="Nombre y Apellidos"
             required
-            className="border-border bg-background/50"
           />
-        </div>
+        </Card>
 
-        <div className="grid gap-2 md:w-1/2 bg-primary rounded-lg p-4 shadow-card">
+        <Card className="grid gap-2 md:w-1/2 p-4">
           <Label className="font-bold" htmlFor="player_2_full_name">
-            Jugador 2 <span className="text-xs text-red-500">*</span>
+            Jugador 2 <span className="text-destructive">*</span>
           </Label>
           <Input
             id="player_2_full_name"
@@ -126,9 +121,8 @@ export default function Form({
             type="text"
             placeholder="Nombre y Apellidos"
             required
-            className="border-border bg-background/50"
           />
-        </div>
+        </Card>
       </div>
 
       <div className="grid gap-2 w-full">
@@ -144,12 +138,12 @@ export default function Form({
           placeholder="600 00 00 00"
           required
         />
-        <p className="text-xs opacity-70">
+        <p className="text-xs text-muted-foreground">
           Te contactaremos a este número para confirmar detalles.
         </p>
       </div>
 
-      <Button className="w-fit font-bold" type="submit" variant="secondary">
+      <Button className="w-fit" type="submit">
         Confirmar Inscripción
       </Button>
     </form>

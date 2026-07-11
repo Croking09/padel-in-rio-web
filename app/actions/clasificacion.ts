@@ -9,7 +9,7 @@ export const getAscensor = unstable_cache(
 
     const { data: categories, error: categoriesError } = await supabase
       .from("Categorias")
-      .select("id, name");
+      .select("id, name, order");
 
     if (categoriesError) console.error(categoriesError);
     if (!categories?.length) return [];

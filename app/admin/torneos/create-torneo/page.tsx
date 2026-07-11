@@ -4,8 +4,8 @@ export default function Page() {
   return (
     <div>
       <div className="flex flex-col text-center my-8 gap-2">
-        <h2 className="text-4xl font-bold">Crear torneo</h2>
-        <p>Introduce los datos del torneo</p>
+        <h1 className="text-4xl font-bold">Crear torneo</h1>
+        <p className="text-muted-foreground">Introduce los datos del torneo</p>
       </div>
       <CreateTorneoForm />
     </div>

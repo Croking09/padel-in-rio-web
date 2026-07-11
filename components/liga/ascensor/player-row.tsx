@@ -1,4 +1,6 @@
 import { PlayerClassification } from "@/lib/types/classification";
+import { TableCell, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 type Props = {
   player: PlayerClassification;
@@ -18,55 +20,49 @@ export function PlayerRow({
   const isTop = index < 3 && categoryId !== 1;
   const isBottom = !isLastCategory && index >= 5;
 
-  const zebraBg = zebra ? "bg-primary/20" : "bg-background";
-
-  const highlight = isTop
-    ? "[background-image:linear-gradient(to_right,#22c55e20,transparent_40%)]"
-    : isBottom
-      ? "[background-image:linear-gradient(to_right,#ef444420,transparent_40%)]"
-      : "";
-
   return (
-    <tr
-      className={`
-        ${zebraBg}
-        ${highlight}
-      `}
+    <TableRow
+      className={cn(
+        "border-b transition-none hover:bg-transparent",
+        isTop &&
+          "bg-linear-to-r from-success/15 from-0% via-success/10 via-20% to-transparent to-75%",
+
+        isBottom &&
+          "bg-linear-to-r from-destructive/15 from-0% via-destructive/10 via-20% to-transparent to-75%",
+        !isTop && !isBottom && zebra && "bg-muted/50",
+      )}
     >
-      <td className="py-2.5 px-3 text-center text-text-primary/70">
+      <TableCell className="w-10 text-center text-muted-foreground">
         {index + 1}
-      </td>
+      </TableCell>
 
-      <td className="py-2.5 px-3">
-        <div className="flex items-center gap-2">
-          <span className="font-medium">
-            {player.nickname ?? player.full_name}
-          </span>
-        </div>
-      </td>
+      <TableCell>
+        <span className="font-medium text-foreground">
+          {player.nickname ?? player.full_name}
+        </span>
+      </TableCell>
 
-      <td className="py-2.5 px-3 text-center font-bold">{player.points}</td>
+      <TableCell className="text-center font-bold">{player.points}</TableCell>
 
-      <td className="py-2.5 px-3 text-center font-semibold">
+      <TableCell className="text-center font-semibold">
         <span
-          className={
-            player.diff > 0
-              ? "text-success"
-              : player.diff < 0
-                ? "text-error"
-                : "text-text-primary/60"
-          }
+          className={cn(
+            player.diff > 0 && "text-success",
+            player.diff < 0 && "text-destructive",
+            player.diff === 0 && "text-muted-foreground",
+          )}
         >
           {player.diff > 0 ? `+${player.diff}` : player.diff}
         </span>
-      </td>
+      </TableCell>
 
-      <td className="py-2.5 px-3 text-center text-text-primary/80">
+      <TableCell className="text-center text-muted-foreground">
         {player.games_for}
-      </td>
-      <td className="py-2.5 px-3 text-center text-text-primary/80">
+      </TableCell>
+
+      <TableCell className="text-center text-muted-foreground">
         {player.matches_played}
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }
