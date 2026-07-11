@@ -37,7 +37,7 @@ export default function PlayerCard({
     <div
       ref={dragRef}
       className={cn(
-        "p-2 bg-primary border border-border rounded shadow-sm hover:shadow-md transition-shadow select-none",
+        "p-2 bg-secondary border border-border rounded-lg select-none",
         isDraggable ? "cursor-move" : "cursor-not-allowed",
         isDragging ? "opacity-50" : "opacity-100",
         className,
