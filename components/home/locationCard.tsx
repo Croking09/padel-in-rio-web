@@ -52,7 +52,7 @@ export default function LocationCard({ onClose }: LocationCardProps) {
             rel="noreferrer"
             className={buttonVariants({ variant: "default", size: "default" })}
           >
-            RESERVA
+            Reserva
           </Link>
         </div>
       </CardContent>
