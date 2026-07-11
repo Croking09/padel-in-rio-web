@@ -23,7 +23,7 @@ export function CategoryTable({ data, isLast }: Props) {
 
   return (
     <Card className="overflow-hidden py-0 gap-0">
-      <CardHeader className="px-4 py-3 gap-0">
+      <CardHeader className="px-4 py-2 gap-0 border-b">
         <CardTitle className="font-bold tracking-widest uppercase">
           {data.category.name}
         </CardTitle>

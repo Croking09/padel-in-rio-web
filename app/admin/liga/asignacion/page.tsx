@@ -12,7 +12,6 @@ export default async function AssignmentPage({
 }: {
   searchParams: Promise<{ monthId?: string; temporadaId?: string }>;
 }) {
-  await new Promise((r) => setTimeout(r, 5000));
   const [allMonths, temporadas, params, cookieStore] = await Promise.all([
     getMonths(),
     getTemporadas(),
