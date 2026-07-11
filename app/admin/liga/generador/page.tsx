@@ -25,8 +25,6 @@ export default async function Page({
 }: {
   searchParams: Promise<{ monthId?: string; temporadaId?: string }>;
 }) {
-  await new Promise((resolve) => setTimeout(resolve, 5000));
-
   const [allMonths, temporadas, params, cookieStore] = await Promise.all([
     getMonths(),
     getTemporadas(),

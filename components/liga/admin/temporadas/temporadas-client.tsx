@@ -1,5 +1,13 @@
 "use client";
 
+import { CalendarDays } from "lucide-react";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { TemporadaWithMonths } from "@/lib/types/temporada";
 import TemporadaCard from "./temporada-card";
 
@@ -8,19 +16,29 @@ export default function TemporadasClient({
 }: {
   temporadas: TemporadaWithMonths[];
 }) {
+  if (temporadas.length === 0) {
+    return (
+      <Empty className="border-2 border-dashed">
+        <EmptyHeader>
+          <EmptyMedia>
+            <CalendarDays />
+          </EmptyMedia>
+
+          <EmptyTitle>No hay temporadas</EmptyTitle>
+
+          <EmptyDescription>
+            Crea la primera temporada para comenzar la liga.
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    );
+  }
+
   return (
-    <div className="mx-auto w-full">
-      <div className="grid grid-cols-1 gap-8">
-        {temporadas.length > 0 ? (
-          temporadas.map((temporada) => (
-            <TemporadaCard key={temporada.id} temporada={temporada} />
-          ))
-        ) : (
-          <div className="text-sm text-center py-8 text-text-primary">
-            No se encontraron temporadas
-          </div>
-        )}
-      </div>
+    <div className="mx-auto w-full space-y-8">
+      {temporadas.map((temporada) => (
+        <TemporadaCard key={temporada.id} temporada={temporada} />
+      ))}
     </div>
   );
 }

@@ -17,6 +17,7 @@ import { PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 import { createTemporada } from "@/app/actions/ligas";
 import { formatMonth } from "@/lib/utils";
+import DatePicker from "@/components/ui/date-picker";
 
 function getNext12Months(startDate: string): { month: number; year: number }[] {
   if (!startDate) return [];
@@ -92,7 +93,7 @@ export default function CreateTemporadaButton() {
       return;
     }
 
-    toast.success("Temporada creada correctamente!");
+    toast.success("Temporada creada correctamente");
     handleClose();
   };
 
@@ -101,22 +102,26 @@ export default function CreateTemporadaButton() {
       open={open}
       onOpenChange={(v) => (v ? setOpen(true) : handleClose())}
     >
-      <DialogTrigger asChild>
-        <Button variant="secondary">
-          <PlusIcon className="h-4 w-4" />
-          Nueva temporada
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button className="w-fit">
+            <PlusIcon />
+            Nueva temporada
+          </Button>
+        }
+      ></DialogTrigger>
 
-      <DialogContent className="max-w-sm" aria-describedby={undefined}>
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Crear temporada</DialogTitle>
+          <DialogTitle className="text-2xl font-semibold">
+            Crear temporada
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col">
             <Label className="text-xs">
-              Nombre <span className="text-red-500">*</span>
+              Nombre <span className="text-destructive">*</span>
             </Label>
             <Input
               value={name}
@@ -126,25 +131,20 @@ export default function CreateTemporadaButton() {
             />
           </div>
 
-          <div className="flex flex-col gap-1">
-            <Label className="text-xs">
-              Fecha de inicio <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              type="date"
-              value={startDate}
-              onChange={(e) => handleStartDateChange(e.target.value)}
-              required
-            />
-          </div>
+          <DatePicker
+            label="Fecha de inicio"
+            value={startDate}
+            onChange={handleStartDateChange}
+            required
+          />
 
           {availableMonths.length > 0 && (
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <Label className="text-xs">Meses</Label>
+                <Label>Meses</Label>
               </div>
 
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-lg border border-border p-3">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-lg border border-border p-4">
                 {availableMonths.map((m) => {
                   const key = monthKey(m);
                   return (
@@ -156,11 +156,9 @@ export default function CreateTemporadaButton() {
                         checked={selectedMonths.has(key)}
                         onCheckedChange={() => toggleMonth(m)}
                       />
-                      <span className="text-sm">
+                      <span>
                         {formatMonth(m.month)}{" "}
-                        <span className="text-xs text-muted-foreground">
-                          {m.year}
-                        </span>
+                        <span className="text-muted-foreground">{m.year}</span>
                       </span>
                     </label>
                   );
@@ -170,10 +168,10 @@ export default function CreateTemporadaButton() {
           )}
 
           <DialogFooter className="flex justify-end gap-2">
-            <Button type="button" variant="ghost" onClick={handleClose}>
+            <Button type="button" variant="secondary" onClick={handleClose}>
               Cancelar
             </Button>
-            <Button type="submit" variant="secondary" disabled={loading}>
+            <Button type="submit" disabled={loading}>
               {loading ? "Creando..." : "Crear"}
             </Button>
           </DialogFooter>

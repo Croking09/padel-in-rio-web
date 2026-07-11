@@ -2,7 +2,6 @@ import ReactMarkdown from "react-markdown";
 import { getDocument } from "@/app/actions/documents";
 
 export default async function Page() {
-  await new Promise((r) => setTimeout(r, 5000));
   const content = await getDocument("league-rules.md");
 
   return (
