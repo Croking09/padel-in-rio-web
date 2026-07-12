@@ -9,30 +9,93 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import {
+  AuthError,
+  AuthWeakPasswordError,
+  isAuthApiError,
+} from "@supabase/supabase-js";
+import { formatWeakPasswordReasons } from "@/lib/auth/auth-flows-error";
+
+type FieldErrors = {
+  root?: string;
+  password?: string;
+};
+
+function getUpdatePasswordFieldErrors(error: unknown): FieldErrors {
+  if (isAuthApiError(error)) {
+    return {
+      root: "No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.",
+    };
+  }
+
+  const authError = error as AuthError;
+
+  switch (authError.code) {
+    case "weak_password": {
+      const reasons = (error as AuthWeakPasswordError).reasons;
+      return {
+        password: reasons?.length
+          ? `La contraseña ${formatWeakPasswordReasons(reasons)}.`
+          : "La contraseña no cumple los requisitos mínimos de seguridad.",
+      };
+    }
+
+    case "same_password":
+      return { password: "La nueva contraseña debe ser distinta a la actual." };
+
+    case "reauthentication_needed":
+      return {
+        root: "Por seguridad, necesitas volver a iniciar sesión antes de cambiar la contraseña.",
+      };
+
+    case "session_not_found":
+    case "session_expired":
+      return {
+        root: 'El enlace ha caducado o ya se usó. Solicita uno nuevo desde "¿Olvidaste tu contraseña?".',
+      };
+
+    case "over_request_rate_limit":
+      return {
+        root: "Demasiados intentos. Espera un momento antes de volver a intentarlo.",
+      };
+
+    case "validation_failed":
+      return { root: "Revisa los datos introducidos e inténtalo de nuevo." };
+
+    default:
+      return { root: "Ha ocurrido un error. Inténtalo de nuevo." };
+  }
+}
 
 export function UpdatePasswordForm() {
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FieldErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleForgotPassword = async (e: React.FormEvent) => {
+  const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     const supabase = createClient();
     setIsLoading(true);
-    setError(null);
+    setErrors({});
 
     try {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
       // Update this route to redirect to an authenticated route. The user already has an active session.
       router.push("/");
-    } catch {
-      setError("Ha ocurrido un error");
+    } catch (error) {
+      setErrors(getUpdatePasswordFieldErrors(error));
     } finally {
       setIsLoading(false);
     }
@@ -49,23 +112,35 @@ export function UpdatePasswordForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleForgotPassword}>
-          <div className="flex flex-col gap-8">
-            <div className="grid gap-2">
-              <Label htmlFor="password">Nueva contraseña</Label>
+        <form onSubmit={handleUpdatePassword}>
+          <FieldGroup>
+            <Field data-invalid={!!errors.password}>
+              <FieldLabel htmlFor="password">Nueva contraseña</FieldLabel>
               <Input
                 id="password"
                 type="password"
                 required
+                aria-invalid={!!errors.password}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-            </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Guardando..." : "Actualizar contraseña"}
-            </Button>
-          </div>
+              {errors.password ? (
+                <FieldError>{errors.password}</FieldError>
+              ) : (
+                <FieldDescription>Mínimo 6 caracteres.</FieldDescription>
+              )}
+            </Field>
+
+            {errors.root && (
+              <FieldError className="text-center">{errors.root}</FieldError>
+            )}
+
+            <Field>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Guardando..." : "Actualizar contraseña"}
+              </Button>
+            </Field>
+          </FieldGroup>
         </form>
       </CardContent>
     </Card>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,8 +11,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { createClient } from "@/lib/supabase/client";
+import { User } from "@supabase/supabase-js";
 
-export function AvatarMenu({ email }: { email?: string }) {
+function getInitials(user: {
+  email?: string;
+  user_metadata?: { full_name?: string };
+}) {
+  const fullName = user.user_metadata?.full_name;
+
+  if (fullName) {
+    const parts = fullName.trim().split(/\s+/);
+    const first = parts[0]?.[0] ?? "";
+    const last = parts.length > 1 ? parts[1][0] : "";
+    return (first + last).toUpperCase();
+  }
+
+  return user.email?.slice(0, 2).toUpperCase() ?? "?";
+}
+
+export function AvatarMenu({ user }: { user: User }) {
   const logout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -24,16 +41,15 @@ export function AvatarMenu({ email }: { email?: string }) {
         render={
           <Button variant="ghost" size="icon" className="rounded-full">
             <Avatar>
-              <AvatarFallback>
-                {email?.slice(0, 2).toUpperCase() ?? "?"}
-              </AvatarFallback>
+              <AvatarImage src={user.user_metadata.avatar_url} />
+              <AvatarFallback>{getInitials(user)}</AvatarFallback>
             </Avatar>
           </Button>
         }
       />
       <DropdownMenuContent className="w-fit">
         <DropdownMenuGroup>
-          <DropdownMenuItem>{email}</DropdownMenuItem>
+          <DropdownMenuItem>{user.email}</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
