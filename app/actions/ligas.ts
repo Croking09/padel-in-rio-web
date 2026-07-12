@@ -1,6 +1,6 @@
 "use server";
 import { createAdmin } from "@/lib/supabase/admin";
-import { revalidatePath, unstable_cache } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 import { Temporada, TemporadaWithMonths } from "@/lib/types/temporada";
 import { createClient } from "@/lib/supabase/server";
 import { Month } from "@/lib/types/month";
@@ -8,27 +8,28 @@ import { mapMonthStatus } from "@/lib/utils";
 import { CategoryClassification } from "@/lib/types/classification";
 import { Bonus } from "@/lib/types/bonus";
 
-export const getLigasCount = unstable_cache(
-  async () => {
-    const supabase = createAdmin();
-    const { count } = await supabase
-      .from("Temporadas")
-      .select("*", { count: "exact", head: true });
-    return count;
-  },
-  ["ligas-count"],
-  {
-    revalidate: 86400, // 24 horas
-    tags: ["ligas-count"],
-  },
-);
+export async function getLigasCount() {
+  "use cache";
+  cacheLife("days");
+  cacheTag("ligas-count");
+
+  const supabase = createAdmin();
+  const { count } = await supabase
+    .from("Temporadas")
+    .select("*", { count: "exact", head: true });
+  return count;
+}
 
 export async function getTemporadas(): Promise<Temporada[]> {
+  "use cache";
+  cacheLife("days");
+  cacheTag("temporadas");
+
   const supabase = await createClient({ useCookies: false });
   const { data: temporadas, error } = await supabase
     .from("Temporadas")
     .select("*")
-    .order("start_date", { ascending: false }); // Most recent first
+    .order("start_date", { ascending: false });
 
   if (error) console.error(error);
 
@@ -107,7 +108,7 @@ export async function giveMonthlyBonus(
     throw error;
   }
 
-  revalidatePath("/liga/clasificacion");
+  updateTag("general");
 
   return { success: true };
 }
@@ -168,7 +169,8 @@ export async function createTemporada(
 
   if (error) return { error: error.message };
 
-  revalidatePath("/");
-  revalidatePath("/admin/liga/temporadas");
+  updateTag("ligas-count");
+  updateTag("temporadas");
+
   return null;
 }

@@ -1,24 +1,20 @@
 import { createAdmin } from "@/lib/supabase/admin";
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 
 export async function getDocument(path: string) {
-  return unstable_cache(
-    async () => {
-      const supabase = createAdmin();
+  "use cache";
+  cacheLife("max");
+  cacheTag(`document:${path}`);
 
-      const { data, error } = await supabase.storage
-        .from("documents")
-        .download(path);
+  const supabase = createAdmin();
 
-      if (error) {
-        console.error(error);
-      }
+  const { data, error } = await supabase.storage
+    .from("documents")
+    .download(path);
 
-      return data?.text() ?? "";
-    },
-    [`document:${path}`],
-    {
-      tags: [`document:${path}`],
-    },
-  )();
+  if (error) {
+    console.error(error);
+  }
+
+  return data?.text() ?? "";
 }

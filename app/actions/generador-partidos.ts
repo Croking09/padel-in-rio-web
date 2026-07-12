@@ -3,7 +3,7 @@
 import { createAdmin } from "@/lib/supabase/admin";
 import { generateCategoryMatches } from "@/lib/utils";
 import { Match } from "@/lib/types/match";
-import { revalidatePath } from "next/cache";
+import { updateTag } from "next/cache";
 import { Socio } from "@/lib/types/socio";
 
 interface JugadorCategoriaMes {
@@ -88,6 +88,6 @@ export async function confirmMonth(monthId: number, matches: Match[]) {
     return { success: false, error };
   }
 
-  revalidatePath("/admin/liga/generador");
+  updateTag("participation");
   return { success: true };
 }

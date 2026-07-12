@@ -1,59 +1,53 @@
 "use server";
 
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
-export const getAscensor = unstable_cache(
-  async (monthId: number) => {
-    const supabase = await createClient({ useCookies: false });
+export async function getAscensor(monthId: number) {
+  "use cache";
+  cacheLife("days");
+  cacheTag("ascensor");
 
-    const { data: categories, error: categoriesError } = await supabase
-      .from("Categorias")
-      .select("id, name, order");
+  const supabase = await createClient({ useCookies: false });
 
-    if (categoriesError) console.error(categoriesError);
-    if (!categories?.length) return [];
+  const { data: categories, error: categoriesError } = await supabase
+    .from("Categorias")
+    .select("id, name, order");
 
-    const results = await Promise.all(
-      categories.map(async (category) => {
-        const { data, error } = await supabase.rpc("get_month_classification", {
-          p_mes_id: monthId,
-          p_categoria_id: category.id,
-        });
+  if (categoriesError) console.error(categoriesError);
+  if (!categories?.length) return [];
 
-        if (error) console.error(`Error en categoría ${category.id}`, error);
+  const results = await Promise.all(
+    categories.map(async (category) => {
+      const { data, error } = await supabase.rpc("get_month_classification", {
+        p_mes_id: monthId,
+        p_categoria_id: category.id,
+      });
 
-        return {
-          category,
-          classification: data ?? [],
-        };
-      }),
-    );
+      if (error) console.error(`Error en categoría ${category.id}`, error);
 
-    return results;
-  },
-  ["ascensor"],
-  {
-    revalidate: 86400, // 1 dia
-    tags: ["ascensor"],
-  },
-);
+      return {
+        category,
+        classification: data ?? [],
+      };
+    }),
+  );
 
-export const getGeneralClassification = unstable_cache(
-  async (temporadaId: number) => {
-    const supabase = await createClient({ useCookies: false });
+  return results;
+}
 
-    const { data, error } = await supabase.rpc("get_global_classification", {
-      p_temporada_id: temporadaId,
-    });
+export async function getGeneralClassification(temporadaId: number) {
+  "use cache";
+  cacheLife("days");
+  cacheTag("general");
 
-    if (error) console.error(error);
+  const supabase = await createClient({ useCookies: false });
 
-    return data ?? [];
-  },
-  ["general"],
-  {
-    revalidate: 86400,
-    tags: ["general"],
-  },
-);
+  const { data, error } = await supabase.rpc("get_global_classification", {
+    p_temporada_id: temporadaId,
+  });
+
+  if (error) console.error(error);
+
+  return data ?? [];
+}

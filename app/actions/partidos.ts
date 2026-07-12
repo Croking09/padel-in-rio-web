@@ -6,7 +6,7 @@ import { Match } from "@/lib/types/match";
 import MatchParticipants from "@/lib/types/matchParticipants";
 import { SetResult } from "@/lib/types/setResult";
 import { Socio } from "@/lib/types/socio";
-import { revalidatePath, unstable_cache } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 
 interface PartidoResponse {
   id: number;
@@ -111,10 +111,9 @@ export async function registerMatchResults(
 
   if (error) return { success: false, error };
 
-  revalidatePath("/liga/ascensor");
-  revalidatePath("/liga/clasificacion");
-  revalidatePath(`/liga/partidos`);
-  revalidatePath(`/liga/partidos/${partidoId}/resultados`);
+  updateTag("results");
+  updateTag("existsResult");
+  updateTag("participation");
 
   return { success: true };
 }
@@ -137,133 +136,121 @@ interface SetRowFromDB {
   jugador4: { id: number; full_name: string; nickname: string | null };
 }
 
-export const getMatchResults = unstable_cache(
-  async (partidoId: number): Promise<SetWithPlayers[]> => {
-    const supabase = await createClient({ useCookies: false });
+export async function getMatchResults(
+  partidoId: number,
+): Promise<SetWithPlayers[]> {
+  "use cache";
+  cacheLife("days");
+  cacheTag("results");
 
-    const { data, error } = await supabase
-      .from("Sets")
-      .select(
-        `
-        orden,
-        pareja1_juegos,
-        pareja2_juegos,
-        jugador1:pareja1_jugador1_id(id, full_name, nickname),
-        jugador2:pareja1_jugador2_id(id, full_name, nickname),
-        jugador3:pareja2_jugador1_id(id, full_name, nickname),
-        jugador4:pareja2_jugador2_id(id, full_name, nickname)
-      `,
-      )
-      .eq("partido_id", partidoId)
-      .order("orden");
+  const supabase = await createClient({ useCookies: false });
 
-    if (error) console.error(error);
+  const { data, error } = await supabase
+    .from("Sets")
+    .select(
+      `
+      orden,
+      pareja1_juegos,
+      pareja2_juegos,
+      jugador1:pareja1_jugador1_id(id, full_name, nickname),
+      jugador2:pareja1_jugador2_id(id, full_name, nickname),
+      jugador3:pareja2_jugador1_id(id, full_name, nickname),
+      jugador4:pareja2_jugador2_id(id, full_name, nickname)
+    `,
+    )
+    .eq("partido_id", partidoId)
+    .order("orden");
 
-    const rows = data as unknown as SetRowFromDB[];
+  if (error) console.error(error);
 
-    return rows.map(
-      (row): SetWithPlayers => ({
-        orden: row.orden,
-        pareja1: [
-          { ...row.jugador1, active: true },
-          { ...row.jugador2, active: true },
-        ],
-        pareja2: [
-          { ...row.jugador3, active: true },
-          { ...row.jugador4, active: true },
-        ],
-        pareja1_juegos: row.pareja1_juegos,
-        pareja2_juegos: row.pareja2_juegos,
-      }),
-    );
-  },
-  ["results"],
-  {
-    revalidate: 86400, // 1 dia
-    tags: ["results"],
-  },
-);
+  const rows = data as unknown as SetRowFromDB[];
 
-export const getMatchParticipation = unstable_cache(
-  async (partidoId: number) => {
-    const supabase = await createClient({ useCookies: false });
+  return rows.map(
+    (row): SetWithPlayers => ({
+      orden: row.orden,
+      pareja1: [
+        { ...row.jugador1, active: true },
+        { ...row.jugador2, active: true },
+      ],
+      pareja2: [
+        { ...row.jugador3, active: true },
+        { ...row.jugador4, active: true },
+      ],
+      pareja1_juegos: row.pareja1_juegos,
+      pareja2_juegos: row.pareja2_juegos,
+    }),
+  );
+}
 
-    const { data, error } = await supabase
-      .from("Participacion")
-      .select("jugador_id, sustituto_id")
-      .eq("partido_id", partidoId);
+export async function getMatchParticipation(partidoId: number) {
+  "use cache";
+  cacheLife("days");
+  cacheTag("participation");
 
-    if (error) {
-      console.error(error);
-      return [];
-    }
+  const supabase = await createClient({ useCookies: false });
 
-    return data;
-  },
-  ["participation"],
-  {
-    revalidate: 86400, // 1 dia
-    tags: ["participation"],
-  },
-);
+  const { data, error } = await supabase
+    .from("Participacion")
+    .select("jugador_id, sustituto_id")
+    .eq("partido_id", partidoId);
 
-export const existsResult = unstable_cache(
-  async (matchId: number) => {
-    const supabase = await createClient({ useCookies: false });
+  if (error) {
+    console.error(error);
+    return [];
+  }
 
-    const { data, error } = await supabase
-      .from("Sets")
-      .select("id")
-      .eq("partido_id", matchId);
+  return data;
+}
 
-    if (error) {
-      console.error(error);
-      return false;
-    }
+export async function existsResult(matchId: number) {
+  "use cache";
+  cacheLife("days");
+  cacheTag("existsResult");
 
-    return data.length > 0;
-  },
-  ["existsResult"],
-  {
-    revalidate: 86400, // 1 dia
-    tags: ["existsResult"],
-  },
-);
+  const supabase = await createClient({ useCookies: false });
+
+  const { data, error } = await supabase
+    .from("Sets")
+    .select("id")
+    .eq("partido_id", matchId);
+
+  if (error) {
+    console.error(error);
+    return false;
+  }
+
+  return data.length > 0;
+}
 
 /**
  * Versión batch de `existsResult`: en vez de hacer una query por partido
  * (N+1), hace una única query con `.in(...)` y devuelve los IDs que ya
  * tienen algún set registrado.
  *
- * Importante: `unstable_cache` serializa el valor de retorno (pasa por
- * JSON), así que NO puede devolver un `Set` (se convertiría en `{}` al
- * deserializar y perdería `.has`). Por eso devuelve `number[]`; quien la
- * consuma puede envolverlo en `new Set(...)` si le conviene para lookups.
+ * Comparte tag ("existsResult") con `existsResult` porque ambas dependen
+ * de la misma tabla y se invalidan siempre juntas.
  *
  * Reemplaza el patrón `Promise.all(matches.map(m => existsResult(m.id)))`
  * que se usaba en la página de partidos.
  */
-export const existResultsBatch = unstable_cache(
-  async (matchIds: number[]): Promise<number[]> => {
-    if (matchIds.length === 0) return [];
+export async function existResultsBatch(matchIds: number[]): Promise<number[]> {
+  "use cache";
+  cacheLife("days");
+  cacheTag("existsResult");
 
-    const supabase = await createClient({ useCookies: false });
+  if (matchIds.length === 0) return [];
 
-    const { data, error } = await supabase
-      .from("Sets")
-      .select("partido_id")
-      .in("partido_id", matchIds);
+  const supabase = await createClient({ useCookies: false });
 
-    if (error) {
-      console.error(error);
-      return [];
-    }
+  const { data, error } = await supabase
+    .from("Sets")
+    .select("partido_id")
+    .in("partido_id", matchIds);
 
-    return data.map((row) => row.partido_id as number);
-  },
-  ["existResultsBatch"],
-  {
-    revalidate: 86400, // 1 dia
-    tags: ["existsResult"],
-  },
-);
+  if (error) {
+    console.error(error);
+    return [];
+  }
+
+  return data.map((row) => row.partido_id as number);
+}
