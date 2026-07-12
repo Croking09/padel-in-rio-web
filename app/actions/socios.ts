@@ -2,45 +2,39 @@
 import { createAdmin } from "@/lib/supabase/admin";
 import type { MonthParticipation } from "@/lib/types/monthParticipation";
 import { Socio } from "@/lib/types/socio";
-import { revalidatePath, unstable_cache } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 
-export const getActiveSociosCount = unstable_cache(
-  async () => {
-    const supabase = createAdmin();
-    const { count } = await supabase
-      .from("Socios")
-      .select("*", { count: "exact", head: true })
-      .eq("active", true);
-    return count;
-  },
-  ["socios-count"],
-  {
-    revalidate: 86400, // 1 dia
-    tags: ["socios"],
-  },
-);
+export async function getActiveSociosCount() {
+  "use cache";
+  cacheLife("days");
+  cacheTag("socios-count");
 
-export const getAllSocios = unstable_cache(
-  async (active?: boolean) => {
-    const supabase = createAdmin();
-    let query = supabase
-      .from("Socios")
-      .select("*")
-      .order("full_name", { ascending: true });
+  const supabase = createAdmin();
+  const { count } = await supabase
+    .from("Socios")
+    .select("*", { count: "exact", head: true })
+    .eq("active", true);
+  return count;
+}
 
-    if (active !== undefined) {
-      query = query.eq("active", active);
-    }
+export async function getAllSocios(active?: boolean) {
+  "use cache";
+  cacheLife("days");
+  cacheTag("socios");
 
-    const { data } = await query;
-    return data as Socio[];
-  },
-  ["socios"],
-  {
-    revalidate: 86400, // 1 dia
-    tags: ["socios"],
-  },
-);
+  const supabase = createAdmin();
+  let query = supabase
+    .from("Socios")
+    .select("*")
+    .order("full_name", { ascending: true });
+
+  if (active !== undefined) {
+    query = query.eq("active", active);
+  }
+
+  const { data } = await query;
+  return data as Socio[];
+}
 
 export async function toggleActiveSocio(id: number, currentActive: boolean) {
   const supabase = createAdmin();
@@ -52,16 +46,13 @@ export async function toggleActiveSocio(id: number, currentActive: boolean) {
 
   if (error) {
     if (error.code === "42501") {
-      // RLS violation
       return { error: "No estás autorizado a cambiar el estado del socio." };
     }
-
     return { error: "Hubo un error al cambiar el estado del socio." };
   }
 
-  revalidatePath("/");
-  revalidatePath("/asociacion/historico");
-  revalidatePath("/admin/socios");
+  updateTag("socios");
+  updateTag("socios-count");
 }
 
 export async function editSocio(id: number, data: Partial<Socio>) {
@@ -71,15 +62,12 @@ export async function editSocio(id: number, data: Partial<Socio>) {
 
   if (error) {
     if (error.code === "42501") {
-      // RLS violation
       return { error: "No estás autorizado a cambiar el socio." };
     }
-
     return { error: "Hubo un error al cambiar el socio." };
   }
 
-  revalidatePath("/asociacion/historico");
-  revalidatePath("/admin/socios");
+  updateTag("socios");
 }
 
 export async function createSocio(data: Partial<Socio>) {
@@ -93,39 +81,36 @@ export async function createSocio(data: Partial<Socio>) {
 
   if (error) {
     if (error.code === "42501") {
-      // RLS violation
       return { error: "No estás autorizado a crear un socio." };
     }
     return { error: "Hubo un error al crear el socio." };
   }
 
-  revalidatePath("/");
-  revalidatePath("/asociacion/historico");
-  revalidatePath("/admin/socios");
+  updateTag("socios");
+  updateTag("socios-count");
 }
 
-export const getParticipationHistoric = unstable_cache(
-  async (socioId: number): Promise<MonthParticipation[]> => {
-    const supabase = createAdmin();
+export async function getParticipationHistoric(
+  socioId: number,
+): Promise<MonthParticipation[]> {
+  "use cache";
+  cacheLife("days");
+  cacheTag("participation-historic");
 
-    const { data, error } = await supabase
-      .from("Jugador_Categoria_Mes")
-      .select("*")
-      .eq("jugador_id", socioId)
-      .order("mes_id", { ascending: true });
+  const supabase = createAdmin();
 
-    if (error) throw error;
+  const { data, error } = await supabase
+    .from("Jugador_Categoria_Mes")
+    .select("*")
+    .eq("jugador_id", socioId)
+    .order("mes_id", { ascending: true });
 
-    return (data ?? []).map((participation) => ({
-      id: participation.id,
-      playerId: participation.jugador_id,
-      monthId: participation.mes_id,
-      categoryId: participation.categoria_id,
-    }));
-  },
-  ["participation-historic"],
-  {
-    revalidate: 86400, // 1 dia
-    tags: ["participation-historic"],
-  },
-);
+  if (error) throw error;
+
+  return (data ?? []).map((participation) => ({
+    id: participation.id,
+    playerId: participation.jugador_id,
+    monthId: participation.mes_id,
+    categoryId: participation.categoria_id,
+  }));
+}

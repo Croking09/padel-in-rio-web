@@ -2,7 +2,6 @@
 
 import { createAdmin } from "@/lib/supabase/admin";
 import { MonthStatus } from "@/lib/types/month";
-import { revalidatePath } from "next/cache";
 
 export type Player = {
   id: number;
@@ -124,8 +123,6 @@ export async function saveAssignments(
 
     if (insertError) throw insertError;
   }
-
-  revalidatePath("/admin/liga/asignacion");
 }
 
 export async function confirmMonth(monthId: number) {
@@ -137,7 +134,4 @@ export async function confirmMonth(monthId: number) {
     .eq("id", monthId);
 
   if (error) throw error;
-
-  revalidatePath("/admin/liga/asignacion");
-  revalidatePath("/liga/partidos");
 }

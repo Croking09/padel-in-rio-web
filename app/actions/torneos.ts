@@ -1,78 +1,69 @@
 "use server";
 import { createAdmin } from "@/lib/supabase/admin";
-import { unstable_cache, revalidatePath } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { Torneo } from "@/lib/types/torneo";
 
-export const getTorneosCount = unstable_cache(
-  async () => {
-    const supabase = createAdmin();
-    const { count } = await supabase
-      .from("Torneos")
-      .select("*", { count: "exact", head: true });
-    return count;
-  },
-  ["torneos-count"],
-  {
-    revalidate: 86400, // 24 horas
-    tags: ["torneos"],
-  },
-);
+export async function getTorneosCount() {
+  "use cache";
+  cacheLife("days");
+  cacheTag("torneos");
 
-export const getTorneos = unstable_cache(
-  async () => {
-    const supabase = createAdmin();
+  const supabase = createAdmin();
+  const { count } = await supabase
+    .from("Torneos")
+    .select("*", { count: "exact", head: true });
+  return count;
+}
 
-    const { data, error } = await supabase
-      .from("Torneos")
-      .select("*", { count: "exact" })
-      .order("start_date", { ascending: false });
+export async function getTorneos() {
+  "use cache";
+  cacheLife("days");
+  cacheTag("torneos");
 
-    if (error) {
-      return [];
-    }
+  const supabase = createAdmin();
 
-    const dataWithImg = data.map((torneo) => {
-      return {
-        ...torneo,
-        imageUrl: torneo.img_path
-          ? supabase.storage.from("torneos").getPublicUrl(torneo.img_path).data
-              .publicUrl
-          : null,
-      };
-    });
+  const { data, error } = await supabase
+    .from("Torneos")
+    .select("*", { count: "exact" })
+    .order("start_date", { ascending: false });
 
-    return (dataWithImg as Torneo[]) || [];
-  },
-  ["torneos"],
-  {
-    revalidate: 86400, // 24 horas
-    tags: ["torneos"],
-  },
-);
+  if (error) {
+    return [];
+  }
 
-export const getTorneoById = unstable_cache(
-  async (id: string) => {
-    const supabase = createAdmin();
+  const dataWithImg = data.map((torneo) => {
+    return {
+      ...torneo,
+      imageUrl: torneo.img_path
+        ? supabase.storage.from("torneos").getPublicUrl(torneo.img_path).data
+            .publicUrl
+        : null,
+    };
+  });
 
-    const { data: torneo, error } = await supabase
-      .from("Torneos")
-      .select("*")
-      .eq("id", id)
-      .single();
+  return (dataWithImg as Torneo[]) || [];
+}
 
-    if (error) {
-      return null;
-    }
+export async function getTorneoById(id: string) {
+  "use cache";
+  cacheLife("days");
+  cacheTag("torneos");
 
-    return torneo;
-  },
-  ["torneo-by-id"],
-  {
-    revalidate: 86400, // 24 horas
-    tags: ["torneos"],
-  },
-);
+  const supabase = createAdmin();
+
+  const { data: torneo, error } = await supabase
+    .from("Torneos")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    return null;
+  }
+
+  return torneo;
+}
 
 export async function createTorneo(
   data: Omit<Torneo, "id" | "manually_closed">,
@@ -146,8 +137,7 @@ export async function createTorneo(
     };
   }
 
-  revalidatePath("/");
-  revalidatePath("/torneos");
+  updateTag("torneos");
 
   return {
     success: true,
@@ -168,7 +158,5 @@ export async function deleteTorneo(torneoId: number) {
     return { error: "Hubo un error al eliminar el torneo." };
   }
 
-  revalidatePath("/"); // <-- Count
-  revalidatePath("/torneos");
-  revalidatePath(`/torneos/inscripcion/${torneoId}`);
+  updateTag("torneos");
 }

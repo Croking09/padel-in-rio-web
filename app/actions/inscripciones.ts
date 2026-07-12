@@ -1,8 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { unstable_cache } from "next/cache";
 import { createAdmin } from "@/lib/supabase/admin";
 import { ADMINS, sendMessage } from "@/lib/telegram/utils";
 import { newInscripcionMessage } from "@/lib/telegram/answers";
@@ -94,7 +93,8 @@ export async function inscribirTorneo(
     await sendMessage(admin, adminMessage, { parse_mode: "Markdown" });
   }
 
-  revalidatePath(`/admin/torneos/${torneo_id}/inscripciones`);
+  updateTag("inscripciones");
+
   return { success: true };
 }
 
@@ -125,27 +125,24 @@ export async function getAllInscripcionesForOpenTorneos() {
   return { data };
 }
 
-export const getInscripcionesByTorneo = unstable_cache(
-  async (torneo_id: string) => {
-    const supabase = createAdmin();
-    const { data, error } = await supabase
-      .from("Inscripciones")
-      .select("*")
-      .eq("torneo_id", torneo_id);
+export async function getInscripcionesByTorneo(torneo_id: string) {
+  "use cache";
+  cacheLife("days");
+  cacheTag("inscripciones");
 
-    if (error) {
-      console.log(error);
-      return { error: "Hubo un error al obtener las inscripciones." };
-    }
+  const supabase = createAdmin();
+  const { data, error } = await supabase
+    .from("Inscripciones")
+    .select("*")
+    .eq("torneo_id", torneo_id);
 
-    return { data };
-  },
-  ["inscripciones-by-torneo"],
-  {
-    revalidate: 86400, // 24 horas
-    tags: ["inscripciones"],
-  },
-);
+  if (error) {
+    console.log(error);
+    return { error: "Hubo un error al obtener las inscripciones." };
+  }
+
+  return { data };
+}
 
 export async function toggleInscriptions(
   torneoId: number,
@@ -169,9 +166,8 @@ export async function toggleInscriptions(
     return { error: "Hubo un error al modificar las inscripciones." };
   }
 
-  revalidatePath("/torneos");
-  revalidatePath(`/torneos/inscripcion/${torneoId}`);
-  revalidatePath(`/admin/torneos/${torneoId}/inscripciones`);
+  updateTag("torneos");
+  updateTag("inscripciones");
 }
 
 export async function getMyInscripcionesOpenTorneos(userId: string) {
