@@ -5,12 +5,9 @@ import AuthLinks from "./auth-links";
 export async function AuthControls({ compact = false }: { compact?: boolean }) {
   const supabase = await createClient();
 
-  const { data } = await supabase.auth.getClaims();
-  const user = data?.claims;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  return user ? (
-    <AvatarMenu email={user.email} />
-  ) : (
-    <AuthLinks compact={compact} />
-  );
+  return user ? <AvatarMenu user={user} /> : <AuthLinks compact={compact} />;
 }
