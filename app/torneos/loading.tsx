@@ -1,4 +1,4 @@
-import TorneosSkeleton from "@/components/torneos/torneos-skeleton";
+import TournamentsSkeleton from "@/components/torneos/tournaments-skeleton";
 
 export default function Loading() {
   return (
@@ -8,7 +8,7 @@ export default function Loading() {
         <h1 className="text-4xl font-bold">Nuestros Torneos</h1>
         <div /> {/* Spacer to center the title */}
       </div>
-      <TorneosSkeleton />
+      <TournamentsSkeleton />
     </>
   );
 }

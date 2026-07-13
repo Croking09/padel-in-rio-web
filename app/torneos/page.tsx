@@ -3,14 +3,14 @@ import { isAdmin } from "@/lib/auth/permissions";
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { authRepository } from "@/server/repositories/auth-repository";
 import { getMyOpenTournamentsInscriptions } from "@/app/actions/inscription-actions";
 import { getTournaments } from "@/app/actions/tournament-actions";
+import { authServerService } from "@/lib/auth/services/server-service";
 
 export default async function Page() {
   const [tournaments, user] = await Promise.all([
     getTournaments(),
-    authRepository.getCurrentUserServer(),
+    authServerService.getCurrentUser(),
   ]);
 
   const showAdminControls = isAdmin(user);

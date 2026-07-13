@@ -1,16 +1,16 @@
 import "server-only";
 
-import { authRepository } from "@/server/repositories/auth-repository";
 import { inscriptionRepository } from "@/server/repositories/inscription-repository";
 import { tournamentRepository } from "@/server/repositories/tournament-repository";
 import { TELEGRAM_ADMINS, sendMessage } from "@/lib/telegram/utils";
 import { newInscriptionMessage } from "@/lib/telegram/commands/inscriptions";
 import { isPgError } from "@/lib/errors";
 import type { CreateInscriptionInput } from "@/lib/types/inscription";
+import { authServerService } from "@/lib/auth/services/server-service";
 
 export const inscriptionService = {
   async create(data: CreateInscriptionInput, categoriesNeeded: boolean) {
-    const user = await authRepository.getCurrentUserServer();
+    const user = await authServerService.getCurrentUser();
     if (!user) {
       return { error: "Debes iniciar sesión para inscribirte." };
     }

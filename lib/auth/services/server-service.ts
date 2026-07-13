@@ -2,8 +2,8 @@ import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 
-export const authRepository = {
-  async getCurrentUserServer() {
+export const authServerService = {
+  async getCurrentUser() {
     const supabase = await createClient();
     const {
       data: { user },

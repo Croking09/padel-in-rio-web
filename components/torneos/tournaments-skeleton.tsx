@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function TorneosSkeleton() {
+export default function TournamentsSkeleton() {
   return (
     <ul className="grid grid-cols-2 gap-8 p-8">
       {Array.from({ length: 4 }).map((_, i) => (
