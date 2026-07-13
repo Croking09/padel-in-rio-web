@@ -32,7 +32,6 @@ export const inscriptionRepository = {
         `
         *,
         tournament:tournament_id (
-          id,
           name,
           inscription_end_date,
           manually_closed

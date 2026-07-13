@@ -1,17 +1,16 @@
-export const ADMINS = new Set(
+import { InlineKeyboardButton } from "@/lib/types/telegram";
+
+const TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
+export const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
+
+export const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET!;
+
+export const TELEGRAM_ADMINS = new Set(
   (process.env.ADMIN_CHAT_IDS || "")
     .split(",")
     .map((id) => Number(id))
     .filter(Boolean),
 );
-
-interface InlineKeyboardButton {
-  text: string;
-  callback_data: string;
-}
-
-const TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
-export const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
 
 // Check https://core.telegram.org/bots/api for extra options
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

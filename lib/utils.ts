@@ -1,8 +1,8 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Match } from "@/lib/types/match";
-import { Socio } from "./types/socio";
 import { Month, MonthStatus } from "./types/month";
+import { MemberRow } from "@/lib/types/member";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -11,7 +11,7 @@ export function cn(...inputs: ClassValue[]) {
 export function generateCategoryMatches(
   categoryId: number,
   categoryName: string,
-  players: Socio[],
+  players: MemberRow[],
 ): Match[] {
   const shuffled = [...players].sort(() => Math.random() - 0.5);
 

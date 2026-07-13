@@ -3,8 +3,8 @@ import "server-only";
 import { authRepository } from "@/server/repositories/auth-repository";
 import { inscriptionRepository } from "@/server/repositories/inscription-repository";
 import { tournamentRepository } from "@/server/repositories/tournament-repository";
-import { ADMINS, sendMessage } from "@/lib/telegram/utils";
-import { newInscriptionMessage } from "@/lib/telegram/answers";
+import { TELEGRAM_ADMINS, sendMessage } from "@/lib/telegram/utils";
+import { newInscriptionMessage } from "@/lib/telegram/commands/inscriptions";
 import { isPgError } from "@/lib/errors";
 import type { CreateInscriptionInput } from "@/lib/types/inscription";
 
@@ -89,7 +89,7 @@ export const inscriptionService = {
       category,
     );
 
-    for (const admin of ADMINS) {
+    for (const admin of TELEGRAM_ADMINS) {
       await sendMessage(admin, adminMessage, { parse_mode: "Markdown" });
     }
 
