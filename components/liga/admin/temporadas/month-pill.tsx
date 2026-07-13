@@ -1,5 +1,6 @@
 import { MonthStatus, Month } from "@/lib/types/month";
-import { formatMonth } from "@/lib/utils";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 export const STATUS_CONFIG: Record<
   MonthStatus,
@@ -26,7 +27,8 @@ export default function MonthPill({ month }: { month: Month }) {
       className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm w-full md:w-fit ${cfg.className}`}
     >
       <span className="font-medium">
-        {formatMonth(month.month)} {month.year}
+        {format(new Date(2000, month.month - 1), "LLLL", { locale: es })}{" "}
+        {month.year}
       </span>
       {month["5_category"] && (
         <span className="text-xs rounded-full border border-current/20 px-2 py-1 font-semibold">

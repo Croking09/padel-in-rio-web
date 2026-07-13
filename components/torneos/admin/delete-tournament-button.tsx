@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { deleteTorneo } from "@/app/actions/torneos";
 import { Trash2 } from "lucide-react";
 import {
   AlertDialog,
@@ -16,21 +15,24 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { deleteTournament } from "@/app/actions/tournament-actions";
 
 interface DeleteButtonProps {
-  torneoId: number;
+  tournamentId: number;
 }
 
-export default function DeleteTorneoButton({ torneoId }: DeleteButtonProps) {
+export default function DeleteTournamentButton({
+  tournamentId,
+}: DeleteButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const handleConfirm = async () => {
     setLoading(true);
-    const error = await deleteTorneo(torneoId);
+    const result = await deleteTournament(tournamentId);
     setLoading(false);
 
-    if (error) {
-      toast.error(error.error);
+    if (result.error) {
+      toast.error(result.error);
     } else {
       toast.success("Torneo eliminado correctamente");
     }

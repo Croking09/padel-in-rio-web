@@ -1,28 +1,27 @@
-import TorneosList from "@/components/torneos/torneos-list";
-import { getTorneos } from "../actions/torneos";
-import { createClient } from "@/lib/supabase/server";
+import TournamentList from "@/components/torneos/tournament-list";
 import { isAdmin } from "@/lib/auth/permissions";
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { getMyInscripcionesOpenTorneos } from "../actions/inscripciones";
+import { authRepository } from "@/server/repositories/auth-repository";
+import { getMyOpenTournamentsInscriptions } from "@/app/actions/inscription-actions";
+import { getTournaments } from "@/app/actions/tournament-actions";
 
 export default async function Page() {
-  const supabase = await createClient();
-  const [
-    torneos,
-    {
-      data: { user },
-    },
-  ] = await Promise.all([getTorneos(), supabase.auth.getUser()]);
+  const [tournaments, user] = await Promise.all([
+    getTournaments(),
+    authRepository.getCurrentUserServer(),
+  ]);
 
   const showAdminControls = isAdmin(user);
 
-  const inscripciones = user
-    ? await getMyInscripcionesOpenTorneos(user.id)
+  const inscriptions = user
+    ? await getMyOpenTournamentsInscriptions(user.id)
     : [];
 
-  const registeredTorneoIds = new Set(inscripciones.map((i) => i.torneo_id));
+  const registeredTournamentIds = new Set(
+    inscriptions.map((i) => i.tournament_id),
+  );
 
   return (
     <>
@@ -46,9 +45,9 @@ export default async function Page() {
         )}
       </div>
 
-      <TorneosList
-        torneos={torneos}
-        registeredTorneosIds={registeredTorneoIds}
+      <TournamentList
+        tournaments={tournaments}
+        registeredTournamentIds={registeredTournamentIds}
         showAdminControls={showAdminControls}
       />
     </>

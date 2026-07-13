@@ -1,13 +1,8 @@
 "use client";
 
-import { createTorneo } from "@/app/actions/torneos";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { createClient } from "@/lib/supabase/client";
-import { formatDate } from "@/lib/utils";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   Upload,
   ImageIcon,
@@ -16,12 +11,23 @@ import {
   Tags,
   Clock,
   X,
+  Loader2,
 } from "lucide-react";
-import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import DatePicker from "@/components/ui/date-picker";
+import {
+  Field,
+  FieldGroup,
+  FieldLabel,
+  FieldError,
+} from "@/components/ui/field";
+import { createTournament } from "@/app/actions/tournament-actions";
+import { createClient } from "@/lib/supabase/client";
 
-export default function CreateTorneoForm() {
+export default function CreateTournamentForm() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -33,6 +39,8 @@ export default function CreateTorneoForm() {
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const router = useRouter();
 
@@ -59,45 +67,67 @@ export default function CreateTorneoForm() {
     setImageFile(null);
   };
 
+  // 1MB body size limit for Server Actions. Upload image directly to storage from client.
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
-    let imgPath = "";
-
-    if (imageFile && imageFile.size > 0 && startDate) {
-      const supabase = createClient();
-
-      const formattedDate = formatDate(startDate, "dd-MM-yyyy");
-      const fileExt = imageFile.name.split(".").pop();
-      const uploadFileName = `${formattedDate}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("torneos")
-        .upload(uploadFileName, imageFile, { upsert: true });
-
-      if (uploadError) return;
-
-      imgPath = uploadFileName;
+    // Quick validation, server side action revalidates.
+    if (inscriptionEndDate && startDate && inscriptionEndDate >= startDate) {
+      toast.error(
+        "El cierre de inscripciones debe ser anterior al inicio del torneo.",
+      );
+      return;
+    }
+    if (startDate && endDate && startDate >= endDate) {
+      toast.error("La fecha de inicio debe ser anterior a la fecha de fin.");
+      return;
     }
 
-    const response = await createTorneo({
-      name,
-      description: description || null,
-      start_date: startDate ? new Date(startDate).toISOString() : "",
-      end_date: endDate ? new Date(endDate).toISOString() : "",
-      inscription_end_date: inscriptionEndDate
-        ? new Date(inscriptionEndDate).toISOString()
-        : "",
-      img_path: imgPath || null,
-      categories: categories.length > 1 ? categories : null,
-    });
+    setIsSubmitting(true);
 
-    if (!response.success) {
-      toast.error(response.error);
-    } else {
+    try {
+      let imgPath: string | null = null;
+
+      if (imageFile && imageFile.size > 0) {
+        const supabase = createClient();
+        const fileExt = imageFile.name.split(".").pop();
+        const uploadFileName = `${crypto.randomUUID()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("torneos")
+          .upload(uploadFileName, imageFile, { upsert: true });
+
+        if (uploadError) {
+          toast.error("No se pudo subir la imagen. Intenta de nuevo.");
+          return;
+        }
+
+        imgPath = uploadFileName;
+      }
+
+      const response = await createTournament({
+        name,
+        description: description || null,
+        start_date: startDate ? new Date(startDate).toISOString() : "",
+        end_date: endDate ? new Date(endDate).toISOString() : "",
+        inscription_end_date: inscriptionEndDate
+          ? new Date(inscriptionEndDate).toISOString()
+          : "",
+        categories: categories.length > 0 ? categories : null,
+        img_path: imgPath,
+      });
+
+      if (!response.success) {
+        toast.error(response.error);
+        return;
+      }
+
       toast.success("Torneo creado correctamente");
       resetForm();
       router.push("/torneos");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -106,146 +136,176 @@ export default function CreateTorneoForm() {
       onSubmit={handleSubmit}
       className="flex flex-col gap-4 mb-8 items-center max-w-2xl mx-auto px-4"
     >
-      <div className="flex flex-col md:flex-row w-full gap-4 md:items-end">
-        <div className="grid gap-2 md:w-4/5">
-          <Label className="font-bold" htmlFor="name">
-            Nombre <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="name"
-            name="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="ej: Torneo de Primavera"
-            required
-          />
+      <FieldGroup className="w-full">
+        <div className="flex flex-col md:flex-row w-full gap-4 md:items-start">
+          <Field className="md:w-4/5">
+            <FieldLabel htmlFor="name">
+              Nombre <span className="text-destructive">*</span>
+            </FieldLabel>
+            <Input
+              id="name"
+              name="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="ej: Torneo de Primavera"
+              required
+              disabled={isSubmitting}
+            />
+          </Field>
+
+          <Field className="md:w-2/5">
+            <FieldLabel htmlFor="image" className="flex items-center gap-1">
+              <Upload className="w-4 h-4" />
+              Cartel
+            </FieldLabel>
+
+            <label
+              htmlFor="image"
+              className="bg-popover min-w-0 cursor-pointer flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm h-9"
+            >
+              <ImageIcon className="w-4 h-4 shrink-0" />
+              <span className="truncate">
+                {fileName || "Seleccionar imagen"}
+              </span>
+            </label>
+
+            <Input
+              id="image"
+              name="image"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={isSubmitting}
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setImageFile(file);
+                setFileName(file?.name || "");
+              }}
+            />
+          </Field>
         </div>
 
-        <div className="grid gap-2 md:w-2/5">
-          <Label className="font-bold flex items-center" htmlFor="image">
-            <Upload className="w-4 h-4" />
-            Cartel
-          </Label>
+        <Field>
+          <FieldLabel htmlFor="description">Descripción</FieldLabel>
+          <Textarea
+            id="description"
+            name="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Detalles sobre el torneo..."
+            disabled={isSubmitting}
+          />
+        </Field>
 
-          <label
-            htmlFor="image"
-            className="bg-popover min-w-0 cursor-pointer flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm h-9"
+        <Field>
+          <FieldLabel
+            htmlFor="new-category"
+            className="flex items-center gap-2"
           >
-            <ImageIcon className="w-4 h-4 shrink-0" />
-            <span className="truncate">{fileName || "Seleccionar imagen"}</span>
-          </label>
+            <Tags className="w-4 h-4" />
+            Categorías
+          </FieldLabel>
 
-          <Input
-            id="image"
-            name="image"
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0] || null;
-              setImageFile(file);
-              setFileName(file?.name || "");
-            }}
-          />
-        </div>
-      </div>
+          <div className="flex gap-2">
+            <Input
+              id="new-category"
+              name="new-category"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              placeholder="Nueva categoría (ej: 1ª Masculina)"
+              disabled={isSubmitting}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddCategory();
+                }
+              }}
+            />
 
-      <div className="grid gap-2 w-full">
-        <Label className="font-bold" htmlFor="description">
-          Descripción
-        </Label>
-
-        <Textarea
-          id="description"
-          name="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Detalles sobre el torneo..."
-        />
-      </div>
-
-      <div className="grid gap-2 w-full">
-        <Label
-          className="font-bold flex items-center gap-2"
-          htmlFor="new-category"
-        >
-          <Tags className="w-4 h-4" />
-          Categorías
-        </Label>
-
-        <div className="flex gap-2">
-          <Input
-            id="new-category"
-            name="new-category"
-            value={newCategory}
-            onChange={(e) => setNewCategory(e.target.value)}
-            placeholder="Nueva categoría (ej: 1ª Masculina)"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleAddCategory();
-              }
-            }}
-          />
-
-          <Button variant="secondary" onClick={handleAddCategory}>
-            Añadir
-          </Button>
-        </div>
-
-        {categories.length > 0 && (
-          <div className="flex flex-wrap gap-2 pt-2">
-            {categories.map((cat, index) => (
-              <div
-                key={index}
-                className="bg-secondary px-3 py-1 rounded-full text-sm flex items-center gap-2"
-              >
-                {cat}
-                <button
-                  data-testid={`remove-category-${index}`}
-                  type="button"
-                  onClick={() => handleRemoveCategory(index)}
-                  className="cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleAddCategory}
+              disabled={isSubmitting}
+            >
+              Añadir
+            </Button>
           </div>
-        )}
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-        <DatePicker
-          label="Fecha de inicio"
-          value={startDate}
-          onChange={setStartDate}
-          required
-          icon={<Calendar className="w-4 h-4" />}
-        />
+          {categories.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-2">
+              {categories.map((cat, index) => (
+                <div
+                  key={index}
+                  className="bg-secondary px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                >
+                  {cat}
+                  <button
+                    data-testid={`remove-category-${index}`}
+                    type="button"
+                    onClick={() => handleRemoveCategory(index)}
+                    className="cursor-pointer"
+                    disabled={isSubmitting}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Field>
 
-        <DatePicker
-          label="Fecha de fin"
-          value={endDate}
-          onChange={setEndDate}
-          required
-          icon={<CalendarCheck className="w-4 h-4" />}
-        />
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Field>
+            <DatePicker
+              label="Fecha de inicio"
+              value={startDate}
+              onChange={setStartDate}
+              required
+              icon={<Calendar className="w-4 h-4" />}
+            />
+          </Field>
 
-      <div className="grid gap-2 w-full">
-        <DatePicker
-          label="Cierre de inscripciones"
-          value={inscriptionEndDate}
-          onChange={setInscriptionEndDate}
-          required
-          icon={<Clock className="w-4 h-4" />}
-        />
-      </div>
+          <Field>
+            <DatePicker
+              label="Fecha de fin"
+              value={endDate}
+              onChange={setEndDate}
+              required
+              icon={<CalendarCheck className="w-4 h-4" />}
+            />
+          </Field>
+        </div>
 
-      <Button type="submit" className="w-full">
-        Crear Torneo
-      </Button>
+        <Field>
+          <DatePicker
+            label="Cierre de inscripciones"
+            value={inscriptionEndDate}
+            onChange={setInscriptionEndDate}
+            required
+            icon={<Clock className="w-4 h-4" />}
+          />
+          {inscriptionEndDate &&
+            startDate &&
+            inscriptionEndDate >= startDate && (
+              <FieldError>
+                El cierre de inscripciones debe ser anterior al inicio del
+                torneo.
+              </FieldError>
+            )}
+        </Field>
+
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Creando...
+            </>
+          ) : (
+            "Crear Torneo"
+          )}
+        </Button>
+      </FieldGroup>
     </form>
   );
 }

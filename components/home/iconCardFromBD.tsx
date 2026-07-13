@@ -1,9 +1,9 @@
 import { getLigasCount } from "@/app/actions/ligas";
 import { getActiveSociosCount } from "@/app/actions/socios";
-import { getTorneosCount } from "@/app/actions/torneos";
 import { JSX } from "react";
 import IconCard from "./iconCard";
 import type { IconCardProps, IconCardType } from "./types";
+import { tournamentService } from "@/server/services/tournament-service";
 
 type IconCardFromBDProps = Omit<IconCardProps, "title" | "subtitle"> & {
   type: IconCardType;
@@ -11,7 +11,7 @@ type IconCardFromBDProps = Omit<IconCardProps, "title" | "subtitle"> & {
 
 const actionsByType: Record<IconCardType, () => Promise<number | null>> = {
   socios: getActiveSociosCount,
-  torneos: getTorneosCount,
+  torneos: tournamentService.getCount,
   ligas: getLigasCount,
 };
 

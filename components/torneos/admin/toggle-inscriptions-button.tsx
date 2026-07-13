@@ -1,27 +1,27 @@
 "use client";
 
+import { toggleInscriptions } from "@/app/actions/inscription-actions";
 import { Button } from "@/components/ui/button";
 import { Lock, LockOpen } from "lucide-react";
-import { toggleInscriptions } from "@/app/actions/inscripciones";
 import { toast } from "sonner";
 
 interface ToggleInscriptionsButtonProps {
-  torneoId: number;
+  tournamentId: number;
   isClosed: boolean;
 }
 
 export default function ToggleInscriptionsButton({
-  torneoId,
+  tournamentId,
   isClosed,
 }: ToggleInscriptionsButtonProps) {
   return (
     <Button
       variant="secondary"
       onClick={async () => {
-        const error = await toggleInscriptions(torneoId, !isClosed);
+        const result = await toggleInscriptions(tournamentId, !isClosed);
 
-        if (error) {
-          toast.error(error.error);
+        if (result.error) {
+          toast.error(result.error);
         } else {
           const text = isClosed ? "abiertas" : "cerradas";
           toast.success("Inscripciones " + text + " correctamente");

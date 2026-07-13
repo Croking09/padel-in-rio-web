@@ -16,8 +16,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 import { createTemporada } from "@/app/actions/ligas";
-import { formatMonth } from "@/lib/utils";
 import DatePicker from "@/components/ui/date-picker";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 function getNext12Months(startDate: string): { month: number; year: number }[] {
   if (!startDate) return [];
@@ -157,7 +158,9 @@ export default function CreateTemporadaButton() {
                         onCheckedChange={() => toggleMonth(m)}
                       />
                       <span>
-                        {formatMonth(m.month)}{" "}
+                        {format(new Date(2000, m.month - 1), "LLLL", {
+                          locale: es,
+                        })}{" "}
                         <span className="text-muted-foreground">{m.year}</span>
                       </span>
                     </label>

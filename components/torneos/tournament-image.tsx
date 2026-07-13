@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 
-export default function TorneoImage({
+export default function TournamentImage({
   imageUrl,
   name,
 }: {

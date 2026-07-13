@@ -1,8 +1,9 @@
 import { Match } from "@/lib/types/match";
-import { formatMonth } from "@/lib/utils";
 import type { Month } from "@/lib/types/month";
 import type { MonthParticipation } from "@/lib/types/monthParticipation";
 import type { Socio } from "@/lib/types/socio";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 export const default_answer =
   "No entiendo eso 😅, comprueba lo que puedo hacer con /help";
@@ -69,12 +70,12 @@ export function formatInscripciones(inscripciones: Inscripcion[]): string {
   return message;
 }
 
-export function newInscripcionMessage(
+export function newInscriptionMessage(
   torneoName: string,
   player1FullName: string,
   player2FullName: string,
   phoneNumber: string,
-  category: string | null,
+  category: string | null | undefined,
 ) {
   const adminMessage =
     `📝 *Nueva inscripción*\n\n` +
@@ -136,7 +137,7 @@ export function buildParticipationHistoricAnswer(
   sortedParticipation.forEach((item) => {
     const month = monthById.get(item.monthId);
     const monthText = month
-      ? `${formatMonth(month.month)} ${month.year}`
+      ? `${format(new Date(2000, month.month - 1), "LLLL", { locale: es })} ${month.year}`
       : "Mes no encontrado";
 
     text += `📅 ${monthText}: Categoria ${item.categoryId}\n`;

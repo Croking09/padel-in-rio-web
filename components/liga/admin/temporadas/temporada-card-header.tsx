@@ -8,8 +8,8 @@ import { CollapsibleTrigger } from "@/components/ui/collapsible";
 
 import { Badge } from "@/components/ui/badge";
 
-import { formatDate } from "@/lib/utils";
 import { TemporadaWithMonths } from "@/lib/types/temporada";
+import { format } from "date-fns";
 
 export default function TemporadaCardHeader({
   temporada,
@@ -42,8 +42,7 @@ export default function TemporadaCardHeader({
                 <CardTitle>{temporada.name}</CardTitle>
 
                 <CardDescription>
-                  Inicio:{" "}
-                  {formatDate(temporada.start_date.toString(), "dd/MM/yyyy")}
+                  Inicio: {format(temporada.start_date, "dd/MM/yyyy")}
                 </CardDescription>
 
                 <div className="flex flex-wrap gap-2">

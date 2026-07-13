@@ -1,8 +1,8 @@
-import { getTorneoById } from "@/app/actions/torneos";
 import { redirect } from "next/navigation";
 import Form from "@/components/torneos/inscripcion/form";
-import { formatDate } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import { getTournamentById } from "@/app/actions/tournament-actions";
+import { format, parseISO } from "date-fns";
 
 export default async function Page({
   params,
@@ -10,18 +10,19 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-
   if (!id) {
     redirect("/torneos");
   }
 
-  const torneo = await getTorneoById(id);
+  const tournamentId = Number(id);
+
+  const tournament = await getTournamentById(tournamentId);
 
   if (
-    !torneo ||
-    new Date(torneo.start_date) < new Date() ||
-    new Date(torneo.inscription_end_date) < new Date() ||
-    torneo.manually_closed
+    !tournament ||
+    new Date(tournament.start_date) < new Date() ||
+    new Date(tournament.inscription_end_date) < new Date() ||
+    tournament.manually_closed
   ) {
     redirect("/torneos");
   }
@@ -29,7 +30,7 @@ export default async function Page({
   return (
     <>
       <h1 className="py-8 text-center text-4xl font-bold">
-        Inscripción para: {torneo.name}
+        Inscripción para: {tournament.name}
       </h1>
 
       <div className="flex flex-col items-center gap-4">
@@ -42,7 +43,7 @@ export default async function Page({
           <p className="text-sm">
             El plazo termina el{" "}
             <strong className="underline">
-              {formatDate(torneo.inscription_end_date)}
+              {format(parseISO(tournament.inscription_end_date), "dd/MM/yyyy")}
             </strong>
             .
           </p>
@@ -52,7 +53,7 @@ export default async function Page({
           <Separator />
         </div>
 
-        <Form torneoId={torneo.id} categories={torneo.categories} />
+        <Form tournamentId={tournament.id} categories={tournament.categories} />
       </div>
     </>
   );
