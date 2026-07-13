@@ -7,7 +7,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "update-types": "supabase gen types typescript --local > lib/database.types.ts",
-    "db:reset": "supabase db reset && npm run update-types"
+    "db:reset": "supabase db reset && npm run update-types",
+    "tunnel:test": "node tunnel.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
