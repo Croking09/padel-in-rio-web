@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default function SociosTableSkeleton() {
+export default function MemberTableSkeleton() {
   return (
     <div className="container mx-auto">
       <div className="flex items-center justify-between py-4">

@@ -1,11 +1,11 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Socio } from "@/lib/types/socio";
-import { SocioActions } from "@/components/asociacion/admin/socios-actions";
+import { MemberActions } from "@/components/asociacion/admin/member-actions";
 import { Badge } from "@/components/ui/badge";
+import type { MemberRow } from "@/lib/types/member";
 
-export const columns: ColumnDef<Socio>[] = [
+export const columns: ColumnDef<MemberRow>[] = [
   {
     accessorKey: "full_name",
     header: "Nombre completo",
@@ -18,20 +18,16 @@ export const columns: ColumnDef<Socio>[] = [
     cell: ({ row }) => row.getValue("nickname") ?? "-",
   },
   {
-    accessorKey: "active",
+    accessorKey: "is_active",
     header: "Estado",
     size: 100,
     cell: ({ row }) => {
-      const socio = row.original;
+      const member = row.original;
 
-      return (
-        <>
-          {socio.active ? (
-            <Badge>Activo</Badge>
-          ) : (
-            <Badge variant="secondary">Inactivo</Badge>
-          )}
-        </>
+      return member.is_active ? (
+        <Badge>Activo</Badge>
+      ) : (
+        <Badge variant="secondary">Inactivo</Badge>
       );
     },
   },
@@ -39,6 +35,6 @@ export const columns: ColumnDef<Socio>[] = [
     id: "actions",
     header: "Acciones",
     size: 150,
-    cell: ({ row }) => <SocioActions socio={row.original} />,
+    cell: ({ row }) => <MemberActions member={row.original} />,
   },
 ];

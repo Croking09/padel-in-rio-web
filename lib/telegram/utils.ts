@@ -44,17 +44,14 @@ export async function sendDocument(
 ) {
   const body = new FormData();
 
-  // chat_id debe ser string
   body.append("chat_id", chat_id.toString());
 
-  // Convertir Buffer a Blob si hace falta
   let blobDocument: Blob;
   if (document instanceof Buffer) {
     blobDocument = new Blob([new Uint8Array(document)], {
       type: "application/pdf",
     });
   } else {
-    // aquí forzamos a TypeScript a entender que ya es Blob
     blobDocument = document as Blob;
   }
 

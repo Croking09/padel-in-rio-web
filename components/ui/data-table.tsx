@@ -30,21 +30,26 @@ import {
 } from "@/components/ui/pagination";
 
 import { Card } from "@/components/ui/card";
-
 import { Input } from "@/components/ui/input";
-import CreateSocio from "@/components/asociacion/admin/create-socio";
-import { Socio } from "@/lib/types/socio";
 
 interface DataTableProps<TData, TValue> {
   className?: string;
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  searchPlaceholder?: string;
+  /** Cómo filtrar por texto libre. Si se omite, no se muestra el buscador. */
+  globalFilterFn?: (row: TData, search: string) => boolean;
+  /** Slot para acciones (ej: botón "Crear"), a la derecha del buscador. */
+  toolbarActions?: React.ReactNode;
 }
 
 export default function DataTable<TData, TValue>({
   className,
   columns,
   data,
+  searchPlaceholder = "Buscar...",
+  globalFilterFn,
+  toolbarActions,
 }: DataTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -55,13 +60,10 @@ export default function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: (row, columnId, filterValue) => {
-      const search = filterValue.toLowerCase();
-      const fullName = (row.original as Socio).full_name?.toLowerCase() ?? "";
-      const nickname = (row.original as Socio).nickname?.toLowerCase() ?? "";
-
-      return fullName.includes(search) || nickname.includes(search);
-    },
+    globalFilterFn: globalFilterFn
+      ? (row, _columnId, filterValue) =>
+          globalFilterFn(row.original, filterValue.toLowerCase())
+      : undefined,
     state: {
       globalFilter,
     },
@@ -70,35 +72,35 @@ export default function DataTable<TData, TValue>({
   return (
     <Card className={className}>
       <div className="flex items-center justify-between gap-4">
-        <Input
-          placeholder="Buscar socio..."
-          value={globalFilter}
-          onChange={(event) => setGlobalFilter(event.target.value)}
-          className="max-w-xs"
-        />
+        {globalFilterFn && (
+          <Input
+            placeholder={searchPlaceholder}
+            value={globalFilter}
+            onChange={(event) => setGlobalFilter(event.target.value)}
+            className="max-w-xs"
+          />
+        )}
 
-        <CreateSocio />
+        {toolbarActions}
       </div>
       <div className="overflow-hidden rounded-lg border">
         <Table className="table-fixed">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead
-                      key={header.id}
-                      style={{ width: header.getSize() }}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    style={{ width: header.getSize() }}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>

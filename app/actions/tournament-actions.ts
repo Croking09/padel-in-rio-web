@@ -1,10 +1,8 @@
 "use server";
 
 import { cacheLife, cacheTag, updateTag } from "next/cache";
-import {
-  CreateTournamentInput,
-  tournamentService,
-} from "@/server/services/tournament-service";
+import { tournamentService } from "@/server/services/tournament-service";
+import type { CreateTournamentInput } from "@/lib/types/tournament";
 
 export async function getTournamentsCount() {
   "use cache";

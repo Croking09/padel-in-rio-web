@@ -1,13 +1,12 @@
+import "server-only";
+
 import { authRepository } from "@/server/repositories/auth-repository";
 import { inscriptionRepository } from "@/server/repositories/inscription-repository";
 import { tournamentRepository } from "@/server/repositories/tournament-repository";
 import { ADMINS, sendMessage } from "@/lib/telegram/utils";
 import { newInscriptionMessage } from "@/lib/telegram/answers";
-import type { Database } from "@/lib/database.types";
 import { isPgError } from "@/lib/errors";
-
-type InscriptionInsert = Database["public"]["Tables"]["inscriptions"]["Insert"];
-export type CreateInscriptionInput = Omit<InscriptionInsert, "id" | "user_id">;
+import type { CreateInscriptionInput } from "@/lib/types/inscription";
 
 export const inscriptionService = {
   async create(data: CreateInscriptionInput, categoriesNeeded: boolean) {
@@ -100,7 +99,7 @@ export const inscriptionService = {
   async getAllForOpenTournaments() {
     try {
       const data = await inscriptionRepository.findAllForOpenTournaments();
-      return { data };
+      return { data, success: true as const };
     } catch {
       return {
         success: false as const,

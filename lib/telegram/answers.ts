@@ -1,9 +1,6 @@
+import { InscriptionRow } from "@/lib/types/inscription";
 import { Match } from "@/lib/types/match";
-import type { Month } from "@/lib/types/month";
-import type { MonthParticipation } from "@/lib/types/monthParticipation";
-import type { Socio } from "@/lib/types/socio";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { TournamentRow } from "@/lib/types/tournament";
 
 export const default_answer =
   "No entiendo eso 😅, comprueba lo que puedo hacer con /help";
@@ -15,52 +12,45 @@ export const help_answer =
   `🤖: Esto es lo que puedo hacer\n\n` +
   `/start - Inicia el bot\n` +
   `/help - Muestra esta ayuda\n` +
-  `/participacion - Muestra el historico de participacion de un socio\n` +
   `/partidos - Muestra los partidos de la liga, puedes indicar el mes con el formato MM/AAAA, o no poner nada y ver el mes más actual\n\n` +
   `Opciones de admin:\n\n` +
   `/pdf - Genera un PDF con los partidos de la liga para el último mes confirmado\n` +
   `/inscripciones - Muestra las inscripciones para los torneos activos\n` +
   `(Si eres admin también te llegan avisos de nuevas inscripciones)\n`;
 
-interface Torneo {
-  id: number;
-  name: string;
-  manually_closed: boolean;
-  inscription_end_date: string;
-}
+export type OpenTournamentInscription = InscriptionRow & {
+  tournament: Pick<
+    TournamentRow,
+    "id" | "name" | "inscription_end_date" | "manually_closed"
+  >;
+};
 
-interface Inscripcion {
-  id: number;
-  torneo_id: number;
-  user_id: string;
-  phone_number: string;
-  category: string | null;
-  player_1_full_name: string;
-  player_2_full_name: string;
-  torneo: Torneo;
-}
+export function formatInscriptions(
+  inscriptions: OpenTournamentInscription[],
+): string {
+  const tournamentsMap = new Map<string, OpenTournamentInscription[]>();
 
-export function formatInscripciones(inscripciones: Inscripcion[]): string {
-  const torneosMap = new Map<string, Inscripcion[]>();
+  inscriptions.forEach((inscription) => {
+    const tournamentName = inscription.tournament.name;
 
-  inscripciones.forEach((inscripcion) => {
-    const torneoName = inscripcion.torneo?.name || "Torneo desconocido";
-    if (!torneosMap.has(torneoName)) {
-      torneosMap.set(torneoName, []);
+    if (!tournamentsMap.has(tournamentName)) {
+      tournamentsMap.set(tournamentName, []);
     }
-    torneosMap.get(torneoName)!.push(inscripcion);
+
+    tournamentsMap.get(tournamentName)!.push(inscription);
   });
 
   let message = "📝 *Inscripciones*\n\n";
 
-  torneosMap.forEach((inscripcionesTorneo, torneoName) => {
-    message += `🏆 *${torneoName}*\n`;
+  tournamentsMap.forEach((tournamentInscriptions, tournamentName) => {
+    message += `🏆 *${tournamentName}*\n`;
 
-    inscripcionesTorneo.forEach((insc, index) => {
-      message += `\n${index + 1}. ${insc.player_1_full_name} & ${insc.player_2_full_name}\n`;
-      message += `📱 ${insc.phone_number}\n`;
-      if (insc.category) {
-        message += `🎯 Categoría: ${insc.category}\n`;
+    tournamentInscriptions.forEach((inscription, index) => {
+      message += `\n${index + 1}. ${inscription.player1_full_name} & ${inscription.player2_full_name}\n`;
+      message += `📱 ${inscription.phone_number}\n`;
+
+      if (inscription.category) {
+        message += `🎯 Categoría: ${inscription.category}\n`;
       }
     });
 
@@ -106,44 +96,6 @@ export function buildMatchesAnswer(
 
     text += "\n";
   });
-
-  return text;
-}
-
-export function buildParticipationHistoricAnswer(
-  socio: Socio,
-  participation: MonthParticipation[],
-  months: Month[],
-) {
-  const monthById = new Map(months.map((month) => [month.id, month]));
-  const sortedParticipation = [...participation].sort((a, b) => {
-    const monthA = monthById.get(a.monthId);
-    const monthB = monthById.get(b.monthId);
-
-    if (!monthA || !monthB) return a.monthId - b.monthId;
-    if (monthA.year !== monthB.year) return monthA.year - monthB.year;
-    return monthA.month - monthB.month;
-  });
-
-  let text = `🎾 Historico de participacion\n`;
-  text += `👤 ${socio.full_name}`;
-  if (socio.nickname) text += ` (${socio.nickname})`;
-  text += "\n\n";
-
-  if (!sortedParticipation.length) {
-    return text + "📭 No hay participacion registrada para este socio.";
-  }
-
-  sortedParticipation.forEach((item) => {
-    const month = monthById.get(item.monthId);
-    const monthText = month
-      ? `${format(new Date(2000, month.month - 1), "LLLL", { locale: es })} ${month.year}`
-      : "Mes no encontrado";
-
-    text += `📅 ${monthText}: Categoria ${item.categoryId}\n`;
-  });
-
-  text += `\n✅ Total: ${sortedParticipation.length} meses`;
 
   return text;
 }

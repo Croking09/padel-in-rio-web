@@ -2,7 +2,7 @@
 
 import { cacheLife, cacheTag, updateTag } from "next/cache";
 import { inscriptionService } from "@/server/services/inscription-service";
-import type { CreateInscriptionInput } from "@/server/services/inscription-service";
+import type { CreateInscriptionInput } from "@/lib/types/inscription";
 
 export async function registerToTournament(
   data: CreateInscriptionInput,

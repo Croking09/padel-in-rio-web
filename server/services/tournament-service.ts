@@ -1,12 +1,12 @@
+import "server-only";
+
 import { tournamentRepository } from "@/server/repositories/tournament-repository";
-import type { Database } from "@/lib/database.types";
+import type {
+  TournamentRow,
+  TournamentWithImage,
+  CreateTournamentInput,
+} from "@/lib/types/tournament";
 import { isPgError } from "@/lib/errors";
-
-type TournamentRow = Database["public"]["Tables"]["tournaments"]["Row"];
-type TournamentInsert = Database["public"]["Tables"]["tournaments"]["Insert"];
-
-export type TournamentWithImage = TournamentRow & { imageUrl: string | null };
-export type CreateTournamentInput = Omit<TournamentInsert, "manually_closed">;
 
 export const tournamentService = {
   async getCount() {

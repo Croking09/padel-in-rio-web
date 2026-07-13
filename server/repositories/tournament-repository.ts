@@ -1,10 +1,12 @@
+import "server-only";
+
 import { createAdmin } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import type { Database } from "@/lib/database.types";
-
-type TournamentRow = Database["public"]["Tables"]["tournaments"]["Row"];
-type TournamentInsert = Database["public"]["Tables"]["tournaments"]["Insert"];
-type TournamentUpdate = Database["public"]["Tables"]["tournaments"]["Update"];
+import type {
+  TournamentRow,
+  TournamentInsert,
+  TournamentUpdate,
+} from "@/lib/types/tournament";
 
 export const tournamentRepository = {
   async count() {

@@ -1,8 +1,8 @@
+import "server-only";
+
 import { createAdmin } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import type { Database } from "@/lib/database.types";
-
-type InscriptionInsert = Database["public"]["Tables"]["inscriptions"]["Insert"];
+import type { InscriptionInsert } from "@/lib/types/inscription";
 
 export const inscriptionRepository = {
   async insert(input: InscriptionInsert) {
