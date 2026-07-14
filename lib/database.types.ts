@@ -453,7 +453,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_temporada_with_months: {
+      create_season_with_months: {
         Args: { p_months: Json; p_name: string; p_start_date: string }
         Returns: undefined
       }

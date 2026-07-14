@@ -8,15 +8,15 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { TemporadaWithMonths } from "@/lib/types/temporada";
-import TemporadaCard from "./temporada-card";
+import { SeasonWithMonths } from "@/lib/types/season";
+import SeasonCard from "./season-card";
 
-export default function TemporadasClient({
-  temporadas,
+export default function SeasonsClient({
+  seasons,
 }: {
-  temporadas: TemporadaWithMonths[];
+  seasons: SeasonWithMonths[];
 }) {
-  if (temporadas.length === 0) {
+  if (seasons.length === 0) {
     return (
       <Empty className="border-2 border-dashed">
         <EmptyHeader>
@@ -36,8 +36,8 @@ export default function TemporadasClient({
 
   return (
     <div className="mx-auto w-full space-y-8">
-      {temporadas.map((temporada) => (
-        <TemporadaCard key={temporada.id} temporada={temporada} />
+      {seasons.map((season) => (
+        <SeasonCard key={season.id} season={season} />
       ))}
     </div>
   );

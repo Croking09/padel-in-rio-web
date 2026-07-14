@@ -1,5 +1,5 @@
-import { Month, MonthStatus } from "@/lib/types/month";
-import { Temporada } from "@/lib/types/temporada";
+import { MonthRow } from "@/lib/types/month";
+import { SeasonRow } from "@/lib/types/season";
 import { getCurrentMonthId } from "@/lib/utils";
 
 export interface ResolveActiveMonthParams {
@@ -9,31 +9,23 @@ export interface ResolveActiveMonthParams {
 
 export interface ResolveActiveMonthResult {
   activeTemporadaId: number;
-  months: Month[];
-  confirmedMonths: Month[];
+  months: MonthRow[];
+  confirmedMonths: MonthRow[];
   currentMonthId: number | undefined;
 }
 
-/**
- * Elige el primer candidato que sea un número válido y corresponda a una
- * temporada existente. Se usa para no confiar ciegamente en un
- * searchParam o una cookie que podría apuntar a una temporada borrada.
- *
- * Exportada porque se reutiliza fuera de resolveActiveMonth (p.ej. en
- * LigaNav, que necesita saber la temporada activa pero no los meses).
- */
-export function resolveTemporadaId(
+export function resolveSeasonId(
   candidates: (string | undefined)[],
-  temporadas: Temporada[],
+  seasons: SeasonRow[],
 ): number {
   for (const candidate of candidates) {
     if (!candidate) continue;
     const id = Number(candidate);
-    if (!Number.isNaN(id) && temporadas.some((t) => t.id === id)) {
+    if (!Number.isNaN(id) && seasons.some((t) => t.id === id)) {
       return id;
     }
   }
-  return temporadas.at(0)?.id ?? 0;
+  return seasons.at(0)?.id ?? 0;
 }
 
 /**
@@ -50,21 +42,19 @@ export function resolveTemporadaId(
  * sin duplicar la lógica.
  */
 export function resolveActiveMonth(
-  allMonths: Month[],
-  temporadas: Temporada[],
+  allMonths: MonthRow[],
+  temporadas: SeasonRow[],
   params: ResolveActiveMonthParams,
   cookieTemporadaId?: string,
 ): ResolveActiveMonthResult {
-  const activeTemporadaId = resolveTemporadaId(
+  const activeTemporadaId = resolveSeasonId(
     [params.temporadaId, cookieTemporadaId],
     temporadas,
   );
 
-  const months = allMonths.filter((m) => m.temporada_id === activeTemporadaId);
+  const months = allMonths.filter((m) => m.season_id === activeTemporadaId);
 
-  const confirmedMonths = months.filter(
-    (m) => m.status === MonthStatus.Confirmed,
-  );
+  const confirmedMonths = months.filter((m) => m.status === "confirmed");
 
   const currentMonthId =
     (params.monthId ? Number(params.monthId) : undefined) ??

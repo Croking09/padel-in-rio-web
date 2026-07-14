@@ -15,10 +15,10 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PlusIcon } from "lucide-react";
 import { toast } from "sonner";
-import { createTemporada } from "@/app/actions/ligas";
 import DatePicker from "@/components/ui/date-picker";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { createSeason } from "@/app/actions/season-actions";
 
 function getNext12Months(startDate: string): { month: number; year: number }[] {
   if (!startDate) return [];
@@ -32,7 +32,7 @@ function getNext12Months(startDate: string): { month: number; year: number }[] {
   return result;
 }
 
-export default function CreateTemporadaButton() {
+export default function CreateSeasonButton() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -67,7 +67,6 @@ export default function CreateTemporadaButton() {
     setSelectedMonths(new Set());
   };
 
-  // Reset selected months when start date changes
   const handleStartDateChange = (value: string) => {
     setStartDate(value);
     setSelectedMonths(new Set());
@@ -81,7 +80,7 @@ export default function CreateTemporadaButton() {
       selectedMonths.has(monthKey(m)),
     );
 
-    const error = await createTemporada({
+    const result = await createSeason({
       name,
       start_date: startDate,
       months,
@@ -89,8 +88,8 @@ export default function CreateTemporadaButton() {
 
     setLoading(false);
 
-    if (error) {
-      toast.error(error.error);
+    if (!result.success) {
+      toast.error(result.error);
       return;
     }
 

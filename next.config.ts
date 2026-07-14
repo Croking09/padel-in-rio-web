@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  allowedDevOrigins: ["*.ngrok-free.app", "*.ngrok.io"],
+  allowedDevOrigins: ["*.trycloudflare.com"],
 };
 
 export default nextConfig;

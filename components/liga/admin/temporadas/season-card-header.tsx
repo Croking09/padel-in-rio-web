@@ -8,14 +8,14 @@ import { CollapsibleTrigger } from "@/components/ui/collapsible";
 
 import { Badge } from "@/components/ui/badge";
 
-import { TemporadaWithMonths } from "@/lib/types/temporada";
 import { format } from "date-fns";
+import { SeasonWithMonths } from "@/lib/types/season";
 
-export default function TemporadaCardHeader({
-  temporada,
+export default function SeasonCardHeader({
+  season,
   expanded,
 }: {
-  temporada: TemporadaWithMonths;
+  season: SeasonWithMonths;
   expanded: boolean;
 }) {
   const statusCounts = {
@@ -24,7 +24,7 @@ export default function TemporadaCardHeader({
     confirmed: 0,
   };
 
-  temporada.months?.forEach((month) => {
+  season.months?.forEach((month) => {
     statusCounts[month.status]++;
   });
 
@@ -39,10 +39,13 @@ export default function TemporadaCardHeader({
               </div>
 
               <div className="min-w-0 space-y-2">
-                <CardTitle>{temporada.name}</CardTitle>
+                <CardTitle>{season.name}</CardTitle>
 
                 <CardDescription>
-                  Inicio: {format(temporada.start_date, "dd/MM/yyyy")}
+                  Inicio:{" "}
+                  {season.start_date
+                    ? format(season.start_date, "dd/MM/yyyy")
+                    : "Desconocido"}
                 </CardDescription>
 
                 <div className="flex flex-wrap gap-2">

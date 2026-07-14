@@ -8,37 +8,6 @@ import { mapMonthStatus } from "@/lib/utils";
 import { CategoryClassification } from "@/lib/types/classification";
 import { Bonus } from "@/lib/types/bonus";
 
-export async function getLigasCount() {
-  "use cache";
-  cacheLife("days");
-  cacheTag("ligas-count");
-
-  const supabase = createAdmin();
-  const { count } = await supabase
-    .from("Temporadas")
-    .select("*", { count: "exact", head: true });
-  return count;
-}
-
-export async function getTemporadas(): Promise<Temporada[]> {
-  "use cache";
-  cacheLife("days");
-  cacheTag("temporadas");
-
-  const supabase = await createClient({ useCookies: false });
-  const { data: temporadas, error } = await supabase
-    .from("Temporadas")
-    .select("*")
-    .order("start_date", { ascending: false });
-
-  if (error) console.error(error);
-
-  return (temporadas ?? []).map((t) => ({
-    ...t,
-    start_date: new Date(t.start_date),
-  }));
-}
-
 export async function getMonths(): Promise<Month[]> {
   const supabase = await createClient({ useCookies: false });
 
@@ -52,7 +21,7 @@ export async function getMonths(): Promise<Month[]> {
 
   return (months ?? []).map((m) => ({
     ...m,
-    status: mapMonthStatus(m.status),
+    status: m.status,
   }));
 }
 
@@ -128,49 +97,4 @@ export async function hasBonusGiven(monthId: number) {
   }
 
   return (data?.length ?? 0) > 0;
-}
-
-export async function getTemporadasWithMonths(): Promise<
-  TemporadaWithMonths[]
-> {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("Temporadas")
-    .select(
-      `
-    *,
-    months:Meses (*)
-  `,
-    )
-    .order("start_date", { ascending: false });
-
-  if (error) throw new Error(error.message);
-
-  return data ?? [];
-}
-
-type CreateTemporadaInput = {
-  name: string;
-  start_date: string; // "YYYY-MM-DD"
-  months: { month: number; year: number }[];
-};
-
-export async function createTemporada(
-  input: CreateTemporadaInput,
-): Promise<{ error: string } | null> {
-  const supabase = createAdmin();
-
-  const { error } = await supabase.rpc("create_temporada_with_months", {
-    p_name: input.name,
-    p_start_date: input.start_date,
-    p_months: input.months,
-  });
-
-  if (error) return { error: error.message };
-
-  updateTag("ligas-count");
-  updateTag("temporadas");
-
-  return null;
 }

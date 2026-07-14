@@ -1,6 +1,5 @@
 "use client";
 
-import { Temporada } from "@/lib/types/temporada";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   Select,
@@ -10,43 +9,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SeasonRow } from "@/lib/types/season";
 
-const COOKIE_KEY = "temporadaId";
+const COOKIE_KEY = "seasonId";
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365; // 1 año
 
-function setTemporadaCookie(value: string) {
+function setSeasonCookie(value: string) {
   document.cookie = `${COOKIE_KEY}=${value}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}`;
 }
 
-export default function TemporadaSelector({
-  temporadas,
-  currentTemporadaId,
+export default function SeasonSelector({
+  seasons,
+  currentSeasonId,
 }: {
-  temporadas: Temporada[];
-  currentTemporadaId: number;
+  seasons: SeasonRow[];
+  currentSeasonId: number;
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  if (!temporadas || temporadas.length === 0) return null;
+  if (!seasons || seasons.length === 0) return null;
 
-  const items = temporadas.map((t) => ({
+  const items = seasons.map((t) => ({
     label: `Temporada ${t.name}`,
     value: t.id,
   }));
 
-  const temporadaIdFromUrl = searchParams.get("temporadaId");
-  const activeTemporadaId = temporadaIdFromUrl
-    ? Number(temporadaIdFromUrl)
-    : currentTemporadaId;
+  const seasonIdFromUrl = searchParams.get("seasonId");
+  const activeTemporadaId = seasonIdFromUrl
+    ? Number(seasonIdFromUrl)
+    : currentSeasonId;
 
-  const handleChange = (temporadaId: number | null) => {
-    if (temporadaId === null) return;
+  const handleChange = (seasonId: number | null) => {
+    if (seasonId === null) return;
 
-    setTemporadaCookie(String(temporadaId));
+    setSeasonCookie(String(seasonId));
 
     const params = new URLSearchParams(searchParams);
-    params.set("temporadaId", String(temporadaId));
+    params.set("seasonId", String(seasonId));
     params.delete("monthId");
     router.push(`?${params.toString()}`);
   };
@@ -62,7 +62,7 @@ export default function TemporadaSelector({
       </SelectTrigger>
       <SelectContent alignItemWithTrigger={false}>
         <SelectGroup>
-          {temporadas.map((t) => (
+          {seasons.map((t) => (
             <SelectItem key={t.id} value={t.id}>
               Temporada {t.name}
             </SelectItem>
