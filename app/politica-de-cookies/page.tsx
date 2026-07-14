@@ -1,9 +1,9 @@
+import { getCookiePolicy } from "@/app/actions/document-actions";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { getDocument } from "@/app/actions/documents";
 
 export default async function Page() {
-  const content = await getDocument("cookie-policy.md");
+  const cookiePolicy = await getCookiePolicy();
 
   return (
     <>
@@ -11,7 +11,9 @@ export default async function Page() {
         Política de Cookies
       </h1>
       <article className="typeset typeset-docs mx-auto max-w-4xl px-4 py-8">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {cookiePolicy}
+        </ReactMarkdown>
       </article>
     </>
   );

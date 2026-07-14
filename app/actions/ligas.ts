@@ -8,23 +8,6 @@ import { mapMonthStatus } from "@/lib/utils";
 import { CategoryClassification } from "@/lib/types/classification";
 import { Bonus } from "@/lib/types/bonus";
 
-export async function getMonths(): Promise<Month[]> {
-  const supabase = await createClient({ useCookies: false });
-
-  const { data: months, error } = await supabase
-    .from("Meses")
-    .select("*")
-    .order("year")
-    .order("month", { ascending: true });
-
-  if (error) throw error;
-
-  return (months ?? []).map((m) => ({
-    ...m,
-    status: m.status,
-  }));
-}
-
 export async function updateUseFithCategory(
   monthId: number,
   useFifth: boolean,
