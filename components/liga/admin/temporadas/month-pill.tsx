@@ -1,4 +1,5 @@
 import { MonthStatus, MonthRow } from "@/lib/types/month";
+import { capitalize } from "@/lib/utils";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -21,7 +22,9 @@ export default function MonthPill({ month }: { month: MonthRow }) {
       className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm w-full md:w-fit ${cfg.className}`}
     >
       <span className="font-medium">
-        {format(new Date(2000, month.month - 1), "LLLL", { locale: es })}{" "}
+        {capitalize(
+          format(new Date(2000, month.month - 1), "LLLL", { locale: es }),
+        )}{" "}
         {month.year}
       </span>
       {month.has_fifth_category && (

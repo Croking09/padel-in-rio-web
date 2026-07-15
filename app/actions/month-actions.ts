@@ -9,3 +9,10 @@ export async function getMonthsBySeason(seasonId: number) {
   cacheTag("months");
   return monthService.getBySeason(seasonId);
 }
+
+export async function getMonthByDate(month: number, year: number) {
+  "use cache";
+  cacheLife("days");
+  cacheTag("months");
+  return monthService.getByMonthAndYear(month, year);
+}

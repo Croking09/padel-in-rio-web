@@ -9,4 +9,8 @@ export const monthService = {
       return [];
     }
   },
+
+  async getByMonthAndYear(month: number, year: number) {
+    return monthRepository.getByMonthAndYear(month, year);
+  },
 };

@@ -1,13 +1,11 @@
 import { renderToBuffer } from "@react-pdf/renderer";
 import { MatchesPdf } from "@/lib/pdf/matches-pdf";
-import { getMatchesByDayGlobal } from "@/lib/liga/partidos";
+import { getMatchesByMonth } from "@/app/actions/match-actions";
 
-export async function generateMatchesPdf(monthId: number, temporadaId: number) {
-  const { matchesByDay } = await getMatchesByDayGlobal(monthId, temporadaId);
+export async function generateMatchesPdf(monthId: number) {
+  const matches = await getMatchesByMonth(monthId);
 
-  const buffer = await renderToBuffer(
-    <MatchesPdf matchesByDay={matchesByDay} />,
-  );
+  const buffer = await renderToBuffer(<MatchesPdf matches={matches} />);
 
   return buffer;
 }

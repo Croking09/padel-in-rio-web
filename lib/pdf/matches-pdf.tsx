@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+
   cellTopRight: {
     width: "50%",
     height: CELL_HEIGHT,
@@ -98,6 +99,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+
   cellBottomLeft: {
     width: "50%",
     height: CELL_HEIGHT,
@@ -109,6 +111,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+
   cellBottomRight: {
     width: "50%",
     height: CELL_HEIGHT,
@@ -126,67 +129,79 @@ const styles = StyleSheet.create({
   },
 });
 
-export function MatchesPdf({
-  matchesByDay,
-}: {
-  matchesByDay: Record<number, Record<string, Match[]>>;
-}) {
+export function MatchesPdf({ matches }: { matches: Match[] }) {
+  const matchesByDay = Object.groupBy(matches, (match) =>
+    String(match.matchday),
+  );
+
   return (
     <Document>
-      {Object.entries(matchesByDay).map(([day, categories]) => (
-        <Page key={day} size="A4" style={styles.page}>
-          <Text style={styles.jornadaTitle}>Jornada {day}</Text>
+      {Object.entries(matchesByDay)
+        .sort(([a], [b]) => Number(a) - Number(b))
+        .map(([day, dayMatches]) => {
+          const categories = Object.groupBy(
+            dayMatches!,
+            (match) => match.category.name,
+          );
 
-          {Object.entries(categories).map(([category, matches]) => (
-            <View key={category} style={styles.category}>
-              <Text style={styles.categoryTitle}>{category}</Text>
+          return (
+            <Page key={day} size="A4" style={styles.page}>
+              <Text style={styles.jornadaTitle}>Jornada {day}</Text>
 
-              {matches.map((match, idx) => {
-                const players = match.players.map(
-                  (p) => p.nickname || p.full_name,
-                );
+              {Object.entries(categories).map(([category, categoryMatches]) => (
+                <View key={category} style={styles.category}>
+                  <Text style={styles.categoryTitle}>{category}</Text>
 
-                if (players.length !== 4) return null;
+                  {categoryMatches!.map((match) => {
+                    const players = match.players.map(
+                      (p) => p.nickname || p.full_name,
+                    );
 
-                const combos = getMatchSetCombos(players);
+                    if (players.length !== 4) return null;
 
-                return (
-                  <View key={idx} style={styles.matchRow}>
-                    {combos.map((combo, i) => (
-                      <View key={i} style={styles.combo}>
-                        <View style={styles.comboInner}>
-                          <View style={styles.sideCell}>
-                            <Text style={styles.text}> </Text>
+                    const combos = getMatchSetCombos(players);
+
+                    return (
+                      <View key={match.id} style={styles.matchRow}>
+                        {combos.map((combo, i) => (
+                          <View key={i} style={styles.combo}>
+                            <View style={styles.comboInner}>
+                              <View style={styles.sideCell}>
+                                <Text style={styles.text}> </Text>
+                              </View>
+
+                              <View style={styles.grid}>
+                                <View style={styles.cellTopLeft}>
+                                  <Text style={styles.text}>{combo[0]}</Text>
+                                </View>
+
+                                <View style={styles.cellTopRight}>
+                                  <Text style={styles.text}>{combo[2]}</Text>
+                                </View>
+
+                                <View style={styles.cellBottomLeft}>
+                                  <Text style={styles.text}>{combo[1]}</Text>
+                                </View>
+
+                                <View style={styles.cellBottomRight}>
+                                  <Text style={styles.text}>{combo[3]}</Text>
+                                </View>
+                              </View>
+
+                              <View style={styles.sideCellRight}>
+                                <Text style={styles.text}> </Text>
+                              </View>
+                            </View>
                           </View>
-
-                          <View style={styles.grid}>
-                            <View style={styles.cellTopLeft}>
-                              <Text style={styles.text}>{combo[0]}</Text>
-                            </View>
-                            <View style={styles.cellTopRight}>
-                              <Text style={styles.text}>{combo[2]}</Text>
-                            </View>
-                            <View style={styles.cellBottomLeft}>
-                              <Text style={styles.text}>{combo[1]}</Text>
-                            </View>
-                            <View style={styles.cellBottomRight}>
-                              <Text style={styles.text}>{combo[3]}</Text>
-                            </View>
-                          </View>
-
-                          <View style={styles.sideCellRight}>
-                            <Text style={styles.text}> </Text>
-                          </View>
-                        </View>
+                        ))}
                       </View>
-                    ))}
-                  </View>
-                );
-              })}
-            </View>
-          ))}
-        </Page>
-      ))}
+                    );
+                  })}
+                </View>
+              ))}
+            </Page>
+          );
+        })}
     </Document>
   );
 }

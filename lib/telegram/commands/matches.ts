@@ -1,63 +1,102 @@
-import { getMonths } from "@/app/actions/ligas";
+import { getMatchesByMonth } from "@/app/actions/match-actions";
 import { sendMessage } from "../utils";
-import { getMatchesByDayGlobal } from "@/lib/liga/partidos";
-import { MonthStatus } from "@/lib/types/month";
 import { Match } from "@/lib/types/match";
+import { getMonthByDate, getMonthsBySeason } from "@/app/actions/month-actions";
+import { getAllSeasons } from "@/app/actions/season-actions";
+import { resolveSeasonId } from "@/lib/liga/resolve-season";
+import { resolveActiveMonth } from "@/lib/liga/resolve-month";
 
-function buildMatchesAnswer(
-  matchesByDay: Record<number, Record<string, Match[]>>,
-) {
+function buildMatchesAnswer(matches: Match[]) {
+  const matchesByDay = Object.groupBy(matches, (match) =>
+    String(match.matchday),
+  );
+
   let text = "";
 
-  Object.entries(matchesByDay).forEach(([day, categories]) => {
-    text += `Jornada ${day}:\n\n`;
+  Object.entries(matchesByDay)
+    .sort(([a], [b]) => Number(a) - Number(b))
+    .forEach(([day, dayMatches]) => {
+      text += `Jornada ${day}:\n\n`;
 
-    Object.entries(categories).forEach(([category, categoryMatches]) => {
-      text += `${category}:\n`;
-      categoryMatches.forEach((match) => {
-        const names = match.players.map((p) => p.nickname || p.full_name);
-        text += names.join(", ") + "\n";
+      const categories = Object.groupBy(
+        dayMatches!,
+        (match) => match.category.name,
+      );
+
+      Object.entries(categories).forEach(([category, categoryMatches]) => {
+        text += `${category}:\n`;
+
+        categoryMatches!.forEach((match) => {
+          const names = match.players.map((p) => p.nickname || p.full_name);
+          text += names.join(", ") + "\n";
+        });
+
+        text += "\n";
       });
+
       text += "\n";
     });
 
-    text += "\n";
-  });
-
-  return text;
+  return text.trimEnd();
 }
 
 export async function matchesCommand(chatId: number, message: string) {
   const monthInput = message.trim().split(" ")[1];
 
-  const allMonths = await getMonths();
+  let monthId: number | undefined;
 
-  let temporadaId: number | undefined;
+  if (!monthInput) {
+    const seasons = await getAllSeasons();
+    const seasonId = resolveSeasonId([], seasons);
+    const months = await getMonthsBySeason(seasonId);
 
-  if (monthInput) {
-    const [mm, yyyy] = monthInput.split("/").map(Number);
+    monthId = resolveActiveMonth(months, {}).currentMonthId;
 
-    const matched = allMonths.find((m) => m.month === mm && m.year === yyyy);
+    if (!monthId) {
+      await sendMessage(chatId, "Todavía no se han confirmado los partidos.");
+      return;
+    }
+  } else {
+    const match = monthInput.match(/^(\d{2})\/(\d{4})$/);
 
-    temporadaId = matched?.temporada_id;
+    if (!match) {
+      await sendMessage(
+        chatId,
+        "Formato inválido. Usa MM/YYYY, por ejemplo: 09/2026.",
+      );
+      return;
+    }
+
+    const month = Number(match[1]);
+    const year = Number(match[2]);
+
+    if (month < 1 || month > 12) {
+      await sendMessage(chatId, "El mes debe estar entre 01 y 12.");
+      return;
+    }
+
+    let monthData;
+    try {
+      monthData = await getMonthByDate(month, year);
+    } catch {
+      await sendMessage(chatId, "Ha ocurrido un error obteniendo los datos.");
+      return;
+    }
+
+    if (!monthData) {
+      await sendMessage(chatId, "No existe ese mes en la liga.");
+      return;
+    }
+
+    monthId = monthData.id;
   }
 
-  // Si no se indica mes o no existe, usar el último confirmado
-  if (!temporadaId) {
-    const lastConfirmed = allMonths
-      .filter((m) => m.status === MonthStatus.Confirmed)
-      .sort((a, b) => (a.year !== b.year ? a.year - b.year : a.month - b.month))
-      .at(-1);
+  const matches = await getMatchesByMonth(monthId);
 
-    temporadaId = lastConfirmed?.temporada_id;
-  }
-
-  const { matchesByDay } = await getMatchesByDayGlobal(monthInput, temporadaId);
-
-  if (!matchesByDay || Object.keys(matchesByDay).length === 0) {
+  if (matches.length === 0) {
     await sendMessage(chatId, "No hay partidos confirmados para este mes.");
     return;
   }
 
-  await sendMessage(chatId, buildMatchesAnswer(matchesByDay));
+  await sendMessage(chatId, buildMatchesAnswer(matches));
 }

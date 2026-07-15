@@ -1,13 +1,8 @@
-import { existResultsBatch } from "@/app/actions/partidos";
-import { getMonths, getTemporadas } from "@/app/actions/ligas";
 import MonthSelector from "@/components/liga/month-selector";
 import MatchCard from "@/components/liga/partidos/match-card";
-import { getMatchesByDayGlobal } from "@/lib/liga/partidos";
-import { createClient } from "@/lib/supabase/server";
-import { resolveActiveMonth } from "@/lib/liga/resolve-active-month";
 import { isAdmin } from "@/lib/auth/permissions";
 import { Separator } from "@/components/ui/separator";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarX2 } from "lucide-react";
 import {
   Empty,
@@ -17,40 +12,33 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import EmptyMonths from "@/components/liga/empty-months";
+import { getActiveMonth } from "@/lib/liga/resolve-month";
+import { authServerService } from "@/lib/auth/services/server-service";
+import {
+  getMatchesByMonth,
+  getMatchesWithResults,
+} from "@/app/actions/match-actions";
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ monthId?: string; temporadaId?: string }>;
+  searchParams: Promise<{ monthId?: string; seasonId?: string }>;
 }) {
-  const supabase = await createClient();
-
-  const { data } = await supabase.auth.getClaims();
-  const user = data?.claims;
-  const showAdminControls = isAdmin(user);
-
-  const [allMonths, temporadas, params] = await Promise.all([
-    getMonths(),
-    getTemporadas(),
-    searchParams,
-  ]);
-
-  const { activeTemporadaId, months, confirmedMonths, currentMonthId } =
-    resolveActiveMonth(allMonths, temporadas, params);
-
-  const { matchesByDay } = await getMatchesByDayGlobal(
-    Number(currentMonthId),
-    activeTemporadaId,
+  const [{ months, confirmedMonths, currentMonthId }, user] = await Promise.all(
+    [getActiveMonth(searchParams), authServerService.getCurrentUser()],
   );
 
-  const matchIds = Object.values(matchesByDay)
-    .flatMap((categories) => Object.values(categories))
-    .flat()
-    .map((match) => match.id)
-    .filter((id): id is number => typeof id === "number");
+  const showAdminControls = isAdmin(user);
 
-  const resultIds = await existResultsBatch(matchIds);
+  const matches = currentMonthId ? await getMatchesByMonth(currentMonthId) : [];
+  const matchIds = matches.map((match) => match.id);
+
+  const resultIds = await getMatchesWithResults(matchIds);
   const matchesWithResults = new Set(resultIds);
+
+  const groupedMatches = Object.groupBy(matches, (match) =>
+    String(match.matchday),
+  );
 
   return (
     <>
@@ -73,7 +61,7 @@ export default async function Page({
       <div className="px-4 md:px-8 lg:px-24 pb-8">
         {confirmedMonths.length === 0 ? (
           <EmptyMonths />
-        ) : Object.keys(matchesByDay).length === 0 ? (
+        ) : matches.length === 0 ? (
           <Empty className="border-2 border-dashed">
             <EmptyHeader>
               <EmptyMedia variant="icon">
@@ -87,51 +75,55 @@ export default async function Page({
           </Empty>
         ) : (
           <div className="space-y-8">
-            {Object.entries(matchesByDay)
+            {Object.entries(groupedMatches)
               .sort(([a], [b]) => Number(a) - Number(b))
-              .map(([day, categories]) => (
-                <div key={day} className="space-y-8">
-                  <div className="flex items-center gap-4">
-                    <h2 className="text-2xl font-bold min-w-max">
-                      Jornada {day}
-                    </h2>
-                    <div className="w-full">
-                      <Separator />
+              .map(([day, dayMatches]) => {
+                const groupedByCategory = Object.groupBy(
+                  dayMatches!,
+                  (match) => match.category.name,
+                );
+
+                return (
+                  <div key={day} className="space-y-8">
+                    <div className="flex items-center gap-4">
+                      <h2 className="text-2xl font-bold min-w-max">
+                        Jornada {day}
+                      </h2>
+                      <div className="w-full">
+                        <Separator />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {Object.entries(groupedByCategory).map(
+                        ([category, categoryMatches]) => (
+                          <Card
+                            key={category}
+                            className="flex flex-col overflow-hidden py-0 gap-0"
+                          >
+                            <CardHeader className="px-4 py-2 border-b gap-0 [.border-b]:pb-2">
+                              <CardTitle className="font-bold text-lg">
+                                {category}
+                              </CardTitle>
+                            </CardHeader>
+
+                            <CardContent className="p-4 space-y-4 last:pb-4">
+                              {categoryMatches!.map((match) => (
+                                <MatchCard
+                                  key={match.id}
+                                  match={match}
+                                  hasResults={matchesWithResults.has(match.id)}
+                                  showAdminControls={showAdminControls}
+                                />
+                              ))}
+                            </CardContent>
+                          </Card>
+                        ),
+                      )}
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {Object.entries(categories).map(
-                      ([category, categoryMatches]) => (
-                        <Card
-                          key={category}
-                          className="flex flex-col overflow-hidden py-0 gap-0"
-                        >
-                          <CardHeader className="px-4 py-2 border-b gap-0 [.border-b]:pb-2">
-                            <CardTitle className="font-bold text-lg">
-                              {category}
-                            </CardTitle>
-                          </CardHeader>
-
-                          <CardContent className="p-4 space-y-4 last:pb-4">
-                            {categoryMatches.map((match, idx) => (
-                              <MatchCard
-                                key={idx}
-                                match={match}
-                                hasResults={
-                                  typeof match.id === "number" &&
-                                  matchesWithResults.has(match.id)
-                                }
-                                showAdminControls={showAdminControls}
-                              />
-                            ))}
-                          </CardContent>
-                        </Card>
-                      ),
-                    )}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
           </div>
         )}
       </div>

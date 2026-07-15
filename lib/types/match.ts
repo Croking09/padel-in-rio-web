@@ -1,9 +1,11 @@
-import { Socio } from "./socio";
+import { Database } from "@/lib/database.types";
+import { CategoryRow } from "@/lib/types/category";
+import { MemberRow } from "@/lib/types/member";
 
-export interface Match {
-  id?: number;
-  categoryId: number;
-  categoryName: string;
+type MatchRow = Database["public"]["Tables"]["matches"]["Row"];
+
+export type Match = Pick<MatchRow, "id"> & {
   matchday: number;
-  players: Socio[];
-}
+} & { category: Pick<CategoryRow, "id" | "name" | "order"> } & {
+  players: Pick<MemberRow, "id" | "full_name" | "nickname">[];
+};
