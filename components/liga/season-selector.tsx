@@ -12,10 +12,9 @@ import {
 import { SeasonRow } from "@/lib/types/season";
 
 const COOKIE_KEY = "seasonId";
-const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365; // 1 año
 
 function setSeasonCookie(value: string) {
-  document.cookie = `${COOKIE_KEY}=${value}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}`;
+  document.cookie = `${COOKIE_KEY}=${value}; path=/`;
 }
 
 export default function SeasonSelector({

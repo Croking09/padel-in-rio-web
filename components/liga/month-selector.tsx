@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Month } from "@/lib/types/month";
 
 import {
   Select,
@@ -12,12 +11,13 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { MonthRow } from "@/lib/types/month";
 
 export default function MonthSelector({
   months,
   currentMonthId,
 }: {
-  months: Month[];
+  months: MonthRow[];
   currentMonthId?: number;
 }) {
   const router = useRouter();

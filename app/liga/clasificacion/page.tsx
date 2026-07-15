@@ -1,8 +1,5 @@
-import { getTemporadas } from "@/app/actions/ligas";
-import { getGeneralClassification } from "@/app/actions/clasificacion";
+import { getGeneralClassification } from "@/app/actions/classification-actions";
 import GeneralClassificationTable from "@/components/liga/clasificacion-general/general-table";
-import { resolveTemporadaId } from "@/lib/liga/resolve-active-month";
-import { cookies } from "next/headers";
 import {
   Empty,
   EmptyHeader,
@@ -10,25 +7,16 @@ import {
   EmptyTitle,
   EmptyDescription,
 } from "@/components/ui/empty";
+import { getActiveSeason } from "@/lib/liga/resolve-season";
 import { SearchX } from "lucide-react";
 
-interface PageProps {
-  searchParams: Promise<{ temporadaId?: string }>;
-}
-
-export default async function Page({ searchParams }: PageProps) {
-  const [temporadas, params, cookieStore] = await Promise.all([
-    getTemporadas(),
-    searchParams,
-    cookies(),
-  ]);
-
-  const activeTemporadaId = resolveTemporadaId(
-    [params.temporadaId, cookieStore.get("temporadaId")?.value],
-    temporadas,
-  );
-
-  const data = await getGeneralClassification(activeTemporadaId);
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ seasonId?: string }>;
+}) {
+  const { seasonId } = await getActiveSeason(searchParams);
+  const data = await getGeneralClassification(seasonId);
 
   return (
     <>

@@ -461,9 +461,12 @@ export type Database = {
         Args: { p_mes_id: number; p_partidos: Json }
         Returns: undefined
       }
-      get_global_classification: {
-        Args: { p_temporada_id: number }
+      get_ascensor: {
+        Args: { p_month_id: number }
         Returns: {
+          category_id: number
+          category_name: string
+          category_order: number
           diff: number
           full_name: string
           games_for: number
@@ -473,8 +476,8 @@ export type Database = {
           points: number
         }[]
       }
-      get_month_classification: {
-        Args: { p_categoria_id: number; p_mes_id: number }
+      get_general_classification: {
+        Args: { p_season_id: number }
         Returns: {
           diff: number
           full_name: string

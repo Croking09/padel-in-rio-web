@@ -1,6 +1,3 @@
-export interface Bonus {
-  id?: number;
-  player_id: number;
-  quantity: number;
-  mes_id: number;
-}
+import { Database } from "@/lib/database.types";
+
+export type BonusInsert = Database["public"]["Tables"]["bonuses"]["Insert"];
