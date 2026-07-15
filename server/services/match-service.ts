@@ -4,6 +4,10 @@ import { matchdayRepository } from "@/server/repositories/matchday-repository";
 import { monthRepository } from "@/server/repositories/month-repository";
 import { setRepository } from "@/server/repositories/set-repository";
 import { matchParticipantRepository } from "@/server/repositories/match-participant-repository";
+import { SetInsert } from "@/lib/types/set";
+import { RegisterMatchParticipant } from "@/lib/types/match-participant";
+import { matchRespository } from "@/server/repositories/match-repository";
+import { isPgError } from "@/lib/errors";
 
 const MATCHDAYS_PER_MONTH = 2;
 
@@ -78,5 +82,36 @@ export const matchService = {
     } catch {
       return [];
     }
+  },
+
+  async getParticipantsByMatch(matchId: number) {
+    try {
+      return matchParticipantRepository.getByMatchWithPlayers(matchId);
+    } catch {
+      return [];
+    }
+  },
+
+  async registerResults(
+    matchId: number,
+    sets: SetInsert[],
+    participants: RegisterMatchParticipant[],
+  ) {
+    try {
+      await matchRespository.registerResults(matchId, sets, participants);
+    } catch (error) {
+      if (isPgError(error, "42501")) {
+        return {
+          success: false as const,
+          error: "No estás autorizado a registrar resultados.",
+        };
+      }
+      return {
+        success: false as const,
+        error: "Error al registrar los resultados.",
+      };
+    }
+
+    return { success: true as const };
   },
 };

@@ -489,7 +489,7 @@ export type Database = {
         }[]
       }
       register_match_results: {
-        Args: { p_participacion: Json; p_partido_id: number; p_sets: Json }
+        Args: { p_match_id: number; p_participation: Json; p_sets: Json }
         Returns: undefined
       }
     }

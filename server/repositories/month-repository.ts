@@ -9,10 +9,10 @@ export const monthRepository = {
       .from("months")
       .select("*")
       .eq("id", monthId)
-      .limit(1);
+      .single();
 
     if (error) throw error;
-    return data[0];
+    return data;
   },
 
   async getBySeason(seasonId: number) {
@@ -35,9 +35,9 @@ export const monthRepository = {
       .select("*")
       .eq("month", month)
       .eq("year", year)
-      .limit(1);
+      .single();
 
     if (error) throw error;
-    return data[0];
+    return data;
   },
 };

@@ -1,12 +1,10 @@
 import { Database } from "@/lib/database.types";
-import { MemberRow } from "@/lib/types/member";
+import { Player } from "@/lib/types/member";
 
 type SetRow = Database["public"]["Tables"]["sets"]["Row"];
+export type SetInsert = Database["public"]["Tables"]["sets"]["Insert"];
 
-export type PlayerWithParticipation = Pick<
-  MemberRow,
-  "id" | "full_name" | "nickname"
-> & {
+export type PlayerWithParticipation = Player & {
   isAbsent: boolean;
 };
 

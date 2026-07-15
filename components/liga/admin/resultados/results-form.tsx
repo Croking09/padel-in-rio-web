@@ -1,13 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { registerMatchResults } from "@/app/actions/partidos";
 import { redirect } from "next/navigation";
-import { Socio } from "@/lib/types/socio";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import MatchParticipants from "@/lib/types/matchParticipants";
-import { getMatchSetCombos } from "@/lib/utils";
+import { MatchParticipantWithPlayer } from "@/lib/types/match-participant";
 import { Button } from "@/components/ui/button";
 import SetCard from "@/components/liga/partidos/set-card";
 import {
@@ -26,27 +23,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChevronDown } from "lucide-react";
+import { MemberRow } from "@/lib/types/member";
+import { registerMatchResults } from "@/app/actions/match-actions";
+import { getMatchSetCombos } from "@/lib/liga/match";
 
 export default function MatchResultsPage({
-  partidoId,
+  matchId,
   players,
-  allSocios,
+  members,
 }: {
-  partidoId: number;
-  players: Omit<Socio, "active">[];
-  allSocios: Socio[];
+  matchId: number;
+  players: MatchParticipantWithPlayer[];
+  members: MemberRow[];
 }) {
-  const [results, setResults] = useState([
-    { p1: "", p2: "" },
-    { p1: "", p2: "" },
-    { p1: "", p2: "" },
+  const [setScores, setSetScores] = useState([
+    { pair1: "", pair2: "" },
+    { pair1: "", pair2: "" },
+    { pair1: "", pair2: "" },
   ]);
 
-  const [participation, setParticipation] = useState(
-    players.map((p) => ({
-      jugador_id: p.id,
-      asiste: true,
-      sustituto_id: null as number | null,
+  const [playerParticipation, setPlayerParticipation] = useState(
+    players.map((player) => ({
+      playerId: player.player.id,
+      attends: true,
+      substituteId: null as number | null,
     })),
   );
 
@@ -54,66 +54,81 @@ export default function MatchResultsPage({
     redirect("/liga/partidos");
   }
 
-  const combos = getMatchSetCombos(players);
+  const setPairings = getMatchSetCombos(players);
 
-  function updateScore(i: number, side: "p1" | "p2", value: string) {
+  function updateSetScore(
+    setIndex: number,
+    pair: "pair1" | "pair2",
+    value: string,
+  ) {
     if (value !== "" && !/^\d+$/.test(value)) return;
-    const copy = [...results];
-    copy[i][side] = value;
-    setResults(copy);
+
+    const updatedScores = [...setScores];
+    updatedScores[setIndex][pair] = value;
+
+    setSetScores(updatedScores);
   }
 
   function updateParticipation(
-    index: number,
-    field: "asiste" | "sustituto_id",
+    playerIndex: number,
+    field: "attends" | "substituteId",
     value: boolean | number | null,
   ) {
-    const copy = [...participation];
+    const updatedParticipation = [...playerParticipation];
 
-    if (field === "asiste") {
-      copy[index].asiste = value as boolean;
+    if (field === "attends") {
+      updatedParticipation[playerIndex].attends = value as boolean;
 
       if (!value) {
-        copy[index].sustituto_id = null;
+        updatedParticipation[playerIndex].substituteId = null;
       }
     }
 
-    if (field === "sustituto_id") {
-      copy[index].sustituto_id = value as number;
+    if (field === "substituteId") {
+      updatedParticipation[playerIndex].substituteId = value as number;
     }
 
-    setParticipation(copy);
+    setPlayerParticipation(updatedParticipation);
   }
 
   async function handleSubmit() {
-    if (results.some((r) => r.p1 === "" || r.p2 === "")) {
+    if (setScores.some((set) => set.pair1 === "" || set.pair2 === "")) {
       toast.error("No se han introducido todos los resultados");
       return;
     }
 
-    if (participation.some((p) => !p.asiste && p.sustituto_id === null)) {
+    if (
+      playerParticipation.some(
+        (player) => !player.attends && player.substituteId === null,
+      )
+    ) {
       toast.error(
         "Debes seleccionar un sustituto para todos los jugadores ausentes",
       );
       return;
     }
 
-    const sets = combos.map((c, i) => ({
-      orden: i + 1,
-      pareja1_jugador1_id: c[0].id,
-      pareja1_jugador2_id: c[1].id,
-      pareja2_jugador1_id: c[2].id,
-      pareja2_jugador2_id: c[3].id,
-      pareja1_juegos: Number(results[i].p1),
-      pareja2_juegos: Number(results[i].p2),
+    const matchSets = setPairings.map((pairing, setIndex) => ({
+      order: setIndex + 1,
+      match_id: matchId,
+      pair1_player1_id: pairing[0].player.id,
+      pair1_player2_id: pairing[1].player.id,
+      pair2_player1_id: pairing[2].player.id,
+      pair2_player2_id: pairing[3].player.id,
+      pair1_score: Number(setScores[setIndex].pair1),
+      pair2_score: Number(setScores[setIndex].pair2),
     }));
 
-    const participacion: MatchParticipants[] = participation.map((p) => ({
-      jugador_id: p.jugador_id,
-      sustituto_id: p.asiste ? null : p.sustituto_id,
+    const participationData = playerParticipation.map((player) => ({
+      player_id: player.playerId,
+      substitute_id: player.attends ? null : player.substituteId,
     }));
 
-    const result = await registerMatchResults(partidoId, sets, participacion);
+    const result = await registerMatchResults(
+      matchId,
+      matchSets,
+      participationData,
+    );
 
     if (!result.success) {
       return toast.error("Ha ocurrido un error al registrar los resultados");
@@ -124,8 +139,10 @@ export default function MatchResultsPage({
     redirect("/liga/partidos");
   }
 
-  function isAbsent(playerId: number) {
-    return participation.some((p) => p.jugador_id === playerId && !p.asiste);
+  function isPlayerAbsent(playerId: number) {
+    return playerParticipation.some(
+      (player) => player.playerId === playerId && !player.attends,
+    );
   }
 
   return (
@@ -151,33 +168,41 @@ export default function MatchResultsPage({
 
           <CollapsibleContent>
             <CardContent className="space-y-3 px-4 py-4">
-              {players.map((player, i) => (
+              {players.map((player, playerIndex) => (
                 <div
                   key={player.id}
                   className="flex items-center justify-between gap-4"
                 >
                   <span className="font-medium truncate">
-                    {player.nickname || player.full_name}
+                    {player.player.nickname || player.player.full_name}
                   </span>
 
                   <div className="flex items-center gap-3">
                     <label className="flex items-center gap-2 text-sm whitespace-nowrap">
                       <Checkbox
-                        checked={participation[i].asiste}
+                        checked={playerParticipation[playerIndex].attends}
                         onCheckedChange={(checked) =>
-                          updateParticipation(i, "asiste", checked === true)
+                          updateParticipation(
+                            playerIndex,
+                            "attends",
+                            checked === true,
+                          )
                         }
                       />
                       Asiste
                     </label>
 
-                    {!participation[i].asiste && (
+                    {!playerParticipation[playerIndex].attends && (
                       <Select
-                        value={participation[i].sustituto_id?.toString() || ""}
+                        value={
+                          playerParticipation[
+                            playerIndex
+                          ].substituteId?.toString() || ""
+                        }
                         onValueChange={(value) =>
                           updateParticipation(
-                            i,
-                            "sustituto_id",
+                            playerIndex,
+                            "substituteId",
                             value === "" ? null : Number(value),
                           )
                         }
@@ -185,10 +210,11 @@ export default function MatchResultsPage({
                         <SelectTrigger size="sm" className="w-56">
                           <SelectValue placeholder="Selecciona un sustituto">
                             {(() => {
-                              const sustitutoId = participation[i].sustituto_id;
+                              const sustitutoId =
+                                playerParticipation[playerIndex].substituteId;
                               if (!sustitutoId) return undefined;
 
-                              const socioSustituto = allSocios.find(
+                              const socioSustituto = members.find(
                                 (s) => s.id === sustitutoId,
                               );
                               return socioSustituto
@@ -201,7 +227,7 @@ export default function MatchResultsPage({
 
                         <SelectContent alignItemWithTrigger={false}>
                           <SelectGroup>
-                            {allSocios
+                            {members
                               .filter((p) => p.id !== player.id)
                               .map((p) => (
                                 <SelectItem key={p.id} value={p.id.toString()}>
@@ -221,21 +247,23 @@ export default function MatchResultsPage({
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-        {combos.map((combo, i) => (
+        {setPairings.map((pairing, index) => (
           <SetCard
-            key={i}
-            title={`Set ${i + 1}`}
+            key={index}
+            title={`Set ${index + 1}`}
             team1={{
               players: [
                 {
-                  id: combo[0].id,
-                  name: combo[0].nickname ?? combo[0].full_name,
-                  absent: isAbsent(combo[0].id),
+                  id: pairing[0].player.id,
+                  full_name: pairing[0].player.full_name,
+                  nickname: pairing[0].player.nickname,
+                  isAbsent: isPlayerAbsent(pairing[0].player.id),
                 },
                 {
-                  id: combo[1].id,
-                  name: combo[1].nickname ?? combo[1].full_name,
-                  absent: isAbsent(combo[1].id),
+                  id: pairing[1].player.id,
+                  full_name: pairing[1].player.full_name,
+                  nickname: pairing[1].player.nickname,
+                  isAbsent: isPlayerAbsent(pairing[1].player.id),
                 },
               ],
               score: (
@@ -244,22 +272,26 @@ export default function MatchResultsPage({
                   inputMode="numeric"
                   placeholder="0"
                   className="w-16 text-center"
-                  value={results[i].p1}
-                  onChange={(e) => updateScore(i, "p1", e.target.value)}
+                  value={setScores[index].pair1}
+                  onChange={(e) =>
+                    updateSetScore(index, "pair1", e.target.value)
+                  }
                 />
               ),
             }}
             team2={{
               players: [
                 {
-                  id: combo[2].id,
-                  name: combo[2].nickname ?? combo[2].full_name,
-                  absent: isAbsent(combo[2].id),
+                  id: pairing[2].player.id,
+                  full_name: pairing[2].player.full_name,
+                  nickname: pairing[2].player.nickname,
+                  isAbsent: isPlayerAbsent(pairing[2].player.id),
                 },
                 {
-                  id: combo[3].id,
-                  name: combo[3].nickname ?? combo[3].full_name,
-                  absent: isAbsent(combo[3].id),
+                  id: pairing[3].player.id,
+                  full_name: pairing[3].player.full_name,
+                  nickname: pairing[3].player.nickname,
+                  isAbsent: isPlayerAbsent(pairing[3].player.id),
                 },
               ],
               score: (
@@ -268,8 +300,10 @@ export default function MatchResultsPage({
                   inputMode="numeric"
                   placeholder="0"
                   className="w-16 text-center"
-                  value={results[i].p2}
-                  onChange={(e) => updateScore(i, "p2", e.target.value)}
+                  value={setScores[index].pair2}
+                  onChange={(e) =>
+                    updateSetScore(index, "pair2", e.target.value)
+                  }
                 />
               ),
             }}

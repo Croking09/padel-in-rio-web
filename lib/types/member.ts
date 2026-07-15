@@ -8,3 +8,5 @@ export type CreateMemberInput = Pick<MemberRow, "full_name" | "nickname">;
 export type UpdateMemberInput = Partial<
   Pick<MemberRow, "full_name" | "nickname" | "is_active">
 >;
+
+export type Player = Pick<MemberRow, "id" | "full_name" | "nickname">;
