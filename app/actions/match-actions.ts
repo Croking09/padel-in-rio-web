@@ -1,6 +1,6 @@
 "use server";
 
-import { RegisterMatchParticipant } from "@/lib/types/match-participant";
+import { MatchParticipantInsert } from "@/lib/types/match-participant";
 import { SetInsert } from "@/lib/types/set";
 import { matchService } from "@/server/services/match-service";
 import { cacheLife, cacheTag, updateTag } from "next/cache";
@@ -37,7 +37,7 @@ export async function getMatchParticipants(matchId: number) {
 export async function registerMatchResults(
   matchId: number,
   sets: SetInsert[],
-  participants: RegisterMatchParticipant[],
+  participants: MatchParticipantInsert[],
 ) {
   const result = await matchService.registerResults(
     matchId,

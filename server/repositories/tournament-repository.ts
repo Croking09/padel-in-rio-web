@@ -2,11 +2,7 @@ import "server-only";
 
 import { createAdmin } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import type {
-  TournamentRow,
-  TournamentInsert,
-  TournamentUpdate,
-} from "@/lib/types/tournament";
+import type { TournamentRow, TournamentInsert } from "@/lib/types/tournament";
 
 export const tournamentRepository = {
   async count() {
@@ -80,7 +76,7 @@ export const tournamentRepository = {
     const supabase = await createClient();
     const { error } = await supabase
       .from("tournaments")
-      .update({ manually_closed: manuallyClosed } satisfies TournamentUpdate)
+      .update({ manually_closed: manuallyClosed })
       .eq("id", id);
 
     if (error) throw error;

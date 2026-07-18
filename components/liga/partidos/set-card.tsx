@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { PlayerWithParticipation } from "@/lib/types/set";
+import { PlayerWithParticipation } from "@/lib/types/member";
 
 type Team = {
   players: [PlayerWithParticipation, PlayerWithParticipation];

@@ -1,6 +1,6 @@
-import { MatchParticipantWithPlayer } from "@/lib/types/match-participant";
+import { Player } from "@/lib/types/member";
 
-export function getMatchSetCombos(players: MatchParticipantWithPlayer[]) {
+export function getMatchSetCombos(players: Player[]) {
   if (players.length !== 4) return [];
 
   const [player1, player2, player3, player4] = players;

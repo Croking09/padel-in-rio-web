@@ -1,6 +1,6 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { Match } from "@/lib/types/match";
-import { getMatchSetCombos } from "@/lib/utils";
+import { getMatchSetCombos } from "@/lib/liga/match";
 
 const CELL_HEIGHT = 22;
 const BORDER = 1;
@@ -153,13 +153,7 @@ export function MatchesPdf({ matches }: { matches: Match[] }) {
                   <Text style={styles.categoryTitle}>{category}</Text>
 
                   {categoryMatches!.map((match) => {
-                    const players = match.players.map(
-                      (p) => p.nickname || p.full_name,
-                    );
-
-                    if (players.length !== 4) return null;
-
-                    const combos = getMatchSetCombos(players);
+                    const combos = getMatchSetCombos(match.players);
 
                     return (
                       <View key={match.id} style={styles.matchRow}>
@@ -172,19 +166,27 @@ export function MatchesPdf({ matches }: { matches: Match[] }) {
 
                               <View style={styles.grid}>
                                 <View style={styles.cellTopLeft}>
-                                  <Text style={styles.text}>{combo[0]}</Text>
+                                  <Text style={styles.text}>
+                                    {combo[0].nickname ?? combo[0].full_name}
+                                  </Text>
                                 </View>
 
                                 <View style={styles.cellTopRight}>
-                                  <Text style={styles.text}>{combo[2]}</Text>
+                                  <Text style={styles.text}>
+                                    {combo[2].nickname ?? combo[2].full_name}
+                                  </Text>
                                 </View>
 
                                 <View style={styles.cellBottomLeft}>
-                                  <Text style={styles.text}>{combo[1]}</Text>
+                                  <Text style={styles.text}>
+                                    {combo[1].nickname ?? combo[1].full_name}
+                                  </Text>
                                 </View>
 
                                 <View style={styles.cellBottomRight}>
-                                  <Text style={styles.text}>{combo[3]}</Text>
+                                  <Text style={styles.text}>
+                                    {combo[3].nickname ?? combo[3].full_name}
+                                  </Text>
                                 </View>
                               </View>
 

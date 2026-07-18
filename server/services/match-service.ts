@@ -5,7 +5,7 @@ import { monthRepository } from "@/server/repositories/month-repository";
 import { setRepository } from "@/server/repositories/set-repository";
 import { matchParticipantRepository } from "@/server/repositories/match-participant-repository";
 import { SetInsert } from "@/lib/types/set";
-import { RegisterMatchParticipant } from "@/lib/types/match-participant";
+import { MatchParticipantInsert } from "@/lib/types/match-participant";
 import { matchRespository } from "@/server/repositories/match-repository";
 import { isPgError } from "@/lib/errors";
 
@@ -95,7 +95,7 @@ export const matchService = {
   async registerResults(
     matchId: number,
     sets: SetInsert[],
-    participants: RegisterMatchParticipant[],
+    participants: MatchParticipantInsert[],
   ) {
     try {
       await matchRespository.registerResults(matchId, sets, participants);

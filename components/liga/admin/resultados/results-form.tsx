@@ -4,7 +4,6 @@ import { useState } from "react";
 import { redirect } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { MatchParticipantWithPlayer } from "@/lib/types/match-participant";
 import { Button } from "@/components/ui/button";
 import SetCard from "@/components/liga/partidos/set-card";
 import {
@@ -23,17 +22,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChevronDown } from "lucide-react";
-import { MemberRow } from "@/lib/types/member";
+import { MemberRow, Player } from "@/lib/types/member";
 import { registerMatchResults } from "@/app/actions/match-actions";
 import { getMatchSetCombos } from "@/lib/liga/match";
 
-export default function MatchResultsPage({
+export default function ResultsForm({
   matchId,
   players,
   members,
 }: {
   matchId: number;
-  players: MatchParticipantWithPlayer[];
+  players: Player[];
   members: MemberRow[];
 }) {
   const [setScores, setSetScores] = useState([
@@ -44,7 +43,7 @@ export default function MatchResultsPage({
 
   const [playerParticipation, setPlayerParticipation] = useState(
     players.map((player) => ({
-      playerId: player.player.id,
+      playerId: player.id,
       attends: true,
       substituteId: null as number | null,
     })),
@@ -53,7 +52,6 @@ export default function MatchResultsPage({
   if (players.length !== 4) {
     redirect("/liga/partidos");
   }
-
   const setPairings = getMatchSetCombos(players);
 
   function updateSetScore(
@@ -111,15 +109,16 @@ export default function MatchResultsPage({
     const matchSets = setPairings.map((pairing, setIndex) => ({
       order: setIndex + 1,
       match_id: matchId,
-      pair1_player1_id: pairing[0].player.id,
-      pair1_player2_id: pairing[1].player.id,
-      pair2_player1_id: pairing[2].player.id,
-      pair2_player2_id: pairing[3].player.id,
+      pair1_player1_id: pairing[0].id,
+      pair1_player2_id: pairing[1].id,
+      pair2_player1_id: pairing[2].id,
+      pair2_player2_id: pairing[3].id,
       pair1_score: Number(setScores[setIndex].pair1),
       pair2_score: Number(setScores[setIndex].pair2),
     }));
 
     const participationData = playerParticipation.map((player) => ({
+      match_id: matchId,
       player_id: player.playerId,
       substitute_id: player.attends ? null : player.substituteId,
     }));
@@ -174,7 +173,7 @@ export default function MatchResultsPage({
                   className="flex items-center justify-between gap-4"
                 >
                   <span className="font-medium truncate">
-                    {player.player.nickname || player.player.full_name}
+                    {player.nickname || player.full_name}
                   </span>
 
                   <div className="flex items-center gap-3">
@@ -254,16 +253,16 @@ export default function MatchResultsPage({
             team1={{
               players: [
                 {
-                  id: pairing[0].player.id,
-                  full_name: pairing[0].player.full_name,
-                  nickname: pairing[0].player.nickname,
-                  isAbsent: isPlayerAbsent(pairing[0].player.id),
+                  id: pairing[0].id,
+                  full_name: pairing[0].full_name,
+                  nickname: pairing[0].nickname,
+                  isAbsent: isPlayerAbsent(pairing[0].id),
                 },
                 {
-                  id: pairing[1].player.id,
-                  full_name: pairing[1].player.full_name,
-                  nickname: pairing[1].player.nickname,
-                  isAbsent: isPlayerAbsent(pairing[1].player.id),
+                  id: pairing[1].id,
+                  full_name: pairing[1].full_name,
+                  nickname: pairing[1].nickname,
+                  isAbsent: isPlayerAbsent(pairing[1].id),
                 },
               ],
               score: (
@@ -282,16 +281,16 @@ export default function MatchResultsPage({
             team2={{
               players: [
                 {
-                  id: pairing[2].player.id,
-                  full_name: pairing[2].player.full_name,
-                  nickname: pairing[2].player.nickname,
-                  isAbsent: isPlayerAbsent(pairing[2].player.id),
+                  id: pairing[2].id,
+                  full_name: pairing[2].full_name,
+                  nickname: pairing[2].nickname,
+                  isAbsent: isPlayerAbsent(pairing[2].id),
                 },
                 {
-                  id: pairing[3].player.id,
-                  full_name: pairing[3].player.full_name,
-                  nickname: pairing[3].player.nickname,
-                  isAbsent: isPlayerAbsent(pairing[3].player.id),
+                  id: pairing[3].id,
+                  full_name: pairing[3].full_name,
+                  nickname: pairing[3].nickname,
+                  isAbsent: isPlayerAbsent(pairing[3].id),
                 },
               ],
               score: (

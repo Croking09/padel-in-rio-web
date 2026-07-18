@@ -2,7 +2,7 @@ import "server-only";
 
 import { isPgError } from "@/lib/errors";
 import { memberRepository } from "@/server/repositories/member-repository";
-import type { CreateMemberInput, UpdateMemberInput } from "@/lib/types/member";
+import type { CreateMemberInput, MemberUpdate } from "@/lib/types/member";
 
 export const memberService = {
   async getCount(onlyActive?: boolean) {
@@ -31,7 +31,7 @@ export const memberService = {
     }
   },
 
-  async update(id: number, data: UpdateMemberInput) {
+  async update(id: number, data: MemberUpdate) {
     try {
       await memberRepository.update(id, data);
       return { success: true as const };

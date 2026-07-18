@@ -2,7 +2,7 @@
 
 import { cacheLife, cacheTag, updateTag } from "next/cache";
 import { memberService } from "@/server/services/member-service";
-import type { CreateMemberInput, UpdateMemberInput } from "@/lib/types/member";
+import type { CreateMemberInput, MemberUpdate } from "@/lib/types/member";
 
 export async function getMembersCount(onlyActive?: boolean) {
   "use cache";
@@ -27,7 +27,7 @@ export async function toggleActiveMember(id: number, active: boolean) {
   return result;
 }
 
-export async function editMember(id: number, data: UpdateMemberInput) {
+export async function editMember(id: number, data: MemberUpdate) {
   const result = await memberService.update(id, data);
   if (result.success) updateTag("members");
   return result;

@@ -1,6 +1,7 @@
 import { getMatchParticipants } from "@/app/actions/match-actions";
 import { getAllMembers } from "@/app/actions/member-actions";
 import ResultsForm from "@/components/liga/admin/resultados/results-form";
+import type { Player } from "@/lib/types/member";
 
 export default async function Page({
   params,
@@ -9,7 +10,13 @@ export default async function Page({
 }) {
   const { id } = await params;
 
-  const players = await getMatchParticipants(id);
+  const playersParticipation = await getMatchParticipants(id);
+  const players: Player[] = playersParticipation.map((playerParticipation) => ({
+    id: playerParticipation.player.id,
+    full_name: playerParticipation.player.full_name,
+    nickname: playerParticipation.player.nickname,
+  }));
+
   const members = await getAllMembers(true);
 
   return (

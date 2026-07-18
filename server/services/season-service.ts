@@ -42,7 +42,6 @@ export const seasonService = {
     try {
       await seasonRepository.insert(data);
     } catch (error) {
-      console.log(error);
       if (isPgError(error, "42501")) {
         return {
           success: false as const,

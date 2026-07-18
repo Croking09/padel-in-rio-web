@@ -3,10 +3,16 @@
 import { useEffect, useRef, useState, Suspense } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Trophy, Award, Users, Shield } from "lucide-react";
+import { Trophy, Award, Users, Shield, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tabs = [
+  {
+    href: "/",
+    label: "Inicio",
+    icon: Home,
+    match: ["/"],
+  },
   {
     href: "/torneos",
     label: "Torneos",
