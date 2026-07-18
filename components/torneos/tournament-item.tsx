@@ -1,4 +1,3 @@
-import type { TournamentWithImage } from "@/server/services/tournament-service";
 import InscriptionButton from "./inscription-button";
 import ToggleInscriptionsButton from "./admin/toggle-inscriptions-button";
 import DeleteTournamentButton from "./admin/delete-tournament-button";
@@ -7,6 +6,7 @@ import { Eye } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import TournamentImage from "@/components/torneos/tournament-image";
 import { format, parseISO } from "date-fns";
+import { TournamentWithImage } from "@/lib/types/tournament";
 
 export default function TournamentItem({
   tournament,

@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { TournamentWithImage } from "@/server/services/tournament-service";
 import TournamentItem from "@/components/torneos/tournament-item";
 import {
   Pagination,
@@ -11,6 +10,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { TournamentWithImage } from "@/lib/types/tournament";
 
 const PAGE_SIZE = 4;
 

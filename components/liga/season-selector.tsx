@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
+import { useTransition } from "react";
 import {
   Select,
   SelectContent,
@@ -10,12 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SeasonRow } from "@/lib/types/season";
-
-const COOKIE_KEY = "seasonId";
-
-function setSeasonCookie(value: string) {
-  document.cookie = `${COOKIE_KEY}=${value}; path=/`;
-}
+import { setActiveSeasonId } from "@/app/actions/season-actions";
 
 export default function SeasonSelector({
   seasons,
@@ -26,34 +22,35 @@ export default function SeasonSelector({
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [, startTransition] = useTransition();
 
   if (!seasons || seasons.length === 0) return null;
 
-  const items = seasons.map((t) => ({
-    label: `Temporada ${t.name}`,
-    value: t.id,
-  }));
-
   const seasonIdFromUrl = searchParams.get("seasonId");
-  const activeTemporadaId = seasonIdFromUrl
+  const activeSeasonId = seasonIdFromUrl
     ? Number(seasonIdFromUrl)
     : currentSeasonId;
 
   const handleChange = (seasonId: number | null) => {
     if (seasonId === null) return;
 
-    setSeasonCookie(String(seasonId));
-
     const params = new URLSearchParams(searchParams);
     params.set("seasonId", String(seasonId));
     params.delete("monthId");
-    router.push(`?${params.toString()}`);
+
+    startTransition(async () => {
+      await setActiveSeasonId(seasonId);
+      router.push(`?${params.toString()}`);
+    });
   };
 
   return (
     <Select
-      items={items}
-      value={activeTemporadaId}
+      items={seasons.map((t) => ({
+        label: `Temporada ${t.name}`,
+        value: t.id,
+      }))}
+      value={activeSeasonId}
       onValueChange={handleChange}
     >
       <SelectTrigger>

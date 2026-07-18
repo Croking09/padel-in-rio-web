@@ -2,7 +2,8 @@
 
 import { CreateSeasonInput } from "@/lib/types/season";
 import { seasonService } from "@/server/services/season-service";
-import { cacheLife, cacheTag, updateTag } from "next/cache";
+import { cacheLife, cacheTag, revalidatePath, updateTag } from "next/cache";
+import { cookies } from "next/headers";
 
 export async function getSeasonsCount() {
   "use cache";
@@ -33,4 +34,15 @@ export async function createSeason(data: CreateSeasonInput) {
     updateTag("seasons");
   }
   return result;
+}
+
+export async function setActiveSeasonId(seasonId: number) {
+  const cookieStore = await cookies();
+
+  cookieStore.set("seasonId", String(seasonId), {
+    path: "/",
+  });
+
+  revalidatePath("/liga", "layout");
+  revalidatePath("/admin/liga", "layout");
 }

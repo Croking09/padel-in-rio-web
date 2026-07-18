@@ -457,8 +457,8 @@ export type Database = {
         Args: { p_months: Json; p_name: string; p_start_date: string }
         Returns: undefined
       }
-      generar_partidos_mes: {
-        Args: { p_mes_id: number; p_partidos: Json }
+      generate_month_matches: {
+        Args: { p_matches: Json; p_month_id: number }
         Returns: undefined
       }
       get_ascensor: {

@@ -1,8 +1,6 @@
 "use client";
 
-import { confirmMonth } from "@/app/actions/generador-partidos";
 import { Button } from "@/components/ui/button";
-import { Match } from "@/lib/types/match";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,20 +13,21 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { confirmMonth } from "@/app/actions/match-generator-actions";
+import { GeneratedMatch } from "@/lib/types/match";
 
 export default function ConfirmButton({
   matches,
   monthId,
 }: {
-  matches: Match[];
+  matches: GeneratedMatch[];
   monthId: number;
 }) {
   const onConfirm = async () => {
     const response = await confirmMonth(monthId, matches);
 
     if (!response.success) {
-      toast.error(response.error?.message);
-      return;
+      toast.error(response.error);
     } else {
       toast.success("Partidos confirmados correctamente");
     }

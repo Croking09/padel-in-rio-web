@@ -1,10 +1,10 @@
-import { Match } from "@/lib/types/match";
+import { CategoryMatches } from "@/lib/types/match";
 import MatchdaySection from "./matchday-categories";
 
 export default function MatchdaysList({
   matchesByDay,
 }: {
-  matchesByDay: Record<number, Record<string, Match[]>>;
+  matchesByDay: Record<number, CategoryMatches[]>;
 }) {
   return (
     <div className="space-y-8">

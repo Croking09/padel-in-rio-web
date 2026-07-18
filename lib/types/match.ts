@@ -9,3 +9,20 @@ export type Match = Pick<MatchRow, "id"> & {
 } & { category: Pick<CategoryRow, "id" | "name" | "order"> } & {
   players: Player[];
 };
+
+export type GeneratedMatch = {
+  category: CategoryRow;
+  matchday: number;
+  players: Player[];
+};
+
+export type CategoryMatches = {
+  category: GeneratedMatch["category"];
+  matches: Pick<GeneratedMatch, "matchday" | "players">[];
+};
+
+export type GenerateMatchesPayload = {
+  category_id: number;
+  matchday: number;
+  players: number[];
+};
