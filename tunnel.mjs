@@ -1,20 +1,28 @@
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import qrcode from "qrcode-terminal";
 
-// 1. Leer .env.local directamente a memoria sin crear archivos adicionales
 const envPath = path.resolve(process.cwd(), ".env.local");
+
 if (fs.existsSync(envPath)) {
   const envConfig = fs.readFileSync(envPath, "utf-8");
+
   envConfig.split("\n").forEach((line) => {
     const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+
     if (match) {
       const key = match[1];
       let value = match[2] || "";
-      if (value.startsWith('"') && value.endsWith('"'))
+
+      if (value.startsWith('"') && value.endsWith('"')) {
         value = value.slice(1, -1);
-      if (value.startsWith("'") && value.endsWith("'"))
+      }
+
+      if (value.startsWith("'") && value.endsWith("'")) {
         value = value.slice(1, -1);
+      }
+
       process.env[key] = value;
     }
   });
@@ -30,8 +38,8 @@ if (!TELEGRAM_TOKEN || !SECRET_TOKEN) {
   process.exit(1);
 }
 
-// 2. Arrancar el túnel de Cloudflare en segundo plano de forma silenciosa
 const puertoLocal = "3000";
+
 const cf = spawn("cloudflared", [
   "tunnel",
   "--url",
@@ -42,42 +50,72 @@ console.log("Iniciando túnel de Cloudflare...");
 
 let webhookConfigurado = false;
 
-// 3. Escuchar la salida en memoria únicamente para extraer la URL y mostrarla
 cf.stderr.on("data", (data) => {
   if (webhookConfigurado) return;
 
   const line = data.toString();
   const match = line.match(/https:\/\/[a-zA-Z0-9.-]+\.trycloudflare\.com/);
 
-  if (match) {
-    webhookConfigurado = true;
-    const tunnelUrl = match[0];
+  if (!match) return;
 
-    const waitMs = 5000;
-    // MUESTRA 1: Imprime la URL del túnel detectada
-    console.log(`\x1b[36m[TÚNEL] URL asignada:\x1b[0m ${tunnelUrl}`);
-    console.log(`Esperando ${waitMs} segundos a la propagación del DNS...`);
+  webhookConfigurado = true;
 
-    // Esperar 6 segundos en segundo plano a que se propague el DNS antes de enviar a Telegram
-    setTimeout(() => {
-      const webhookUrl = `${tunnelUrl}/telegram`;
-      const telegramApiUrl = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/setWebhook`;
+  const tunnelUrl = match[0];
+  const webhookUrl = `${tunnelUrl}/telegram`;
+  const waitMs = 5000;
 
-      const curl = spawn("curl", [
-        "-s", // Modo silencioso de curl (oculta la barra de progreso)
-        "-X",
-        "POST",
-        telegramApiUrl,
-        "-d",
-        `url=${webhookUrl}`,
-        "-d",
-        `secret_token=${SECRET_TOKEN}`,
-      ]);
+  console.log(`\n\x1b[36m[TÚNEL]\x1b[0m ${tunnelUrl}`);
 
-      // MUESTRA 2: Imprime la respuesta de Telegram
-      curl.stdout.on("data", (curlData) => {
-        console.log(`\x1b[32m[TELEGRAM]\x1b[0m ${curlData.toString().trim()}`);
-      });
-    }, waitMs);
+  console.log("\nEscanea este QR para abrir la web en el móvil:\n");
+  qrcode.generate(tunnelUrl, { small: true });
+
+  console.log(`\nEsperando ${waitMs} ms a la propagación del DNS...\n`);
+
+  setTimeout(() => {
+    const telegramApiUrl = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/setWebhook`;
+
+    const curl = spawn("curl", [
+      "-s",
+      "-X",
+      "POST",
+      telegramApiUrl,
+      "-d",
+      `url=${webhookUrl}`,
+      "-d",
+      `secret_token=${SECRET_TOKEN}`,
+    ]);
+
+    curl.stdout.on("data", (curlData) => {
+      console.log(`\x1b[32m[TELEGRAM]\x1b[0m ${curlData.toString().trim()}`);
+    });
+
+    curl.stderr.on("data", (err) => {
+      console.error(`\x1b[31m[ERROR]\x1b[0m ${err.toString().trim()}`);
+    });
+  }, waitMs);
+});
+
+cf.on("error", (err) => {
+  console.error(
+    `\x1b[31m[ERROR]\x1b[0m No se pudo iniciar cloudflared: ${err.message}`,
+  );
+});
+
+cf.on("close", (code) => {
+  if (code !== 0) {
+    console.error(
+      `\x1b[31m[ERROR]\x1b[0m cloudflared finalizó con código ${code}`,
+    );
   }
+});
+
+process.on("SIGINT", () => {
+  console.log("\nCerrando túnel...");
+  cf.kill();
+  process.exit(0);
+});
+
+process.on("SIGTERM", () => {
+  cf.kill();
+  process.exit(0);
 });

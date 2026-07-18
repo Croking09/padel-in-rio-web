@@ -47,6 +47,7 @@
     "@types/react": "^19",
     "@types/react-dnd-html5-backend": "^3.0.2",
     "@types/react-dom": "^19",
+    "qrcode-terminal": "^0.12.0",
     "autoprefixer": "^10.4.23",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
