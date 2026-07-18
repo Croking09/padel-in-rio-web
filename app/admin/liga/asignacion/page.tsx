@@ -1,34 +1,15 @@
-import { getMonths, getTemporadas } from "@/app/actions/ligas";
-import { getAssignmentData } from "@/app/actions/monthly-assignment";
+import { getAssignmentData } from "@/app/actions/player-assignment-actions";
 import AssignmentBoard from "@/components/liga/admin/asignaciones/assignment-board";
 import EmptyMonths from "@/components/liga/empty-months";
 import MonthSelector from "@/components/liga/month-selector";
-import { getCurrentMonthId } from "@/lib/utils";
-import { resolveTemporadaId } from "@/lib/liga/resolve-active-month";
-import { cookies } from "next/headers";
+import { getActiveMonth } from "@/lib/liga/resolve-month";
 
 export default async function AssignmentPage({
   searchParams,
 }: {
-  searchParams: Promise<{ monthId?: string; temporadaId?: string }>;
+  searchParams: Promise<{ monthId?: string; seasonId?: string }>;
 }) {
-  const [allMonths, temporadas, params, cookieStore] = await Promise.all([
-    getMonths(),
-    getTemporadas(),
-    searchParams,
-    cookies(),
-  ]);
-
-  const activeTemporadaId = resolveTemporadaId(
-    [params.temporadaId, cookieStore.get("temporadaId")?.value],
-    temporadas,
-  );
-
-  const months = allMonths.filter((m) => m.temporada_id === activeTemporadaId);
-
-  const monthIdParam = params.monthId ? Number(params.monthId) : undefined;
-  const currentMonthId =
-    monthIdParam ?? getCurrentMonthId(months) ?? months.at(0)?.id;
+  const { months, currentMonthId } = await getActiveMonth(searchParams);
 
   const data = currentMonthId ? await getAssignmentData(currentMonthId) : null;
 

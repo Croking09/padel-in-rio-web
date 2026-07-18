@@ -492,6 +492,10 @@ export type Database = {
         Args: { p_match_id: number; p_participation: Json; p_sets: Json }
         Returns: undefined
       }
+      save_month_assignments: {
+        Args: { p_assignments: Json; p_month_id: number }
+        Returns: undefined
+      }
     }
     Enums: {
       month_status: "draft" | "locked" | "confirmed"

@@ -1,11 +1,11 @@
 "use client";
 
 import { DropTargetMonitor, useDrop } from "react-dnd";
-import { Player } from "@/app/actions/monthly-assignment";
 import PlayerCard from "./player-card";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { DragItem } from "./types";
+import { Player } from "@/lib/types/member";
 
 export default function UnassignedColumn({
   players,

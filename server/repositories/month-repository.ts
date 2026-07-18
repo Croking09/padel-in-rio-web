@@ -1,6 +1,8 @@
 import "server-only";
 
 import { createAdmin } from "@/lib/supabase/admin";
+import { MonthUpdate } from "@/lib/types/month";
+import { createClient } from "@/lib/supabase/server";
 
 export const monthRepository = {
   async getById(monthId: number) {
@@ -39,5 +41,13 @@ export const monthRepository = {
 
     if (error) throw error;
     return data;
+  },
+
+  async update(id: number, month: MonthUpdate) {
+    const supabase = await createClient();
+
+    const { error } = await supabase.from("months").update(month).eq("id", id);
+
+    if (error) throw error;
   },
 };

@@ -1,11 +1,21 @@
 import { MonthRow } from "@/lib/types/month";
-import { getCurrentMonthId } from "@/lib/utils";
 import {
   getActiveSeason,
   ActiveSeasonParams,
   ActiveSeasonResult,
 } from "@/lib/liga/resolve-season";
 import { getMonthsBySeason } from "@/app/actions/month-actions";
+
+function getCurrentMonthId(months: MonthRow[]) {
+  if (!months.length) return undefined;
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+
+  return months.find((m) => m.year === currentYear && m.month === currentMonth)
+    ?.id;
+}
 
 interface ActiveMonthParams extends ActiveSeasonParams {
   monthId?: string;

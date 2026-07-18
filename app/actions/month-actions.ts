@@ -16,3 +16,15 @@ export async function getMonthByDate(month: number, year: number) {
   cacheTag("months");
   return monthService.getByMonthAndYear(month, year);
 }
+
+export async function updateUseFithCategory(
+  monthId: number,
+  useFifthCategory: boolean,
+) {
+  const result = await monthService.updateUseFithCategory(
+    monthId,
+    useFifthCategory,
+  );
+
+  return result;
+}

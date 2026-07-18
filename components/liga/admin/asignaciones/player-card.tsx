@@ -1,8 +1,8 @@
 "use client";
 
 import { useDrag, DragSourceMonitor } from "react-dnd";
-import { Player } from "@/app/actions/monthly-assignment";
 import { cn } from "@/lib/utils";
+import { Player } from "@/lib/types/member";
 
 interface PlayerCardProps {
   player: Player;
