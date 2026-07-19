@@ -5,6 +5,7 @@ import { inscriptionsCommand } from "@/lib/telegram/commands/inscriptions";
 import { pdfCommand } from "@/lib/telegram/commands/pdf";
 import { matchesCommand } from "@/lib/telegram/commands/matches";
 import { TelegramMessage } from "@/lib/types/telegram";
+import { refreshCommand } from "@/lib/telegram/commands/refresh";
 
 const defaultAnswer =
   "No entiendo eso 😅, comprueba lo que puedo hacer con /help";
@@ -32,6 +33,10 @@ export async function handleMessage(message: TelegramMessage) {
 
     case text.startsWith("/partidos"):
       await matchesCommand(chatId, text);
+      break;
+
+    case text.startsWith("/refresh"):
+      await refreshCommand(chatId, text);
       break;
 
     default:

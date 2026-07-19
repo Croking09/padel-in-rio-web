@@ -63,3 +63,14 @@ export async function sendDocument(
 
   return res.json();
 }
+
+const notAdminAnswer = "No tienes permiso para usar este comando";
+
+export async function requireAdmin(chatId: number): Promise<boolean> {
+  if (!TELEGRAM_ADMINS.has(chatId)) {
+    await sendMessage(chatId, notAdminAnswer);
+    return false;
+  }
+
+  return true;
+}
