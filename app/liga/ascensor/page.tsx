@@ -1,13 +1,8 @@
-import { getAscensor } from "@/app/actions/clasificacion";
-import { CategoryClassification } from "@/lib/types/classification";
 import { CategoryTable } from "@/components/liga/ascensor/category-table";
 import MonthSelector from "@/components/liga/month-selector";
-import { getMonths, getTemporadas, hasBonusGiven } from "@/app/actions/ligas";
-import { resolveActiveMonth } from "@/lib/liga/resolve-active-month";
 import BonusButton from "@/components/liga/ascensor/bonus-button";
-import { createClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/auth/permissions";
-import { cookies } from "next/headers";
+import { getActiveMonth } from "@/lib/liga/resolve-month";
 import {
   Empty,
   EmptyHeader,
@@ -17,55 +12,40 @@ import {
 } from "@/components/ui/empty";
 import { SearchX } from "lucide-react";
 import EmptyMonths from "@/components/liga/empty-months";
+import { authServerService } from "@/lib/auth/services/server-service";
+import {
+  getAscensor,
+  hasBonusGiven,
+} from "@/app/actions/classification-actions";
 
-interface PageProps {
-  searchParams: Promise<{ monthId?: string; temporadaId?: string }>;
-}
-
-export default async function Page({ searchParams }: PageProps) {
-  const supabase = await createClient();
-
-  const [allMonths, temporadas, params, cookieStore, { data }] =
-    await Promise.all([
-      getMonths(),
-      getTemporadas(),
-      searchParams,
-      cookies(),
-      supabase.auth.getClaims(),
-    ]);
-
-  const user = data?.claims;
-  const showAdminControls = isAdmin(user);
-
-  const cookieTemporadaId = cookieStore.get("temporadaId")?.value;
-
-  const { months, confirmedMonths, currentMonthId } = resolveActiveMonth(
-    allMonths,
-    temporadas,
-    params,
-    cookieTemporadaId,
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ monthId?: string; seasonId?: string }>;
+}) {
+  const [{ months, confirmedMonths, currentMonthId }, user] = await Promise.all(
+    [getActiveMonth(searchParams), authServerService.getCurrentUser()],
   );
+
+  const showAdminControls = isAdmin(user);
 
   const [bonusExists, classificationData] = currentMonthId
     ? await Promise.all([
         hasBonusGiven(currentMonthId),
         getAscensor(currentMonthId),
       ])
-    : [false, [] as CategoryClassification[]];
+    : [false, []];
 
   const selectedMonth = months.find((m) => m.id === currentMonthId);
-  const showFifthCategory = selectedMonth?.["5_category"] ?? false;
+  const showFifthCategory = selectedMonth?.has_fifth_category ?? false;
 
-  const sorted = [...classificationData].sort(
-    (a, b) => a.category.order - b.category.order,
+  const filtered = showFifthCategory
+    ? classificationData
+    : classificationData.filter((cat) => cat.category.order !== 5);
+
+  const hasData = classificationData.some(
+    (cat) => cat.classification.length > 0,
   );
-
-  const filtered = sorted.filter((cat) => {
-    if (showFifthCategory) return true;
-    return cat.category.name !== "5ª";
-  });
-
-  const hasData = sorted.some((cat) => cat.classification.length > 0);
 
   return (
     <>

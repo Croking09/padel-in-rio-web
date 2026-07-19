@@ -1,7 +1,3 @@
-import { getInscripcionesByTorneo } from "@/app/actions/inscripciones";
-import { getTorneoById } from "@/app/actions/torneos";
-import { formatDate } from "@/lib/utils";
-
 import { Separator } from "@/components/ui/separator";
 import {
   Table,
@@ -12,6 +8,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
+import { getInscriptionsByTournament } from "@/app/actions/inscription-actions";
+import { getTournamentById } from "@/app/actions/tournament-actions";
+import { format, parseISO } from "date-fns";
 
 export default async function Page({
   params,
@@ -19,36 +18,51 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const tournamentId = Number(id);
 
-  const [{ data: inscripciones }, torneo] = await Promise.all([
-    getInscripcionesByTorneo(id),
-    getTorneoById(id),
+  const [result, tournament] = await Promise.all([
+    getInscriptionsByTournament(tournamentId),
+    getTournamentById(tournamentId),
   ]);
 
-  if (!torneo) {
+  if (!tournament) {
     return <p className="p-8 text-center">Torneo no encontrado.</p>;
   }
 
+  if (!result.success) {
+    return (
+      <p className="p-8 text-center">
+        Se ha producido un error obteniendo las inscripciones
+      </p>
+    );
+  }
+
+  const inscriptions = result.data;
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-center text-4xl font-bold">{torneo.name}</h1>
+      <h1 className="text-center text-4xl font-bold">{tournament.name}</h1>
 
       <div className="mt-4 space-y-4">
-        {torneo.description && (
+        {tournament.description && (
           <p className="mx-auto text-center text-muted-foreground">
-            {torneo.description}
+            {tournament.description}
           </p>
         )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Card className="rounded-lg border p-4">
             <p className="text-sm font-medium text-muted-foreground">Inicio</p>
-            <p className="font-semibold">{formatDate(torneo.start_date)}</p>
+            <p className="font-semibold">
+              {format(parseISO(tournament.start_date), "dd/MM/yyyy")}
+            </p>
           </Card>
 
           <Card className="rounded-lg border p-4">
             <p className="text-sm font-medium text-muted-foreground">Fin</p>
-            <p className="font-semibold">{formatDate(torneo.end_date)}</p>
+            <p className="font-semibold">
+              {format(parseISO(tournament.end_date), "dd/MM/yyyy")}
+            </p>
           </Card>
 
           <Card className="rounded-lg border p-4">
@@ -56,12 +70,12 @@ export default async function Page({
               Cierre de inscripciones
             </p>
             <p className="font-semibold">
-              {formatDate(torneo.inscription_end_date)}
+              {format(parseISO(tournament.inscription_end_date), "dd/MM/yyyy")}
             </p>
           </Card>
         </div>
 
-        {torneo.manually_closed && (
+        {tournament.manually_closed && (
           <p className="text-center font-medium text-destructive pt-4">
             Inscripciones cerradas manualmente
           </p>
@@ -74,10 +88,10 @@ export default async function Page({
 
       <section className="space-y-4">
         <h2 className="text-2xl font-semibold">
-          Inscripciones ({inscripciones?.length ?? 0})
+          Inscripciones ({inscriptions?.length ?? 0})
         </h2>
 
-        {!inscripciones?.length ? (
+        {!inscriptions?.length ? (
           <p className="text-muted-foreground">No hay inscripciones todavía.</p>
         ) : (
           <div className="overflow-hidden rounded-lg">
@@ -92,17 +106,17 @@ export default async function Page({
               </TableHeader>
 
               <TableBody>
-                {inscripciones.map((inscripcion) => (
-                  <TableRow key={inscripcion.id}>
+                {inscriptions.map((inscription) => (
+                  <TableRow key={inscription.id}>
                     <TableCell className="font-medium">
-                      {inscripcion.player_1_full_name}
+                      {inscription.player1_full_name}
                     </TableCell>
 
-                    <TableCell>{inscripcion.player_2_full_name}</TableCell>
+                    <TableCell>{inscription.player2_full_name}</TableCell>
 
-                    <TableCell>{inscripcion.phone_number}</TableCell>
+                    <TableCell>{inscription.phone_number}</TableCell>
 
-                    <TableCell>{inscripcion.category ?? "-"}</TableCell>
+                    <TableCell>{inscription.category ?? "-"}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

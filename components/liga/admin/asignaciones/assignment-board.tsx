@@ -1,11 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import {
-  AssignmentData,
-  saveAssignments,
-  confirmMonth,
-} from "@/app/actions/monthly-assignment";
 import { DndProvider } from "react-dnd";
 import {
   TouchTransition,
@@ -29,12 +24,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { MonthStatus } from "@/lib/types/month";
 import { Checkbox } from "@/components/ui/checkbox";
-import { updateUseFithCategory } from "@/app/actions/ligas";
 import UnassignedColumn from "./unassigned-column";
 import CategoryColumn from "./category-column";
 import { DragItem } from "./types";
+import { AssignmentData } from "@/lib/types/player-assignment";
+import {
+  confirmMonth,
+  saveAssignments,
+} from "@/app/actions/player-assignment-actions";
+import { updateUseFithCategory } from "@/app/actions/month-actions";
 
 interface AssignmentBoardProps {
   initialData: AssignmentData;
@@ -88,8 +87,8 @@ export default function AssignmentBoard({
       : data.categories.filter((c) => c.id !== 5);
   }, [data.categories, useFifthCategory]);
 
-  const isLocked = data.status === MonthStatus.Locked;
-  const isConfirmed = data.status === MonthStatus.Confirmed;
+  const isLocked = data.status === "locked";
+  const isConfirmed = data.status === "confirmed";
 
   const categoryRows = Math.ceil(visibleCategories.length / 3);
   const columnsHeightRem = categoryRows * 28.125 + (categoryRows - 1) * 1;
@@ -99,7 +98,7 @@ export default function AssignmentBoard({
 
     return visibleCategories.filter((category) => {
       const count = data.assignments.filter(
-        (a) => a.categoria_id === category.id,
+        (a) => a.category_id === category.id,
       ).length;
 
       if (isFourCategories && category.id === 4) {
@@ -120,12 +119,13 @@ export default function AssignmentBoard({
 
     setData((prev) => {
       const newAssignments = prev.assignments.filter(
-        (a) => a.jugador_id !== playerId,
+        (a) => a.player_id !== playerId,
       );
       newAssignments.push({
-        jugador_id: playerId,
-        categoria_id: categoryId,
         id: Math.random(),
+        category_id: categoryId,
+        player_id: playerId,
+        month_id: monthId,
       });
 
       return { ...prev, assignments: newAssignments };
@@ -136,26 +136,24 @@ export default function AssignmentBoard({
   const handleUnassign = (playerId: number) => {
     if (dndDisabled) return;
 
-    setData((prev) => {
-      return {
-        ...prev,
-        assignments: prev.assignments.filter((a) => a.jugador_id !== playerId),
-      };
-    });
+    setData((prev) => ({
+      ...prev,
+      assignments: prev.assignments.filter((a) => a.player_id !== playerId),
+    }));
     setHasChanges(true);
   };
 
   const onSave = async () => {
     setIsSaving(true);
-    try {
-      await saveAssignments(monthId, data.assignments);
-      setHasChanges(false);
-      toast.info("Cambios guardados correctamente");
-    } catch {
-      toast.error("Error al guardar cambios");
-    } finally {
-      setIsSaving(false);
+
+    const result = await saveAssignments(monthId, data.assignments);
+    if (!result.success) {
+      toast.error(result.error);
+      return;
     }
+    setHasChanges(false);
+    setIsSaving(false);
+    toast.info("Cambios guardados correctamente");
   };
 
   const onConfirm = async () => {
@@ -167,16 +165,20 @@ export default function AssignmentBoard({
     }
 
     setIsSaving(true);
-    try {
-      await saveAssignments(monthId, data.assignments);
-      await confirmMonth(monthId);
-
-      toast.success("Mes confirmado correctamente");
-    } catch {
-      toast.error("Error al confirmar mes");
-    } finally {
-      setIsSaving(false);
+    const saveResult = await saveAssignments(monthId, data.assignments);
+    if (!saveResult.success) {
+      toast.error(saveResult.error);
+      return;
     }
+
+    const confirmResult = await confirmMonth(monthId);
+    if (!confirmResult.success) {
+      toast.error(confirmResult.error);
+      return;
+    }
+
+    setIsSaving(false);
+    toast.success("Mes confirmado correctamente");
   };
 
   return (
@@ -272,7 +274,7 @@ export default function AssignmentBoard({
         <div className="flex flex-col md:flex-row gap-4 items-stretch">
           <UnassignedColumn
             players={data.players.filter(
-              (p) => !data.assignments.some((a) => a.jugador_id === p.id),
+              (p) => !data.assignments.some((a) => a.player_id === p.id),
             )}
             onDrop={(item: DragItem) => handleUnassign(item.id)}
             disabled={dndDisabled}
@@ -291,7 +293,7 @@ export default function AssignmentBoard({
                   assignedPlayers={data.players.filter((p) =>
                     data.assignments.find(
                       (a) =>
-                        a.jugador_id === p.id && a.categoria_id === category.id,
+                        a.player_id === p.id && a.category_id === category.id,
                     ),
                   )}
                   assignments={data.assignments}

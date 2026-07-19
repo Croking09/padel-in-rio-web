@@ -5,7 +5,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "update-types": "supabase gen types typescript --local > lib/database.types.ts",
+    "db:reset": "supabase db reset && npm run update-types",
+    "tunnel": "node tunnel.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -33,6 +36,7 @@
     "react-dnd-touch-backend": "^16.0.1",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
+    "server-only": "^0.0.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0"
   },
@@ -43,6 +47,7 @@
     "@types/react": "^19",
     "@types/react-dnd-html5-backend": "^3.0.2",
     "@types/react-dom": "^19",
+    "qrcode-terminal": "^0.12.0",
     "autoprefixer": "^10.4.23",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",

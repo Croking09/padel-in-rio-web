@@ -10,8 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { createClient } from "@/lib/supabase/client";
+import { authClientService } from "@/lib/auth/services/client-service";
 import { User } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
 function getInitials(user: {
   email?: string;
@@ -30,11 +31,6 @@ function getInitials(user: {
 }
 
 export function AvatarMenu({ user }: { user: User }) {
-  const logout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-  };
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -53,7 +49,16 @@ export function AvatarMenu({ user }: { user: User }) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem variant="destructive" onClick={logout}>
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => {
+              try {
+                authClientService.logout();
+              } catch {
+                toast.error("Ha ocurrido un error al cerrar sesión.");
+              }
+            }}
+          >
             Cerrar Sesión
           </DropdownMenuItem>
         </DropdownMenuGroup>

@@ -1,13 +1,6 @@
-import { previewMonth } from "@/app/actions/generador-partidos";
 import ConfirmButton from "@/components/liga/admin/generador/confirm-button";
 import MonthSelector from "@/components/liga/month-selector";
-import { Match } from "@/lib/types/match";
-import { getMonths, getTemporadas } from "@/app/actions/ligas";
-import { getCurrentMonthId } from "@/lib/utils";
-import { MonthStatus } from "@/lib/types/month";
 import { buttonVariants } from "@/components/ui/button";
-import { resolveTemporadaId } from "@/lib/liga/resolve-active-month";
-import { cookies } from "next/headers";
 import EmptyMonths from "@/components/liga/empty-months";
 import Link from "next/link";
 import {
@@ -19,44 +12,29 @@ import {
 } from "@/components/ui/empty";
 import { Check, CircleAlert } from "lucide-react";
 import MatchdaysList from "@/components/liga/admin/generador/matchdays-list";
+import { getActiveMonth } from "@/lib/liga/resolve-month";
+import { previewMonth } from "@/app/actions/match-generator-actions";
+import { CategoryMatches } from "@/lib/types/match";
+
+const MATCHDAYS_PER_MONTH = 2;
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ monthId?: string; temporadaId?: string }>;
+  searchParams: Promise<{ monthId?: string; seasonId?: string }>;
 }) {
-  const [allMonths, temporadas, params, cookieStore] = await Promise.all([
-    getMonths(),
-    getTemporadas(),
-    searchParams,
-    cookies(),
-  ]);
-
-  const activeTemporadaId = resolveTemporadaId(
-    [params.temporadaId, cookieStore.get("temporadaId")?.value],
-    temporadas,
-  );
-
-  const months = allMonths.filter((m) => m.temporada_id === activeTemporadaId);
-
-  const monthIdParam = params.monthId ? Number(params.monthId) : undefined;
-  const currentMonthId =
-    monthIdParam ?? getCurrentMonthId(months) ?? months.at(0)?.id;
+  const { months, currentMonthId } = await getActiveMonth(searchParams);
 
   const selectedMonth = months.find((m) => m.id === currentMonthId);
 
   const monthIndex = months.findIndex((m) => m.id === currentMonthId);
 
-  if (monthIndex === -1) {
-    throw new Error("Mes no encontrado");
-  }
+  const firstMatchday = monthIndex * MATCHDAYS_PER_MONTH + 1;
 
-  const firstMatchday = monthIndex * 2 + 1;
+  const isMonthLocked = selectedMonth?.status === "locked";
+  const isMonthConfirmed = selectedMonth?.status === "confirmed";
 
-  const isMonthLocked = selectedMonth?.status === MonthStatus.Locked;
-  const isMonthConfirmed = selectedMonth?.status === MonthStatus.Confirmed;
-
-  const showFifthCategory = selectedMonth?.["5_category"] ?? false;
+  const showFifthCategory = selectedMonth?.has_fifth_category ?? false;
 
   const matches =
     currentMonthId && (isMonthLocked || isMonthConfirmed)
@@ -65,24 +43,28 @@ export default async function Page({
 
   const filteredMatches = matches.filter((match) => {
     if (showFifthCategory) return true;
-    return match.categoryId !== 5 && match.categoryName !== "5ª";
+    return match.category.name !== "5ª";
   });
 
-  const matchesByDay: Record<number, Record<string, Match[]>> = {};
+  const matchesByDay: Record<number, CategoryMatches[]> = {};
+  const grouped: Record<number, Record<number, CategoryMatches>> = {};
 
   filteredMatches.forEach((match) => {
     const realMatchday = firstMatchday + match.matchday - 1;
 
-    if (!matchesByDay[realMatchday]) {
-      matchesByDay[realMatchday] = {};
-    }
-
-    if (!matchesByDay[realMatchday][match.categoryName]) {
-      matchesByDay[realMatchday][match.categoryName] = [];
-    }
-
-    matchesByDay[realMatchday][match.categoryName].push(match);
+    grouped[realMatchday] ??= {};
+    grouped[realMatchday][match.category.id] ??= {
+      category: match.category,
+      matches: [],
+    };
+    grouped[realMatchday][match.category.id].matches.push(match);
   });
+
+  for (const [day, categoriesById] of Object.entries(grouped)) {
+    matchesByDay[Number(day)] = Object.values(categoriesById).sort(
+      (a, b) => a.category.order - b.category.order,
+    );
+  }
 
   return (
     <>

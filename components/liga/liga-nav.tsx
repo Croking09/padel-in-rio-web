@@ -1,24 +1,14 @@
 import { Suspense } from "react";
-import { cookies } from "next/headers";
 import SectionNav from "@/components/common/section-nav";
-import TemporadaSelector from "./temporada-selector";
-import { getTemporadas } from "@/app/actions/ligas";
-import { resolveTemporadaId } from "@/lib/liga/resolve-active-month";
+import SeasonSelector from "@/components/liga/season-selector";
+import { getActiveSeason } from "@/lib/liga/resolve-season";
 
 export default async function LigaNav({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [temporadas, cookieStore] = await Promise.all([
-    getTemporadas(),
-    cookies(),
-  ]);
-
-  const currentTemporadaId = resolveTemporadaId(
-    [cookieStore.get("temporadaId")?.value],
-    temporadas,
-  );
+  const { seasonId, seasons } = await getActiveSeason({});
 
   return (
     <>
@@ -36,10 +26,7 @@ export default async function LigaNav({
             { href: "/liga/reglamento", label: "Reglamento" },
           ]}
         >
-          <TemporadaSelector
-            temporadas={temporadas}
-            currentTemporadaId={currentTemporadaId}
-          />
+          <SeasonSelector seasons={seasons} currentSeasonId={seasonId} />
         </SectionNav>
       </Suspense>
       {children}

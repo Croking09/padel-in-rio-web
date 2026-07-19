@@ -1,6 +1,5 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,6 +22,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { AuthError, isAuthApiError } from "@supabase/supabase-js";
 import { Google } from "@/components/icons";
+import { authClientService } from "@/lib/auth/services/client-service";
+import { Eye, EyeOff } from "lucide-react";
 
 type FieldErrors = {
   root?: string;
@@ -97,6 +98,7 @@ function getGoogleSignInErrorMessage(error: unknown): string {
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -109,17 +111,11 @@ export function LoginForm() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
     setIsLoading(true);
     setErrors({});
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) throw error;
-
+      await authClientService.loginWithEmail(email, password);
       router.push(redirectTo);
     } catch (error) {
       setErrors(getLoginFieldErrors(error));
@@ -129,20 +125,11 @@ export function LoginForm() {
   };
 
   const handleGoogleLogin = async () => {
-    const supabase = createClient();
     setErrors({});
     setIsGoogleLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(
-            redirectTo,
-          )}`,
-        },
-      });
-      if (error) throw error;
+      await authClientService.loginWithGoogle(redirectTo);
     } catch (error) {
       setErrors({ root: getGoogleSignInErrorMessage(error) });
       setIsGoogleLoading(false);
@@ -206,14 +193,32 @@ export function LoginForm() {
                     ¿Olvidaste tu contraseña?
                   </Link>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  aria-invalid={!!errors.password}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    aria-invalid={!!errors.password}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pr-10"
+                  />
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-1/2 right-1 h-8 w-8 -translate-y-1/2"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                    }
+                  >
+                    {showPassword ? <Eye /> : <EyeOff />}
+                  </Button>
+                </div>
+
                 {errors.password && <FieldError>{errors.password}</FieldError>}
               </Field>
 

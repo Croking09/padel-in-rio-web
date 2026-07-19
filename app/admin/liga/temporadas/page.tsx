@@ -1,9 +1,9 @@
-import { getTemporadasWithMonths } from "@/app/actions/ligas";
-import CreateTemporadaButton from "@/components/liga/admin/temporadas/create-temporada-button";
-import TemporadasClient from "@/components/liga/admin/temporadas/temporadas-client";
+import { getAllSeasonsWithMonths } from "@/app/actions/season-actions";
+import CreateSeasonButton from "@/components/liga/admin/temporadas/create-season-button";
+import SeasonsClient from "@/components/liga/admin/temporadas/seasons-client";
 
 export default async function Page() {
-  const temporadas = await getTemporadasWithMonths();
+  const seasons = await getAllSeasonsWithMonths();
 
   return (
     <>
@@ -15,12 +15,12 @@ export default async function Page() {
         </h1>
 
         <div className="justify-self-end">
-          <CreateTemporadaButton />
+          <CreateSeasonButton />
         </div>
       </div>
 
       <div className="px-4 md:px-8 lg:px-24 pb-8">
-        <TemporadasClient temporadas={temporadas} />
+        <SeasonsClient seasons={seasons} />
       </div>
     </>
   );

@@ -3,10 +3,16 @@
 import { useEffect, useRef, useState, Suspense } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Trophy, Award, Users, Shield } from "lucide-react";
+import { Trophy, Award, Users, Shield, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tabs = [
+  {
+    href: "/",
+    label: "Inicio",
+    icon: Home,
+    match: ["/"],
+  },
   {
     href: "/torneos",
     label: "Torneos",
@@ -111,7 +117,7 @@ function BottomTabBarContent() {
               <Link
                 href={href}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-2 rounded-full py-2 text-xs font-medium transition-all duration-300",
+                  "flex flex-col items-center justify-center gap-2 rounded-full p-2 text-xs font-medium transition-all duration-300",
                   isActive
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground",

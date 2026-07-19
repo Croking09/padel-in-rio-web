@@ -2,15 +2,10 @@ import { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-
-type Player = {
-  id: number;
-  name: string;
-  absent?: boolean;
-};
+import { PlayerWithParticipation } from "@/lib/types/member";
 
 type Team = {
-  players: [Player, Player];
+  players: [PlayerWithParticipation, PlayerWithParticipation];
   score: ReactNode;
 };
 
@@ -37,10 +32,10 @@ export default function SetCard({
                 key={player.id}
                 className={cn(
                   "font-medium",
-                  player.absent && "line-through opacity-50",
+                  player.isAbsent && "line-through opacity-50",
                 )}
               >
-                {player.name}
+                {player.nickname ?? player.full_name}
               </p>
             ))}
           </div>
@@ -63,10 +58,10 @@ export default function SetCard({
                 key={player.id}
                 className={cn(
                   "font-medium",
-                  player.absent && "line-through opacity-50",
+                  player.isAbsent && "line-through opacity-50",
                 )}
               >
-                {player.name}
+                {player.nickname ?? player.full_name}
               </p>
             ))}
           </div>

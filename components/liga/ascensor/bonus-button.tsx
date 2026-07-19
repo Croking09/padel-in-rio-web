@@ -1,6 +1,6 @@
 "use client";
 
-import { giveMonthlyBonus } from "@/app/actions/ligas";
+import { giveMonthlyBonus } from "@/app/actions/classification-actions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,16 +24,12 @@ export default function CreateSocioButton({
   month_id: number;
 }) {
   const onConfirm = async () => {
-    try {
-      const result = await giveMonthlyBonus(classification, month_id);
+    const result = await giveMonthlyBonus(classification, month_id);
 
-      if (result.success) {
-        toast.success("Bonus aplicado correctamente");
-      } else {
-        toast.info("Bonus ya aplicado para este mes");
-      }
-    } catch {
-      toast.error("Error aplicando bonus");
+    if (result.success) {
+      toast.success("Bonus aplicado correctamente");
+    } else {
+      toast.error(result.error);
     }
   };
 

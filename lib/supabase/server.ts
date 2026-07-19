@@ -1,27 +1,24 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import type { Database } from "@/lib/database.types";
 
 /**
- * Crea un client Supabase.
- * @param useCookies Si true, se usan cookies para auth. Si false, client anónimo público.
+ * Creates a Supabase server client.
+ * @param useCookies If true, cookies are used for auth. If false, anonymous public client.
  */
 export async function createClient({ useCookies = true } = {}) {
   if (!useCookies) {
-    return createServerClient(
+    return createSupabaseClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-      {
-        cookies: {
-          getAll: () => [],
-          setAll: () => {},
-        },
-      },
+      { auth: { persistSession: false, autoRefreshToken: false } },
     );
   }
 
   const cookieStore = await cookies();
 
-  return createServerClient(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {

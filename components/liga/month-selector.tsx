@@ -1,8 +1,6 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Month } from "@/lib/types/month";
-import { formatMonth } from "@/lib/utils";
 
 import {
   Select,
@@ -11,12 +9,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { MonthRow } from "@/lib/types/month";
 
 export default function MonthSelector({
   months,
   currentMonthId,
 }: {
-  months: Month[];
+  months: MonthRow[];
   currentMonthId?: number;
 }) {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function MonthSelector({
 
   const items = months.map((m) => ({
     value: String(m.id),
-    label: `${formatMonth(m.month)} - ${m.year}`,
+    label: `${format(new Date(2000, m.month - 1), "LLLL", { locale: es })} - ${m.year}`,
   }));
 
   const handleChange = (value: string | null) => {

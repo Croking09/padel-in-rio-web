@@ -1,11 +1,13 @@
 "use client";
 
 import { DropTargetMonitor, useDrop } from "react-dnd";
-import { Category, Player, Assignment } from "@/app/actions/monthly-assignment";
 import PlayerCard from "./player-card";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { DragItem } from "./types";
+import { CategoryRow } from "@/lib/types/category";
+import { Player } from "@/lib/types/member";
+import { PlayerAssignmentRow } from "@/lib/types/player-assignment";
 
 export default function CategoryColumn({
   category,
@@ -15,10 +17,10 @@ export default function CategoryColumn({
   onDrop,
   disabled,
 }: {
-  category: Category;
+  category: CategoryRow;
   capacityLabel: string;
   assignedPlayers: Player[];
-  assignments: Assignment[];
+  assignments: PlayerAssignmentRow[];
   onDrop: (item: DragItem) => void;
   disabled: boolean;
 }) {
@@ -54,7 +56,7 @@ export default function CategoryColumn({
       <div className="flex-1 min-h-0 overflow-y-auto p-2 space-y-2 custom-scroll">
         {assignedPlayers.map((player) => {
           const assignment = assignments.find(
-            (a) => a.jugador_id === player.id && a.categoria_id === category.id,
+            (a) => a.player_id === player.id && a.category_id === category.id,
           );
           return (
             <PlayerCard

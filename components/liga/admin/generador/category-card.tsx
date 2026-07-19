@@ -1,17 +1,17 @@
-import { Match } from "@/lib/types/match";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GeneratedMatch } from "@/lib/types/match";
 
 export default function CategoryCard({
   category,
   matches,
 }: {
-  category: string;
-  matches: Match[];
+  category: GeneratedMatch["category"];
+  matches: Pick<GeneratedMatch, "matchday" | "players">[];
 }) {
   return (
     <Card className="py-0 gap-0">
       <CardHeader className="px-4 py-2 border-b gap-0 [.border-b]:pb-2">
-        <CardTitle className="font-bold text-lg">{category}</CardTitle>
+        <CardTitle className="font-bold text-lg">{category.name}</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-4 p-4 gap-4">

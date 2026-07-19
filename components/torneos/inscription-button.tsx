@@ -4,14 +4,14 @@ import { buttonVariants, Button } from "@/components/ui/button";
 import Link from "next/link";
 
 interface Props {
-  torneoId: number;
+  tournamentId: number;
   startDate: string;
   inscriptionEndDate: string;
   manuallyClosed: boolean;
 }
 
 export default function InscriptionButton({
-  torneoId,
+  tournamentId,
   startDate,
   inscriptionEndDate,
   manuallyClosed,
@@ -29,7 +29,7 @@ export default function InscriptionButton({
     </Button>
   ) : (
     <Link
-      href={`/torneos/inscripcion/${torneoId}`}
+      href={`/torneos/inscripcion/${tournamentId}`}
       className={buttonVariants({ variant: "default", size: "default" })}
     >
       Inscribirse

@@ -1,6 +1,5 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -27,7 +26,12 @@ import {
   isAuthApiError,
 } from "@supabase/supabase-js";
 import { Google } from "@/components/icons";
-import { formatWeakPasswordReasons } from "@/lib/auth/auth-flows-error";
+import {
+  formatWeakPasswordReasons,
+  PasswordsDontMatchError,
+} from "@/lib/auth/auth-flows-error";
+import { authClientService } from "@/lib/auth/services/client-service";
+import { Eye, EyeOff } from "lucide-react";
 
 type FieldErrors = {
   root?: string;
@@ -116,6 +120,7 @@ export function SignUpForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -123,48 +128,31 @@ export function SignUpForm() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
     setIsLoading(true);
     setErrors({});
 
-    if (password !== repeatPassword) {
-      setErrors({ repeatPassword: "Las contraseñas no coinciden." });
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-        },
-      });
-      if (error) throw error;
+      await authClientService.signUpWithEmail(email, password, repeatPassword);
 
       sessionStorage.setItem("pendingEmail", email);
       router.push("/auth/sign-up-success");
     } catch (error) {
-      setErrors(getSignUpFieldErrors(error));
+      if (error instanceof PasswordsDontMatchError) {
+        setErrors({ repeatPassword: error.message });
+      } else {
+        setErrors(getSignUpFieldErrors(error));
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleGoogleSignUp = async () => {
-    const supabase = createClient();
     setErrors({});
     setIsGoogleLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-      if (error) throw error;
+      await authClientService.signUpWithGoogle();
     } catch (error) {
       setErrors({ root: getGoogleSignInErrorMessage(error) });
       setIsGoogleLoading(false);
@@ -212,14 +200,32 @@ export function SignUpForm() {
 
               <Field data-invalid={!!errors.password}>
                 <FieldLabel htmlFor="password">Contraseña</FieldLabel>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  aria-invalid={!!errors.password}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    aria-invalid={!!errors.password}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pr-10"
+                  />
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-1/2 right-1 h-8 w-8 -translate-y-1/2"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                    }
+                  >
+                    {showPassword ? <Eye /> : <EyeOff />}
+                  </Button>
+                </div>
+
                 {errors.password ? (
                   <FieldError>{errors.password}</FieldError>
                 ) : (
@@ -231,14 +237,32 @@ export function SignUpForm() {
                 <FieldLabel htmlFor="repeat-password">
                   Repite la contraseña
                 </FieldLabel>
-                <Input
-                  id="repeat-password"
-                  type="password"
-                  required
-                  aria-invalid={!!errors.repeatPassword}
-                  value={repeatPassword}
-                  onChange={(e) => setRepeatPassword(e.target.value)}
-                />
+
+                <div className="relative">
+                  <Input
+                    id="repeat-password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    aria-invalid={!!errors.repeatPassword}
+                    value={repeatPassword}
+                    onChange={(e) => setRepeatPassword(e.target.value)}
+                    className="pr-10"
+                  />
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-1/2 right-1 h-8 w-8 -translate-y-1/2"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                    }
+                  >
+                    {showPassword ? <Eye /> : <EyeOff />}
+                  </Button>
+                </div>
+
                 {errors.repeatPassword && (
                   <FieldError>{errors.repeatPassword}</FieldError>
                 )}

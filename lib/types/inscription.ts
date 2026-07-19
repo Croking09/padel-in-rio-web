@@ -1,9 +1,9 @@
-export interface Inscription {
-  id: number;
-  torneo_id: number;
-  user_id: string;
-  phone_number: string;
-  category: string | null;
-  player_1_full_name: string;
-  player_2_full_name: string;
-}
+import type { Database } from "@/lib/database.types";
+
+export type InscriptionRow =
+  Database["public"]["Tables"]["inscriptions"]["Row"];
+
+export type InscriptionInsert =
+  Database["public"]["Tables"]["inscriptions"]["Insert"];
+
+export type CreateInscriptionInput = Omit<InscriptionInsert, "id" | "user_id">;

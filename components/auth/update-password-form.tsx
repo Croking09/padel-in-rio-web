@@ -1,6 +1,5 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,6 +24,8 @@ import {
   isAuthApiError,
 } from "@supabase/supabase-js";
 import { formatWeakPasswordReasons } from "@/lib/auth/auth-flows-error";
+import { authClientService } from "@/lib/auth/services/client-service";
+import { Eye, EyeOff } from "lucide-react";
 
 type FieldErrors = {
   root?: string;
@@ -79,19 +80,19 @@ function getUpdatePasswordFieldErrors(error: unknown): FieldErrors {
 
 export function UpdatePasswordForm() {
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
+
     setIsLoading(true);
     setErrors({});
 
     try {
-      const { error } = await supabase.auth.updateUser({ password });
-      if (error) throw error;
+      await authClientService.updatePassword(password);
       // Update this route to redirect to an authenticated route. The user already has an active session.
       router.push("/");
     } catch (error) {
@@ -116,14 +117,32 @@ export function UpdatePasswordForm() {
           <FieldGroup>
             <Field data-invalid={!!errors.password}>
               <FieldLabel htmlFor="password">Nueva contraseña</FieldLabel>
-              <Input
-                id="password"
-                type="password"
-                required
-                aria-invalid={!!errors.password}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  aria-invalid={!!errors.password}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pr-10"
+                />
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-1/2 right-1 h-8 w-8 -translate-y-1/2"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={
+                    showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                  }
+                >
+                  {showPassword ? <Eye /> : <EyeOff />}
+                </Button>
+              </div>
+
               {errors.password ? (
                 <FieldError>{errors.password}</FieldError>
               ) : (
