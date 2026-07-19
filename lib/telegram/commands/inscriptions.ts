@@ -1,6 +1,5 @@
 import { getAllInscriptionsForOpenTournaments } from "@/app/actions/inscription-actions";
-import { requireAdmin } from "@/lib/telegram/commands/require-admin";
-import { sendMessage } from "@/lib/telegram/utils";
+import { requireAdmin, sendMessage } from "@/lib/telegram/utils";
 import { InscriptionRow } from "@/lib/types/inscription";
 import { TournamentRow } from "@/lib/types/tournament";
 

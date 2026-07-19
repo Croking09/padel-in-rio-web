@@ -3,8 +3,7 @@ import { getAllSeasons } from "@/app/actions/season-actions";
 import { resolveActiveMonth } from "@/lib/liga/resolve-month";
 import { resolveSeasonId } from "@/lib/liga/resolve-season";
 import { generateMatchesPdf } from "@/lib/pdf/generate-pdf";
-import { requireAdmin } from "@/lib/telegram/commands/require-admin";
-import { sendDocument, sendMessage } from "@/lib/telegram/utils";
+import { requireAdmin, sendDocument, sendMessage } from "@/lib/telegram/utils";
 
 export async function pdfCommand(chatId: number) {
   if (!(await requireAdmin(chatId))) {
