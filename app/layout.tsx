@@ -13,7 +13,10 @@ const defaultUrl = process.env.VERCEL_URL
   : "http://localhost:3000";
 
 export const metadata: Metadata = {
-  title: "Pádel in Río - Asociación de Pádel de Riotorto",
+  title: {
+    default: "Pádel in Río - Asociación de Pádel de Riotorto",
+    template: "%s | Pádel in Río",
+  },
   description: "Gestión de torneos y liga de Pádel in Río.",
   metadataBase: new URL(defaultUrl),
   openGraph: {
