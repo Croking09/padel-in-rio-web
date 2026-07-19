@@ -13,8 +13,25 @@ const defaultUrl = process.env.VERCEL_URL
   : "http://localhost:3000";
 
 export const metadata: Metadata = {
-  title: "Pádel in Río",
+  title: "Pádel in Río - Asociación de Pádel de Riotorto",
+  description: "Gestión de torneos y liga de Pádel in Río.",
   metadataBase: new URL(defaultUrl),
+  openGraph: {
+    title: "Pádel in Río",
+    description: "Gestión de torneos y liga de Pádel in Río.",
+    url: "https://www.padelinrio.com",
+    siteName: "Pádel in Río",
+    images: [
+      {
+        url: "/opengraph/default-opengraph.png",
+        width: 1200,
+        height: 630,
+        alt: "Pádel in Río",
+      },
+    ],
+    locale: "es_ES",
+    type: "website",
+  },
 };
 
 const montserrat = Montserrat({
