@@ -37,82 +37,13 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Do not run code between createServerClient and
-  // supabase.auth.getClaims(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
+  // supabase.auth.getClaims(). A simple mistake could make it very hard to
+  // debug issues with users being randomly logged out.
 
   // IMPORTANT: If you remove getClaims() and you use server-side rendering
   // with the Supabase client, your users may be randomly logged out.
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
 
-  if (
-    request.nextUrl.pathname.startsWith("/manifest") ||
-    request.nextUrl.pathname.startsWith("/_next") ||
-    request.nextUrl.pathname.startsWith("/icons") ||
-    request.nextUrl.pathname.startsWith("/tutorial-instalacion") ||
-    request.nextUrl.pathname.startsWith("/screenshots") ||
-    (request.nextUrl.pathname.startsWith("/asociacion/") &&
-      request.nextUrl.pathname.endsWith(".pdf"))
-  ) {
-    return supabaseResponse;
-  }
-
-  if (request.nextUrl.pathname.startsWith("/admin")) {
-    const isAdmin = user?.app_metadata?.admin === true;
-
-    if (!isAdmin) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/";
-      return NextResponse.redirect(url);
-    }
-  }
-
-  if (request.nextUrl.pathname.startsWith("/telegram")) {
-    return supabaseResponse;
-  }
-
-  const PUBLIC_PATHS = [
-    "/",
-    "/politica-de-cookies",
-    "/auth/login",
-    "/auth/sign-up",
-    "/auth/sign-up-success",
-    "/auth/forgot-password",
-    "/auth/update-password",
-    "/torneos",
-    "/liga/reglamento",
-    "/liga/partidos", // Maybe only for players?
-    "/liga/ascensor",
-    "/liga/clasificacion",
-    "/asociacion",
-    "/asociacion/historico",
-    "/equipo",
-  ];
-
-  const isPublicPath =
-    PUBLIC_PATHS.includes(request.nextUrl.pathname) ||
-    /^\/liga\/partidos\/[^/]+\/resultados$/.test(request.nextUrl.pathname);
-
-  if (!isPublicPath && !user) {
-    // no user, potentially respond by redirecting the user to the login page
-    const url = request.nextUrl.clone();
-    url.pathname = "/auth/login";
-    url.searchParams.set("redirectTo", request.nextUrl.pathname);
-    return NextResponse.redirect(url);
-  }
-
-  // IMPORTANT: You *must* return the supabaseResponse object as it is.
-  // If you're creating a new response object with NextResponse.next() make sure to:
-  // 1. Pass the request in it, like so:
-  //    const myNewResponse = NextResponse.next({ request })
-  // 2. Copy over the cookies, like so:
-  //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-  // 3. Change the myNewResponse object to fit your needs, but avoid changing
-  //    the cookies!
-  // 4. Finally:
-  //    return myNewResponse
-  // If this is not done, you may be causing the browser and server to go out
-  // of sync and terminate the user's session prematurely!
-
-  return supabaseResponse;
+  return { supabaseResponse, user };
 }

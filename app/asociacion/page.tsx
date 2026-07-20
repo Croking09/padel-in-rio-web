@@ -1,8 +1,11 @@
+import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
+
 export default function Asociacion() {
   return (
     <>
-      <div className="space-y-4 text-center mt-8">
-        <h2 className="text-4xl font-bold">Quiénes somos</h2>
+      <div className="space-y-4 text-center mt-8 px-8">
+        <h1 className="text-4xl font-bold">Quiénes somos</h1>
 
         <p className="text-lg">
           Corría el año 2022, cuando después de aprender durante años esto del
@@ -14,10 +17,12 @@ export default function Asociacion() {
         </p>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 pt-16">
-        <h3 className="text-2xl font-semibold pb-3 border-b">Qué hacemos</h3>
+      <section className="max-w-4xl mx-auto px-8 pt-16">
+        <h2 className="text-2xl font-semibold pb-4">Qué hacemos</h2>
 
-        <div className="mt-4 space-y-3 leading-relaxed">
+        <Separator />
+
+        <div className="mt-4 space-y-4 leading-relaxed">
           <p>
             Esta asociación se fundó con un objetivo claro: impulsar el deporte
             local y fomentar su práctica durante todo el año.
@@ -38,10 +43,12 @@ export default function Asociacion() {
             nuestra localidad.
           </p>
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-4xl mx-auto px-6 pt-16 space-y-4">
-        <h3 className="text-2xl font-semibold pb-3 border-b">Los Socios</h3>
+      <section className="max-w-4xl mx-auto px-8 pt-16 space-y-4">
+        <h2 className="text-2xl font-semibold">Los Socios</h2>
+
+        <Separator />
 
         <p>
           Nada de esto sería posible sin nuestros socios. Gracias a ellos el
@@ -75,35 +82,35 @@ export default function Asociacion() {
           Para hacerte socio, contacta con la directiva a través de cualquier
           medio y te guiaremos con los siguientes pasos.
         </p>
-      </div>
+      </section>
 
-      <div className="space-y-4 pt-12 pb-8 max-w-4xl mx-auto px-6">
-        <h4 className="text-xl font-semibold">
+      <section className="space-y-4 pt-12 pb-8 max-w-4xl mx-auto px-8">
+        <h3 className="text-xl font-medium">
           Podéis consultar los estatutos pulsando en los siguientes enlaces
-        </h4>
+        </h3>
 
         <ul className="space-y-2 list-disc list-inside">
           <li>
-            <a
+            <Link
               href="/asociacion/estatutos_firmados.pdf"
               download="Estatutos.pdf"
-              className="hover:underline font-medium"
+              className="underline"
             >
               Estatutos
-            </a>
+            </Link>
           </li>
 
           <li>
-            <a
+            <Link
               href="/asociacion/inscripcion_entidade_deportiva.pdf"
               download="Inscripcion.pdf"
-              className="hover:underline font-medium"
+              className="underline"
             >
               Inscripción Entidade Deportiva
-            </a>
+            </Link>
           </li>
         </ul>
-      </div>
+      </section>
     </>
   );
 }

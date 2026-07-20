@@ -1,8 +1,6 @@
 "use client";
 
-import { confirmMonth } from "@/app/actions/generador-partidos";
 import { Button } from "@/components/ui/button";
-import { Match } from "@/lib/types/match";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,44 +13,31 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { useWebHaptics } from "web-haptics/react";
-import { hapticResponseSettings } from "@/lib/haptic";
+import { confirmMonth } from "@/app/actions/match-generator-actions";
+import { GeneratedMatch } from "@/lib/types/match";
 
 export default function ConfirmButton({
-  className,
   matches,
   monthId,
 }: {
-  className?: string;
-  matches: Match[];
+  matches: GeneratedMatch[];
   monthId: number;
 }) {
-  const { trigger } = useWebHaptics();
-
   const onConfirm = async () => {
     const response = await confirmMonth(monthId, matches);
 
     if (!response.success) {
-      toast.error(response.error?.message, { position: "top-center" });
-      return;
+      toast.error(response.error);
     } else {
-      toast.success("Mes confirmado correctamente", {
-        position: "top-center",
-      });
+      toast.success("Partidos confirmados correctamente");
     }
   };
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          className={className}
-          variant="secondary"
-          onClick={() => trigger(hapticResponseSettings)}
-        >
-          Confirmar
-        </Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger
+        render={<Button>Confirmar</Button>}
+      ></AlertDialogTrigger>
 
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -65,7 +50,7 @@ export default function ConfirmButton({
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} variant="secondary">
+          <AlertDialogAction onClick={onConfirm}>
             Sí, confirmar
           </AlertDialogAction>
         </AlertDialogFooter>

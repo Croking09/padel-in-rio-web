@@ -1,272 +1,318 @@
 "use client";
 
 import { useState } from "react";
-import { registerMatchResults } from "@/app/actions/partidos";
 import { redirect } from "next/navigation";
-import { Socio } from "@/lib/types/socio";
-import { HapticButton } from "@/components/ui/haptic-button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import MatchParticipants from "@/lib/types/matchParticipants";
-import { getMatchSetCombos } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import SetCard from "@/components/liga/partidos/set-card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ChevronDown } from "lucide-react";
+import { MemberRow, Player } from "@/lib/types/member";
+import { registerMatchResults } from "@/app/actions/match-actions";
+import { getMatchSetCombos } from "@/lib/liga/match";
 
-export default function MatchResultsPage({
-  partidoId,
+export default function ResultsForm({
+  matchId,
   players,
-  allSocios,
+  members,
 }: {
-  partidoId: number;
-  players: Omit<Socio, "active">[];
-  allSocios: Socio[];
+  matchId: number;
+  players: Player[];
+  members: MemberRow[];
 }) {
-  const [results, setResults] = useState([
-    { p1: "", p2: "" },
-    { p1: "", p2: "" },
-    { p1: "", p2: "" },
+  const [setScores, setSetScores] = useState([
+    { pair1: "", pair2: "" },
+    { pair1: "", pair2: "" },
+    { pair1: "", pair2: "" },
   ]);
 
-  const [participation, setParticipation] = useState(
-    players.map((p) => ({
-      jugador_id: p.id,
-      asiste: true,
-      sustituto_id: null as number | null,
+  const [playerParticipation, setPlayerParticipation] = useState(
+    players.map((player) => ({
+      playerId: player.id,
+      attends: true,
+      substituteId: null as number | null,
     })),
   );
 
   if (players.length !== 4) {
     redirect("/liga/partidos");
   }
+  const setPairings = getMatchSetCombos(players);
 
-  const combos = getMatchSetCombos(players);
-
-  function updateScore(i: number, side: "p1" | "p2", value: string) {
+  function updateSetScore(
+    setIndex: number,
+    pair: "pair1" | "pair2",
+    value: string,
+  ) {
     if (value !== "" && !/^\d+$/.test(value)) return;
-    const copy = [...results];
-    copy[i][side] = value;
-    setResults(copy);
+
+    const updatedScores = [...setScores];
+    updatedScores[setIndex][pair] = value;
+
+    setSetScores(updatedScores);
   }
 
   function updateParticipation(
-    index: number,
-    field: "asiste" | "sustituto_id",
+    playerIndex: number,
+    field: "attends" | "substituteId",
     value: boolean | number | null,
   ) {
-    const copy = [...participation];
+    const updatedParticipation = [...playerParticipation];
 
-    if (field === "asiste") {
-      copy[index].asiste = value as boolean;
+    if (field === "attends") {
+      updatedParticipation[playerIndex].attends = value as boolean;
 
       if (!value) {
-        copy[index].sustituto_id = null;
+        updatedParticipation[playerIndex].substituteId = null;
       }
     }
 
-    if (field === "sustituto_id") {
-      copy[index].sustituto_id = value as number;
+    if (field === "substituteId") {
+      updatedParticipation[playerIndex].substituteId = value as number;
     }
 
-    setParticipation(copy);
+    setPlayerParticipation(updatedParticipation);
   }
 
   async function handleSubmit() {
-    if (results.some((r) => r.p1 === "" || r.p2 === "")) {
-      toast.error("No se han introducido todos los resultados", {
-        position: "top-center",
-      });
+    if (setScores.some((set) => set.pair1 === "" || set.pair2 === "")) {
+      toast.error("No se han introducido todos los resultados");
       return;
     }
 
-    if (participation.some((p) => !p.asiste && p.sustituto_id === null)) {
+    if (
+      playerParticipation.some(
+        (player) => !player.attends && player.substituteId === null,
+      )
+    ) {
       toast.error(
         "Debes seleccionar un sustituto para todos los jugadores ausentes",
-        {
-          position: "top-center",
-        },
       );
       return;
     }
 
-    const sets = combos.map((c, i) => ({
-      orden: i + 1,
-      pareja1_jugador1_id: c[0].id,
-      pareja1_jugador2_id: c[1].id,
-      pareja2_jugador1_id: c[2].id,
-      pareja2_jugador2_id: c[3].id,
-      pareja1_juegos: Number(results[i].p1),
-      pareja2_juegos: Number(results[i].p2),
+    const matchSets = setPairings.map((pairing, setIndex) => ({
+      order: setIndex + 1,
+      match_id: matchId,
+      pair1_player1_id: pairing[0].id,
+      pair1_player2_id: pairing[1].id,
+      pair2_player1_id: pairing[2].id,
+      pair2_player2_id: pairing[3].id,
+      pair1_score: Number(setScores[setIndex].pair1),
+      pair2_score: Number(setScores[setIndex].pair2),
     }));
 
-    const participacion: MatchParticipants[] = participation.map((p) => ({
-      jugador_id: p.jugador_id,
-      sustituto_id: p.asiste ? null : p.sustituto_id,
+    const participationData = playerParticipation.map((player) => ({
+      match_id: matchId,
+      player_id: player.playerId,
+      substitute_id: player.attends ? null : player.substituteId,
     }));
 
-    const result = await registerMatchResults(partidoId, sets, participacion);
+    const result = await registerMatchResults(
+      matchId,
+      matchSets,
+      participationData,
+    );
 
     if (!result.success) {
-      return toast.error("Ha ocurrido un error al registrar los resultados", {
-        position: "top-center",
-      });
+      return toast.error("Ha ocurrido un error al registrar los resultados");
     }
 
-    toast.success("Resultados registrados correctamente", {
-      position: "top-center",
-    });
+    toast.success("Resultados registrados correctamente");
 
     redirect("/liga/partidos");
   }
 
-  function isAbsent(playerId: number) {
-    return participation.some((p) => p.jugador_id === playerId && !p.asiste);
+  function isPlayerAbsent(playerId: number) {
+    return playerParticipation.some(
+      (player) => player.playerId === playerId && !player.attends,
+    );
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 space-y-8">
-      <h1 className="text-2xl font-bold text-center">Registrar resultados</h1>
-
-      <div className="max-w-5xl mx-auto select-none">
-        <details className="border rounded-xl overflow-hidden">
-          <summary className="cursor-pointer px-4 py-2 text-sm font-semibold">
-            Participación
-          </summary>
-
-          <div className="px-4 py-2 space-y-2">
-            {players.map((player, i) => (
-              <div
-                key={player.id}
-                className="flex items-center justify-between text-sm"
+    <div className="mx-auto pb-8 space-y-8 px-8">
+      <Card className="mx-auto max-w-5xl overflow-hidden py-0 gap-0">
+        <Collapsible>
+          <CollapsibleTrigger
+            render={
+              <button
+                type="button"
+                className="group w-full text-left transition-colors"
               >
-                <span className="font-medium truncate w-40">
-                  {player.nickname || player.full_name}
-                </span>
+                <CardHeader className="flex flex-row items-center justify-between px-4 py-2">
+                  <CardTitle className="text-base font-semibold">
+                    Participación
+                  </CardTitle>
 
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2 text-sm">
-                    <Input
-                      type="checkbox"
-                      checked={participation[i].asiste}
-                      onChange={(e) =>
-                        updateParticipation(i, "asiste", e.target.checked)
-                      }
-                    />
-                    <span>Asiste</span>
-                  </label>
+                  <ChevronDown className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+                </CardHeader>
+              </button>
+            }
+          />
 
-                  {!participation[i].asiste && (
-                    <select
-                      className="border rounded-md px-2 py-1 text-sm bg-background"
-                      value={participation[i].sustituto_id ?? ""}
-                      onChange={(e) =>
-                        updateParticipation(
-                          i,
-                          "sustituto_id",
-                          e.target.value ? Number(e.target.value) : null,
-                        )
-                      }
-                    >
-                      {" "}
-                      <option value="">Sin sustituto</option>{" "}
-                      {allSocios
-                        .filter((p) => p.id !== player.id)
-                        .map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {" "}
-                            {p.nickname || p.full_name}{" "}
-                          </option>
-                        ))}{" "}
-                    </select>
-                  )}
+          <CollapsibleContent>
+            <CardContent className="space-y-3 px-4 py-4">
+              {players.map((player, playerIndex) => (
+                <div
+                  key={player.id}
+                  className="flex items-center justify-between gap-4"
+                >
+                  <span className="font-medium truncate">
+                    {player.nickname || player.full_name}
+                  </span>
+
+                  <div className="flex items-center gap-3">
+                    <label className="flex items-center gap-2 text-sm whitespace-nowrap">
+                      <Checkbox
+                        checked={playerParticipation[playerIndex].attends}
+                        onCheckedChange={(checked) =>
+                          updateParticipation(
+                            playerIndex,
+                            "attends",
+                            checked === true,
+                          )
+                        }
+                      />
+                      Asiste
+                    </label>
+
+                    {!playerParticipation[playerIndex].attends && (
+                      <Select
+                        value={
+                          playerParticipation[
+                            playerIndex
+                          ].substituteId?.toString() || ""
+                        }
+                        onValueChange={(value) =>
+                          updateParticipation(
+                            playerIndex,
+                            "substituteId",
+                            value === "" ? null : Number(value),
+                          )
+                        }
+                      >
+                        <SelectTrigger size="sm" className="w-56">
+                          <SelectValue placeholder="Selecciona un sustituto">
+                            {(() => {
+                              const sustitutoId =
+                                playerParticipation[playerIndex].substituteId;
+                              if (!sustitutoId) return undefined;
+
+                              const socioSustituto = members.find(
+                                (s) => s.id === sustitutoId,
+                              );
+                              return socioSustituto
+                                ? socioSustituto.nickname ||
+                                    socioSustituto.full_name
+                                : undefined;
+                            })()}
+                          </SelectValue>
+                        </SelectTrigger>
+
+                        <SelectContent alignItemWithTrigger={false}>
+                          <SelectGroup>
+                            {members
+                              .filter((p) => p.id !== player.id)
+                              .map((p) => (
+                                <SelectItem key={p.id} value={p.id.toString()}>
+                                  {p.nickname || p.full_name}
+                                </SelectItem>
+                              ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </details>
-      </div>
+              ))}
+            </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-        {combos.map((combo, i) => (
-          <div
-            key={i}
-            className="flex flex-col rounded-xl border overflow-hidden"
-          >
-            <div className="px-4 py-2 border-b">
-              <h3 className="font-bold text-md">Set {i + 1}</h3>
-            </div>
-
-            <div className="flex flex-col gap-4 p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex flex-col">
-                  <span
-                    className={`font-semibold ${
-                      isAbsent(combo[0].id) ? "line-through opacity-50" : ""
-                    }`}
-                  >
-                    {combo[0].nickname || combo[0].full_name}
-                  </span>
-                  <span
-                    className={`font-semibold ${
-                      isAbsent(combo[1].id) ? "line-through opacity-50" : ""
-                    }`}
-                  >
-                    {combo[1].nickname || combo[1].full_name}
-                  </span>
-                </div>
-
+        {setPairings.map((pairing, index) => (
+          <SetCard
+            key={index}
+            title={`Set ${index + 1}`}
+            team1={{
+              players: [
+                {
+                  id: pairing[0].id,
+                  full_name: pairing[0].full_name,
+                  nickname: pairing[0].nickname,
+                  isAbsent: isPlayerAbsent(pairing[0].id),
+                },
+                {
+                  id: pairing[1].id,
+                  full_name: pairing[1].full_name,
+                  nickname: pairing[1].nickname,
+                  isAbsent: isPlayerAbsent(pairing[1].id),
+                },
+              ],
+              score: (
                 <Input
                   type="text"
                   inputMode="numeric"
-                  className="border p-2 w-16 rounded"
-                  value={results[i].p1}
                   placeholder="0"
-                  onChange={(e) => updateScore(i, "p1", e.target.value)}
+                  className="w-16 text-center"
+                  value={setScores[index].pair1}
+                  onChange={(e) =>
+                    updateSetScore(index, "pair1", e.target.value)
+                  }
                 />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="h-px bg-border flex-1" />
-                <span className="text-xs font-bold">VS</span>
-                <div className="h-px bg-border flex-1" />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex flex-col">
-                  <span
-                    className={`font-semibold ${
-                      isAbsent(combo[2].id) ? "line-through opacity-50" : ""
-                    }`}
-                  >
-                    {combo[2].nickname || combo[2].full_name}
-                  </span>
-                  <span
-                    className={`font-semibold ${
-                      isAbsent(combo[3].id) ? "line-through opacity-50" : ""
-                    }`}
-                  >
-                    {combo[3].nickname || combo[3].full_name}
-                  </span>
-                </div>
-
+              ),
+            }}
+            team2={{
+              players: [
+                {
+                  id: pairing[2].id,
+                  full_name: pairing[2].full_name,
+                  nickname: pairing[2].nickname,
+                  isAbsent: isPlayerAbsent(pairing[2].id),
+                },
+                {
+                  id: pairing[3].id,
+                  full_name: pairing[3].full_name,
+                  nickname: pairing[3].nickname,
+                  isAbsent: isPlayerAbsent(pairing[3].id),
+                },
+              ],
+              score: (
                 <Input
                   type="text"
                   inputMode="numeric"
-                  className="border p-2 w-16 rounded"
-                  value={results[i].p2}
                   placeholder="0"
-                  onChange={(e) => updateScore(i, "p2", e.target.value)}
+                  className="w-16 text-center"
+                  value={setScores[index].pair2}
+                  onChange={(e) =>
+                    updateSetScore(index, "pair2", e.target.value)
+                  }
                 />
-              </div>
-            </div>
-          </div>
+              ),
+            }}
+          />
         ))}
       </div>
 
-      <HapticButton
-        variant="secondary"
-        onClick={handleSubmit}
-        className="block mx-auto"
-      >
+      <Button onClick={handleSubmit} className="block mx-auto">
         Guardar resultados
-      </HapticButton>
+      </Button>
     </div>
   );
 }

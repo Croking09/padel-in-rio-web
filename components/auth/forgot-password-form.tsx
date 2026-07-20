@@ -1,7 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,88 +8,133 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useState } from "react";
+import { AuthError, isAuthApiError } from "@supabase/supabase-js";
+import { authClientService } from "@/lib/auth/services/client-service";
 
-export function ForgotPasswordForm({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+type FieldErrors = {
+  root?: string;
+  email?: string;
+};
+
+function getForgotPasswordFieldErrors(error: unknown): FieldErrors {
+  if (isAuthApiError(error)) {
+    return {
+      root: "No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.",
+    };
+  }
+
+  const authError = error as AuthError;
+
+  switch (authError.code) {
+    case "email_address_invalid":
+      return { email: "Ese formato de correo no es válido." };
+
+    case "over_email_send_rate_limit":
+      return {
+        email:
+          "Se han enviado demasiados correos a esta dirección. Espera unos minutos.",
+      };
+
+    case "over_request_rate_limit":
+      return {
+        root: "Demasiados intentos. Espera un momento antes de volver a intentarlo.",
+      };
+
+    case "validation_failed":
+      return { root: "Revisa los datos introducidos e inténtalo de nuevo." };
+
+    default:
+      return { root: "Ha ocurrido un error. Inténtalo de nuevo." };
+  }
+}
+
+export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FieldErrors>({});
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
     setIsLoading(true);
-    setError(null);
+    setErrors({});
 
     try {
-      // The url which will be included in the email. This URL needs to be configured in your redirect URLs in the Supabase dashboard at https://supabase.com/dashboard/project/_/auth/url-configuration
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/update-password`,
-      });
-      if (error) throw error;
+      await authClientService.resetPassword(email);
       setSuccess(true);
-    } catch {
-      setError("Ha ocurrido un error");
+    } catch (error) {
+      setErrors(getForgotPasswordFieldErrors(error));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <>
       {success ? (
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">Comprueba tu correo</CardTitle>
-            <CardDescription>Se han enviado las instrucciones</CardDescription>
+            <CardTitle className="text-2xl font-bold">
+              Comprueba tu correo
+            </CardTitle>
+            <CardDescription>Se han enviado las instrucciones.</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Se te ha enviado un correo con las instrucciones para cambiar tu
-              contraseña.
-            </p>
+            Se te ha enviado un correo con las instrucciones para cambiar tu
+            contraseña.
+          </CardContent>
+          <CardContent className="text-muted-foreground">
+            Puedes cerrar esta ventana.
           </CardContent>
         </Card>
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">Cambia tu contraseña</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Cambia tu contraseña
+            </CardTitle>
             <CardDescription>
               Escribe tu email y te enviaremos un enlace para cambiar tu
-              contraseña
+              contraseña.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleForgotPassword}>
-              <div className="flex flex-col gap-6">
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
+              <FieldGroup>
+                <Field data-invalid={!!errors.email}>
+                  <FieldLabel htmlFor="email">Email</FieldLabel>
                   <Input
                     id="email"
                     type="email"
                     placeholder="email@ejemplo.com"
                     required
+                    aria-invalid={!!errors.email}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
-                </div>
-                {error && <p className="text-sm text-red-500">{error}</p>}
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isLoading}
-                  variant="secondary"
-                >
-                  {isLoading ? "Enviando..." : "Enviar email"}
-                </Button>
-              </div>
+                  {errors.email && <FieldError>{errors.email}</FieldError>}
+                </Field>
+
+                {errors.root && (
+                  <FieldError className="text-center">{errors.root}</FieldError>
+                )}
+
+                <Field>
+                  <Button type="submit" disabled={isLoading}>
+                    {isLoading ? "Enviando..." : "Enviar enlace"}
+                  </Button>
+                </Field>
+              </FieldGroup>
+
               <div className="mt-4 text-center text-sm">
                 ¿Ya tienes cuenta?{" "}
                 <Link
@@ -105,6 +148,6 @@ export function ForgotPasswordForm({
           </CardContent>
         </Card>
       )}
-    </div>
+    </>
   );
 }

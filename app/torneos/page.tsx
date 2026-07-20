@@ -1,73 +1,55 @@
-import Torneos from "@/components/torneos/torneos";
-import TorneosSkeleton from "@/components/torneos/torneos-skeleton";
-import { Suspense } from "react";
-import { AuthButton } from "@/components/auth/auth-button";
-import { Button } from "@/components/ui/button";
-import CreateTorneoButton from "@/components/torneos/admin/create-torneo-button";
-import { createClient } from "@/lib/supabase/server";
+import TournamentList from "@/components/torneos/tournament-list";
+import { isAdmin } from "@/lib/auth/permissions";
+import Link from "next/link";
+import { PlusIcon } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { getMyOpenTournamentsInscriptions } from "@/app/actions/inscription-actions";
+import { getTournaments } from "@/app/actions/tournament-actions";
+import { authServerService } from "@/lib/auth/services/server-service";
 
-type SearchParams = {
-  page?: string;
-};
+export default async function Page() {
+  const [tournaments, user] = await Promise.all([
+    getTournaments(),
+    authServerService.getCurrentUser(),
+  ]);
 
-type PageProps = {
-  searchParams: Promise<SearchParams>;
-};
+  const showAdminControls = isAdmin(user);
 
-export default async function Page({ searchParams }: PageProps) {
+  const inscriptions = user
+    ? await getMyOpenTournamentsInscriptions(user.id)
+    : [];
+
+  const registeredTournamentIds = new Set(
+    inscriptions.map((i) => i.tournament_id),
+  );
+
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-3 items-center mt-8 text-center md:text-left">
-        <div />
-        <h2 className="text-3xl font-bold text-center">NUESTROS TORNEOS</h2>
-        <div className="flex justify-center md:justify-end md:pr-8 py-4 md:pt-0">
-          <Suspense>
-            <AuthButton />
-          </Suspense>
-        </div>
+      <div className="flex flex-col md:grid md:grid-cols-3 items-center gap-4 pt-8 px-8">
+        <div className="hidden md:block" />
+        <h1 className="text-4xl font-bold text-center">Nuestros Torneos</h1>
+        {showAdminControls ? (
+          <Link
+            href="/admin/torneos/create-torneo"
+            className={buttonVariants({
+              variant: "default",
+              size: "default",
+              className: "md:justify-self-end",
+            })}
+          >
+            <PlusIcon className="h-4 w-4" />
+            Crear torneo
+          </Link>
+        ) : (
+          <div className="hidden md:block" />
+        )}
       </div>
 
-      <Suspense
-        fallback={
-          <Button disabled className="w-full md:w-auto invisible">
-            Crear torneo
-          </Button>
-        }
-      >
-        <AdminSection />
-      </Suspense>
-
-      <Suspense fallback={<TorneosSkeleton />}>
-        <TorneosWrapper searchParams={searchParams} />
-      </Suspense>
+      <TournamentList
+        tournaments={tournaments}
+        registeredTournamentIds={registeredTournamentIds}
+        showAdminControls={showAdminControls}
+      />
     </>
   );
-}
-
-async function AdminSection() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const isAdmin = user?.app_metadata?.admin === true;
-
-  if (!isAdmin) return null;
-
-  return (
-    <div className="px-8 pt-4 md:pt-0 flex justify-center md:justify-start">
-      <CreateTorneoButton className="w-full md:w-auto" />
-    </div>
-  );
-}
-
-async function TorneosWrapper({
-  searchParams,
-}: {
-  searchParams: Promise<{ page?: string }>;
-}) {
-  const params = await searchParams;
-  const page = Number(params.page) || 1;
-
-  return <Torneos page={page} />;
 }

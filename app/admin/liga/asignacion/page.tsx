@@ -1,56 +1,47 @@
-import { getMonths, getTemporadas } from "@/app/actions/ligas";
-import { getAssignmentData } from "@/app/actions/monthly-assignment";
+import { getAssignmentData } from "@/app/actions/player-assignment-actions";
 import AssignmentBoard from "@/components/liga/admin/asignaciones/assignment-board";
+import EmptyMonths from "@/components/liga/empty-months";
 import MonthSelector from "@/components/liga/month-selector";
-import { getCurrentMonthId } from "@/lib/utils";
+import { getActiveMonth } from "@/lib/liga/resolve-month";
 
 export default async function AssignmentPage({
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParams: Promise<{ monthId?: string; seasonId?: string }>;
 }) {
-  const [allMonths, temporadas, params] = await Promise.all([
-    getMonths(),
-    getTemporadas(),
-    searchParams,
-  ]);
+  const { months, currentMonthId } = await getActiveMonth(searchParams);
 
-  const temporadaIdParam = params.temporadaId
-    ? Number(params.temporadaId)
-    : undefined;
-  const activeTemporadaId = temporadaIdParam ?? temporadas.at(0)?.id ?? 0;
-
-  const months = allMonths.filter((m) => m.temporada_id === activeTemporadaId);
-
-  const monthIdParam = params.monthId ? Number(params.monthId) : undefined;
-  const currentMonthId =
-    monthIdParam ?? getCurrentMonthId(months) ?? months.at(0)?.id;
-
-  if (!currentMonthId) {
-    return (
-      <div className="p-8">
-        <h2 className="text-2xl font-bold pb-8">Asignación de Jugadores</h2>
-        <div className="text-center py-25 rounded-lg border-2 border-dashed">
-          <p>No hay meses confirmados para mostrar.</p>
-        </div>
-      </div>
-    );
-  }
-
-  const data = await getAssignmentData(currentMonthId);
+  const data = currentMonthId ? await getAssignmentData(currentMonthId) : null;
 
   return (
-    <div className="container mx-auto p-8 flex flex-col gap-4 mt-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Asignación de Jugadores</h2>
-        <MonthSelector months={months} currentMonthId={currentMonthId} />
+    <>
+      <div className="flex flex-col md:grid md:grid-cols-3 items-center py-8 px-4 md:px-8 lg:px-24">
+        <div />
+
+        <h1 className="text-4xl font-bold text-center pb-4 md:pb-0">
+          Asignación de Categorías
+        </h1>
+
+        {months.length > 0 ? (
+          <div className="justify-self-end">
+            <MonthSelector months={months} currentMonthId={currentMonthId} />
+          </div>
+        ) : (
+          <div />
+        )}
       </div>
 
-      <AssignmentBoard
-        initialData={data}
-        monthId={currentMonthId}
-        key={currentMonthId}
-      />
-    </div>
+      <div className="px-4 md:px-8 lg:px-24 pb-8">
+        {!currentMonthId ? (
+          <EmptyMonths />
+        ) : (
+          <AssignmentBoard
+            key={currentMonthId}
+            monthId={currentMonthId}
+            initialData={data!}
+          />
+        )}
+      </div>
+    </>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { giveMonthlyBonus } from "@/app/actions/ligas";
+import { giveMonthlyBonus } from "@/app/actions/classification-actions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,10 +13,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { hapticResponseSettings } from "@/lib/haptic";
 import { CategoryClassification } from "@/lib/types/classification";
 import { toast } from "sonner";
-import { useWebHaptics } from "web-haptics/react";
 
 export default function CreateSocioButton({
   classification,
@@ -25,36 +23,21 @@ export default function CreateSocioButton({
   classification: CategoryClassification[];
   month_id: number;
 }) {
-  const { trigger } = useWebHaptics();
-
   const onConfirm = async () => {
-    try {
-      const result = await giveMonthlyBonus(classification, month_id);
+    const result = await giveMonthlyBonus(classification, month_id);
 
-      if (result.success) {
-        toast.success("Bonus aplicado correctamente", {
-          position: "top-center",
-        });
-      } else {
-        toast.info("Bonus ya aplicado para este mes", {
-          position: "top-center",
-        });
-      }
-    } catch {
-      toast.error("Error aplicando bonus", { position: "top-center" });
+    if (result.success) {
+      toast.success("Bonus aplicado correctamente");
+    } else {
+      toast.error(result.error);
     }
   };
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          variant="secondary"
-          onClick={() => trigger(hapticResponseSettings)}
-        >
-          Dar bonus
-        </Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger
+        render={<Button>Dar bonus</Button>}
+      ></AlertDialogTrigger>
 
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -67,7 +50,7 @@ export default function CreateSocioButton({
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} variant="secondary">
+          <AlertDialogAction onClick={onConfirm}>
             Sí, dar bonus
           </AlertDialogAction>
         </AlertDialogFooter>

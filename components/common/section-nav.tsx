@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { HapticButton } from "@/components/ui/haptic-button";
+import { buttonVariants } from "@/components/ui/button";
+import { isAdmin } from "@/lib/auth/permissions";
 
 export default async function SectionNav({
   adminLinks,
@@ -17,9 +18,9 @@ export default async function SectionNav({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAdmin = user?.app_metadata?.admin === true;
+  const showAdminLinks = isAdmin(user);
 
-  if (!isAdmin && publicLinks.length === 0) {
+  if (!showAdminLinks && publicLinks.length === 0) {
     return null;
   }
 
@@ -28,29 +29,38 @@ export default async function SectionNav({
   }
 
   return (
-    <nav className="p-2 bg-primary/80 flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4">
-      <ul className="flex gap-2 overflow-x-scroll md:overflow-x-auto [&>li]:hover:bg-background/40 [&>li]:rounded-md [&>li]:px-2 [&>li]:py-1">
-        {isAdmin &&
+    <nav className="p-2 bg-muted flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4">
+      <ul className="flex gap-2 overflow-x-scroll md:overflow-x-auto [&>li]:py-1">
+        {showAdminLinks &&
           adminLinks.map((link) => (
             <li key={link.href}>
-              <HapticButton asChild variant="ghost" className="p-0" size="xs">
-                <Link href={link.href}>{link.label}</Link>
-              </HapticButton>
+              <Link
+                href={link.href}
+                className={buttonVariants({
+                  variant: "ghost",
+                  size: "xs",
+                })}
+              >
+                {link.label}
+              </Link>
             </li>
           ))}
         {publicLinks.map((link) => (
           <li key={link.href}>
-            <HapticButton asChild variant="ghost" className="p-0" size="xs">
-              <Link href={link.href}>{link.label}</Link>
-            </HapticButton>
+            <Link
+              href={link.href}
+              className={buttonVariants({
+                variant: "ghost",
+                size: "xs",
+              })}
+            >
+              {link.label}
+            </Link>
           </li>
         ))}
       </ul>
-      {children && (
-        <div className="pt-2 border-t md:border-t-0 md:pt-0 border-border md:pl-4 flex justify-end">
-          {children}
-        </div>
-      )}
+
+      {children}
     </nav>
   );
 }

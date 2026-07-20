@@ -1,24 +1,32 @@
-# Padel in Rio Web
+<div align="center">
+  <img src="./public/opengraph/default-opengraph.png" alt="Pádel in Río"
+       width="100%" />
+</div>
 
-Web application for Padel in Rio, built with Next.js, Supabase, and Tailwind CSS.
+# 🎾 Pádel in Río Web
 
-## 🛠️ Technologies
+Web application for the **Pádel in Río** association, built with Next.js and Supabase. Manages users, bookings, and administrative notifications via Telegram.
 
-- **Framework**: [Next.js](https://nextjs.org/) (App Router)
-- **Database & Auth**: [Supabase](https://supabase.com/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Maps**: [Google Maps API](https://developers.google.com/maps)
-- **Testing**: [Jest](https://jestjs.io/) & [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+## 🛠️ Tech Stack
 
-## 💻 Getting Started
+<p>
+  <img src="https://img.shields.io/badge/Next.js-App%20Router-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/Supabase-Database%20%26%20Auth-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
+  <img src="https://img.shields.io/badge/Tailwind%20CSS-Styling-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Resend-Emails-000000?style=for-the-badge&logo=resend&logoColor=white" alt="Resend" />
+  <img src="https://img.shields.io/badge/Vercel-Deployment-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
+  <img src="https://img.shields.io/badge/Telegram-Bot-26A5E4?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram" />
+</p>
 
-### Prerequisites
+## ✅ Prerequisites
 
-- Node.js (developed originally in v22.20)
-- npm (developed originally in v11.7)
-- [Supabase CLI](https://supabase.com/docs/guides/cli) (optional)
+- 🟢 **Node.js** v22.20 or higher
+- 📦 **npm** v11.7 or higher
+- ⚙️ **Supabase CLI** ([installation guide](https://supabase.com/docs/guides/cli)) — optional, only needed if you want to run Supabase locally instead of using a remote development project
+- 🗄️ A Supabase account with a project already created
+- 🤖 A Telegram bot created via [@BotFather](https://t.me/BotFather)
 
-### Installation
+## 📥 Installation
 
 1. Clone the repository:
 
@@ -28,51 +36,88 @@ Web application for Padel in Rio, built with Next.js, Supabase, and Tailwind CSS
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
-### Environment Variables
+## 🔐 Environment Variables
 
 > [!WARNING]
-> Remember the .env.local file should contain dev keys, not production keys.
+> The `.env.local` file must contain **development keys, never production keys**. Never commit it to git (make sure it's in `.gitignore`).
 
-| Variable                               | Description                                          |
-| :------------------------------------- | :--------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Your Supabase project URL                            |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Your Supabase anon/public key                        |
-| `SUPABASE_SERVICE_KEY`                 | Your Supabase service role key (keep secret)         |
-| `NEXT_PUBLIC_GOOGLE_MAPS_KEY`          | Google Maps JavaScript API Key                       |
-| `TELEGRAM_BOT_TOKEN`                   | Token from @BotFather for Telegram integration       |
-| `ADMIN_CHAT_IDS`                       | Comma-separated list of Telegram chat IDs for admins |
+### 🗃️ Supabase
 
-### Local Development
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Public URL of the Supabase project. |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Anonymous/public key, used on the client and protected by Row Level Security. |
+| `SUPABASE_SERVICE_KEY` | Service role key, with full access and no RLS restrictions. Should only be used on the server (API routes / server actions). |
+| `SUPABASE_AUTH_GOOGLE_CLIENT_ID` | Client ID of the Google OAuth app configured for social login. |
+| `SUPABASE_AUTH_GOOGLE_SECRET` | Client secret associated with the Client ID above. |
 
-> [!IMPORTANT]  
-> Everytime the DB gets reset the auth scheme deletes all data. Make sure to create at least an admin account (check SQL snippets).
+### 🗺️ Google Maps
 
-1. **Start Supabase (Optional for local DB)**:
-   If you want to run Supabase locally:
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_GOOGLE_MAPS_KEY` | API key for the Google Maps JavaScript API, used to display court locations. Restrict the key by domain before using it in production. |
+
+### 🤖 Telegram
+
+| Variable | Description |
+|---|---|
+| `TELEGRAM_BOT_TOKEN` | Bot token, generated via [@BotFather](https://t.me/BotFather) when creating the bot with `/newbot`. |
+| `TELEGRAM_WEBHOOK_SECRET` | Arbitrary secret sent in the Telegram webhook to verify requests are legitimate and not from third parties. |
+| `ADMIN_CHAT_IDS` | Comma-separated list of chat IDs that will receive administrative notifications. |
+
+### ▲ Vercel
+
+| Variable | Description |
+|---|---|
+| `VERCEL_OIDC_TOKEN` | OIDC token automatically generated by Vercel to authenticate calls between services (e.g. towards Supabase). Injected only in Vercel deployments; no manual setup needed locally. |
+
+## 🚀 Local Development
+
+> [!IMPORTANT]
+> Every time the local database is reset (`supabase db reset`), the auth schema **deletes all data**, including user accounts. After each reset, create at least one admin account using the SQL snippets available in `/supabase/snippets`.
+
+1. **(Optional) Start Supabase locally**, if you'd rather not use a remote project:
 
    ```bash
    supabase start
    ```
 
-2. **Run the development server**:
+   This usually exposes Supabase Studio at `http://localhost:54323`.
+
+2. **Start the development server**:
+
    ```bash
    npm run dev
    ```
 
-## 🧪 Testing
+3. Open [http://localhost:3000](http://localhost:3000) in your browser. 🌐
 
-Run the test suite using Jest:
+## 📁 Project Structure
 
-```bash
-npm run test
+```
+padel-in-rio-web/
+├── app/               # Routes and pages (Next.js App Router)
+├── components/        # Reusable UI components
+├── lib/               # Utilities
+├── public/            # Static assets
+├── server/            # DB connection and services
+└── supabase/          # Migrations, seeds, and local configuration
 ```
 
-To run tests in watch mode:
+## 📜 Available Scripts
 
-```bash
-npm run test:watch
-```
+| Command | Description |
+|---|---|
+| `npm run dev` | 🔥 Starts the development server with hot-reload. |
+| `npm run build` | 📦 Generates the production build. |
+| `npm run start` | ▶️ Serves the production build generated with `build`. |
+| `npm run lint` | 🧹 Runs the linter over the codebase. |
+| `npm run typecheck` | ✅ Runs type checking. |
+| `npm run update-types` | 🔄 Updates `/lib/database.types.ts` based on the DB schema. |
+| `npm run db:reset` | ♻️ Resets the DB to the migrations and updates types. |
+| `npm run tunnel` | 🌐 Starts the HTTPS tunnel and configures the Telegram webhook. |

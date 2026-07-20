@@ -1,17 +1,17 @@
 import { Suspense } from "react";
 import SectionNav from "@/components/common/section-nav";
-import TemporadaSelector from "./temporada-selector";
-import { getTemporadas } from "@/app/actions/ligas";
+import SeasonSelector from "@/components/liga/season-selector";
+import { getActiveSeason } from "@/lib/liga/resolve-season";
 
 export default async function LigaNav({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const temporadas = await getTemporadas();
+  const { seasonId, seasons } = await getActiveSeason({});
 
   return (
-    <div>
+    <>
       <Suspense>
         <SectionNav
           adminLinks={[
@@ -26,10 +26,10 @@ export default async function LigaNav({
             { href: "/liga/reglamento", label: "Reglamento" },
           ]}
         >
-          <TemporadaSelector temporadas={temporadas} />
+          <SeasonSelector seasons={seasons} currentSeasonId={seasonId} />
         </SectionNav>
       </Suspense>
       {children}
-    </div>
+    </>
   );
 }

@@ -1,14 +1,17 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function IconCardSkeleton() {
   return (
-    <div className="aspect-square h-36 py-2 gap-2 rounded-2xl inline-flex flex-col items-center justify-center bg-primary shadow-[10px_10px_10px_rgba(0,0,0,0.25)]">
-      <div className="flex flex-col items-center justify-center">
-        <Skeleton className="h-5 w-10" />
-        <Skeleton className="h-6 w-20 mt-2" />
-      </div>
+    <Card className="aspect-square md:h-36 overflow-hidden">
+      <CardContent className="flex h-full flex-col items-center justify-center gap-4 p-0">
+        <Skeleton className="size-14 shrink-0 rounded-full" />
 
-      <Skeleton className="size-15 shrink-0 rounded-full" />
-    </div>
+        <div className="flex flex-col items-center gap-2">
+          <Skeleton className="h-6 w-12" />
+          <Skeleton className="h-3 w-16" />
+        </div>
+      </CardContent>
+    </Card>
   );
 }

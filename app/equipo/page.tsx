@@ -1,10 +1,12 @@
 import Image from "next/image";
-import { HapticButton } from "@/components/ui/haptic-button";
+import { buttonVariants } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
 
 export default function Equipo() {
   return (
     <>
-      <div className="text-center mt-8">
+      <div className="text-center mt-8 px-8">
         <h1 className="text-4xl font-bold">Equipo Femenino</h1>
 
         <p className="pt-4">Tres años después de aquello de:</p>
@@ -20,10 +22,10 @@ export default function Equipo() {
         </p>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 pt-16">
-        <h2 className="text-2xl font-semibold pb-3 border-b">
-          Nuestra trayectoria
-        </h2>
+      <section className="max-w-4xl mx-auto px-8 pt-16">
+        <h2 className="text-2xl font-semibold pb-4">Nuestra trayectoria</h2>
+
+        <Separator />
 
         <div className="mt-4 space-y-4 leading-relaxed">
           <p>
@@ -32,24 +34,24 @@ export default function Equipo() {
             Liga Gallega de Equipos de Clubes.
           </p>
         </div>
-      </div>
 
-      <div className="max-w-4xl mx-auto px-6 pt-12">
-        <div className="relative h-112.5 w-full overflow-hidden">
-          <Image
-            src="/equipo/equipoFemenino.webp"
-            alt="Equipo femenino Padel in Rio"
-            fill
-            className="object-contain"
-            priority
-          />
+        <div className="max-w-4xl mx-auto pt-12">
+          <div className="relative h-112.5 w-full overflow-hidden">
+            <Image
+              src="/equipo/equipoFemenino.webp"
+              alt="Equipo femenino Padel in Rio"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-4xl mx-auto px-6 pt-16 space-y-4">
-        <h2 className="text-2xl font-semibold pb-3 border-b">
-          El equipo técnico
-        </h2>
+      <section className="max-w-4xl mx-auto px-8 pt-16 space-y-4">
+        <h2 className="text-2xl font-semibold">El equipo técnico</h2>
+
+        <Separator />
 
         <p>
           Nuestras jugadoras cuentan con la ayuda de su entrenador,{" "}
@@ -62,32 +64,31 @@ export default function Equipo() {
           <span className="font-medium">1% mejores</span>, mejorando técnica,
           táctica y mentalidad competitiva.
         </p>
-      </div>
+      </section>
 
-      <div className="flex flex-col max-w-4xl mx-auto px-6 pt-16 pb-12 space-y-4">
-        <h2 className="text-2xl font-semibold pb-3 border-b">
-          Clasificación y partidos
-        </h2>
+      <section className="flex flex-col max-w-4xl mx-auto px-8 pt-16 pb-12 space-y-4">
+        <h2 className="text-2xl font-semibold">Clasificación y partidos</h2>
+
+        <Separator />
 
         <p>
           Puedes consultar la clasificación actual y los resultados de los
           partidos en el siguiente enlace:
         </p>
 
-        <HapticButton
-          className="w-fit self-center mt-4"
-          asChild
-          variant="secondary"
+        <Link
+          href="https://www.fgpadel.com/ligas-de-padel-en-galicia"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={buttonVariants({
+            variant: "default",
+            size: "default",
+            className: "w-fit self-center",
+          })}
         >
-          <a
-            href="https://www.sport2fit.com/liga/liga-gallega-por-equipos-de-clubes-liga-gallega-por-equipos-de-clubes-2026-zona-norte-820/4144/17102/2620"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Liga Gallega de Pádel
-          </a>
-        </HapticButton>
-      </div>
+          Liga Gallega de Pádel
+        </Link>
+      </section>
     </>
   );
 }

@@ -29,12 +29,12 @@ export default function Page({
   searchParams: Promise<{ error: string }>;
 }) {
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+    <div className="flex min-h-[80dvh] w-full items-center justify-center">
       <div className="w-full max-w-sm">
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-8">
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">
+              <CardTitle className="text-2xl font-bold">
                 Lo sentimos, algo ha ido mal.
               </CardTitle>
             </CardHeader>

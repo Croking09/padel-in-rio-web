@@ -1,5 +1,5 @@
-INSERT INTO public."Categorias"
-  (name, "order", puntos_set)
+INSERT INTO public.categories
+  (name, "order", points_per_set)
 VALUES
   ('1ª', 1, 7),
   ('2ª', 2, 6),
@@ -7,14 +7,14 @@ VALUES
   ('4ª', 4, 4),
   ('5ª', 5, 3);
 
-INSERT INTO public."Temporadas"
+INSERT INTO public.seasons
   (name, start_date)
 VALUES
   ('2025', '2025-01-01'),
   ('2026', '2026-01-01');
 
-INSERT INTO public."Meses"
-  (temporada_id, month, year) -- status: draft by default, 5_category: true by default
+INSERT INTO public.months
+  (season_id, month, year) -- status: draft by default, has_fifth_category: true by default
 VALUES
   (2, 1, 2026),
   (2, 2, 2026),
@@ -27,7 +27,7 @@ VALUES
   (2, 11, 2026),
   (2, 12, 2026);
 
-INSERT INTO public."Torneos"
+INSERT INTO public.tournaments
   (name, description, start_date, img_path, categories, end_date, inscription_end_date, manually_closed)
 VALUES 
   ('Primavera 2023', 'El fin de semana del 12 al 14 de mayo, categorías masculinas y femeninas únicas. 15€ por inscripción.', '2023-05-12', NULL, ARRAY['MASC', 'FEM'], '2023-05-14', '2023-05-12', false),
@@ -36,8 +36,8 @@ VALUES
   ('Primavera 2025', 'El fin de semana del 9 al 11 de mayo, categorías masculinas y femeninas únicas. 20€ por inscripción y 15€ si eres socio.', '2025-05-09', '09-05-2025.jpeg', ARRAY['MASC', 'FEM'], '2025-05-11', '2025-05-04', false),
   ('Mixto de Otoño 2025', 'El fin de semana del 17 al 19 de octubre, 20€ por inscripción y 15€ si eres socio.', '2025-10-17', '17-10-2025.jpeg', NULL, '2025-10-19', '2025-10-13', false);
 
-INSERT INTO public."Socios"
-  (full_name, nickname) -- active: true by default
+INSERT INTO public.members
+  (full_name, nickname) -- is_active: true by default
 VALUES
   ('Mónica Rodríguez Gavín', 'Mónica'),
   ('Bonia Martínez Irimia', 'Bonia'),

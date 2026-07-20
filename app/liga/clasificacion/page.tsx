@@ -1,41 +1,50 @@
-import { getTemporadas } from "@/app/actions/ligas";
-import { getGeneralClassification } from "@/app/actions/clasificacion";
-import { GeneralTable } from "@/components/liga/clasificacion-general/general-table";
+import { getGeneralClassification } from "@/app/actions/classification-actions";
+import GeneralClassificationTable from "@/components/liga/clasificacion-general/general-table";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+} from "@/components/ui/empty";
+import { getActiveSeason } from "@/lib/liga/resolve-season";
+import { SearchX } from "lucide-react";
 
-interface PageProps {
-  searchParams: Promise<{ temporadaId?: string }>;
-}
-
-export default async function Page({ searchParams }: PageProps) {
-  const [temporadas, params] = await Promise.all([
-    getTemporadas(),
-    searchParams,
-  ]);
-
-  const temporadaIdParam = params.temporadaId
-    ? Number(params.temporadaId)
-    : undefined;
-  const activeTemporadaId = temporadaIdParam ?? temporadas.at(0)?.id ?? 0;
-
-  const data = await getGeneralClassification(activeTemporadaId);
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ seasonId?: string }>;
+}) {
+  const { seasonId } = await getActiveSeason(searchParams);
+  const data = await getGeneralClassification(seasonId);
 
   return (
-    <div className="mx-auto p-8 space-y-8 flex flex-col items-center">
-      <h1 className="text-3xl font-bold">Clasificación General</h1>
+    <>
+      <div className="flex flex-col items-center justify-center py-8 px-4 md:px-8 lg:px-24">
+        <h1 className="text-4xl font-bold">Clasificación General</h1>
+        <p className="text-muted-foreground">
+          <span className="text-destructive">*</span> Solo se muestran jugadores
+          que hayan jugado por lo menos un partido.
+        </p>
+      </div>
 
-      {!data.length ? (
-        <div className="text-center py-25 px-10 rounded-lg border-2 border-dashed w-full">
-          <p>No se encontraron datos para la temporada seleccionada.</p>
-        </div>
-      ) : (
-        <>
-          <p>
-            <span className="text-red-500">*</span> Solo se muestran jugadores
-            que hayan jugado por lo menos un partido.
-          </p>
-          <GeneralTable data={data} />
-        </>
-      )}
-    </div>
+      <div className="flex justify-center pb-8 px-4 md:px-8 lg:px-24">
+        {!data.length ? (
+          <Empty className="border-2 border-dashed">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <SearchX />
+              </EmptyMedia>
+              <EmptyTitle>Sin datos</EmptyTitle>
+              <EmptyDescription>
+                No se encontraron datos para la temporada seleccionada.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        ) : (
+          <GeneralClassificationTable data={data} />
+        )}
+      </div>
+    </>
   );
 }

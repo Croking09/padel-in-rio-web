@@ -1,39 +1,37 @@
-import { MonthStatus, Month } from "@/lib/types/month";
-import { formatMonth } from "@/lib/utils";
+import { MonthStatus, MonthRow } from "@/lib/types/month";
+import { capitalize } from "@/lib/utils";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
-export const STATUS_CONFIG: Record<
-  MonthStatus,
-  { label: string; className: string }
-> = {
-  [MonthStatus.Draft]: {
-    label: "Borrador",
-    className: "bg-zinc-100 text-zinc-600 border-zinc-300",
+export const STATUS_CONFIG: Record<MonthStatus, { className: string }> = {
+  draft: {
+    className: "bg-muted text-muted-foreground border-border",
   },
-  [MonthStatus.Locked]: {
-    label: "Bloqueado",
-    className: "bg-amber-100 text-amber-600 border-amber-300",
+  locked: {
+    className: "bg-warning/30 text-warning border-warning",
   },
-  [MonthStatus.Confirmed]: {
-    label: "Confirmado",
-    className: "bg-emerald-100 text-emerald-600 border-emerald-300",
+  confirmed: {
+    className: "bg-success/30 text-success border-success",
   },
 };
 
-export default function MonthPill({ month }: { month: Month }) {
+export default function MonthPill({ month }: { month: MonthRow }) {
   const cfg = STATUS_CONFIG[month.status];
   return (
     <div
-      className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${cfg.className}`}
+      className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm w-full md:w-fit ${cfg.className}`}
     >
       <span className="font-medium">
-        {formatMonth(month.month)} {month.year}
+        {capitalize(
+          format(new Date(2000, month.month - 1), "LLLL", { locale: es }),
+        )}{" "}
+        {month.year}
       </span>
-      {month["5_category"] && (
-        <span className="text-xs rounded-full bg-white/60 border border-current/20 px-1.5 py-0.5 font-semibold">
+      {month.has_fifth_category && (
+        <span className="text-xs rounded-full border border-current/20 px-2 py-1 font-semibold">
           5ª
         </span>
       )}
-      <span className="text-xs opacity-70">{cfg.label}</span>
     </div>
   );
 }

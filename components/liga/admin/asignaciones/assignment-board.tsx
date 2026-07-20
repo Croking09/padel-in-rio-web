@@ -1,15 +1,6 @@
 "use client";
 
-import { DropTargetMonitor, useDrop } from "react-dnd";
 import { useState, useEffect, useMemo } from "react";
-import {
-  AssignmentData,
-  saveAssignments,
-  confirmMonth,
-  Category,
-  Player,
-  Assignment,
-} from "@/app/actions/monthly-assignment";
 import { DndProvider } from "react-dnd";
 import {
   TouchTransition,
@@ -18,10 +9,9 @@ import {
 } from "react-dnd-multi-backend";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { TouchBackend } from "react-dnd-touch-backend";
-import PlayerCard from "./player-card";
-import { cn } from "@/lib/utils";
 import { Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -34,20 +24,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useWebHaptics } from "web-haptics/react";
-import { MonthStatus } from "@/lib/types/month";
 import { Checkbox } from "@/components/ui/checkbox";
-import { updateUseFithCategory } from "@/app/actions/ligas";
+import UnassignedColumn from "./unassigned-column";
+import CategoryColumn from "./category-column";
+import { DragItem } from "./types";
+import { AssignmentData } from "@/lib/types/player-assignment";
+import {
+  confirmMonth,
+  saveAssignments,
+} from "@/app/actions/player-assignment-actions";
+import { updateUseFithCategory } from "@/app/actions/month-actions";
 
 interface AssignmentBoardProps {
   initialData: AssignmentData;
   monthId: number;
-}
-
-interface DragItem {
-  id: number;
-  assignmentId?: number;
-  type: string;
 }
 
 const HTML5toTouch = {
@@ -78,17 +68,10 @@ export default function AssignmentBoard({
     initialData.useFifthCategory,
   );
 
-  const { trigger } = useWebHaptics();
-
   useEffect(() => {
     setData(initialData);
     setHasChanges(false);
     setUseFifthCategory(initialData.useFifthCategory);
-  }, [initialData]);
-
-  useEffect(() => {
-    setData(initialData);
-    setHasChanges(false);
   }, [initialData]);
 
   const handleToggleFifthCategory = async () => {
@@ -104,15 +87,18 @@ export default function AssignmentBoard({
       : data.categories.filter((c) => c.id !== 5);
   }, [data.categories, useFifthCategory]);
 
-  const isLocked = data.status === MonthStatus.Locked;
-  const isConfirmed = data.status === MonthStatus.Confirmed;
+  const isLocked = data.status === "locked";
+  const isConfirmed = data.status === "confirmed";
+
+  const categoryRows = Math.ceil(visibleCategories.length / 3);
+  const columnsHeightRem = categoryRows * 28.125 + (categoryRows - 1) * 1;
 
   const validateCategories = () => {
     const isFourCategories = visibleCategories.length === 4;
 
     return visibleCategories.filter((category) => {
       const count = data.assignments.filter(
-        (a) => a.categoria_id === category.id,
+        (a) => a.category_id === category.id,
       ).length;
 
       if (isFourCategories && category.id === 4) {
@@ -133,12 +119,13 @@ export default function AssignmentBoard({
 
     setData((prev) => {
       const newAssignments = prev.assignments.filter(
-        (a) => a.jugador_id !== playerId,
+        (a) => a.player_id !== playerId,
       );
       newAssignments.push({
-        jugador_id: playerId,
-        categoria_id: categoryId,
         id: Math.random(),
+        category_id: categoryId,
+        player_id: playerId,
+        month_id: monthId,
       });
 
       return { ...prev, assignments: newAssignments };
@@ -149,64 +136,64 @@ export default function AssignmentBoard({
   const handleUnassign = (playerId: number) => {
     if (dndDisabled) return;
 
-    setData((prev) => {
-      return {
-        ...prev,
-        assignments: prev.assignments.filter((a) => a.jugador_id !== playerId),
-      };
-    });
+    setData((prev) => ({
+      ...prev,
+      assignments: prev.assignments.filter((a) => a.player_id !== playerId),
+    }));
     setHasChanges(true);
   };
 
   const onSave = async () => {
     setIsSaving(true);
-    try {
-      await saveAssignments(monthId, data.assignments);
-      setHasChanges(false);
-      toast.info("Cambios guardados correctamente", {
-        position: "top-center",
-      });
-    } catch {
-      toast.error("Error al guardar cambios", { position: "top-center" });
-    } finally {
-      setIsSaving(false);
+
+    const result = await saveAssignments(monthId, data.assignments);
+    if (!result.success) {
+      toast.error(result.error);
+      return;
     }
+    setHasChanges(false);
+    setIsSaving(false);
+    toast.info("Cambios guardados correctamente");
   };
 
   const onConfirm = async () => {
     if (!isValid) {
       toast.warning(
         "Todos las categorías deben tener 8 jugadores para confirmar.",
-        { position: "top-center" },
       );
       return;
     }
 
     setIsSaving(true);
-    try {
-      await saveAssignments(monthId, data.assignments);
-      await confirmMonth(monthId);
-
-      toast.success("Mes confirmado correctamente", {
-        position: "top-center",
-      });
-    } catch {
-      toast.error("Error al confirmar mes", { position: "top-center" });
-    } finally {
-      setIsSaving(false);
+    const saveResult = await saveAssignments(monthId, data.assignments);
+    if (!saveResult.success) {
+      toast.error(saveResult.error);
+      return;
     }
+
+    const confirmResult = await confirmMonth(monthId);
+    if (!confirmResult.success) {
+      toast.error(confirmResult.error);
+      return;
+    }
+
+    setIsSaving(false);
+    toast.success("Mes confirmado correctamente");
   };
 
   return (
     <DndProvider backend={MultiBackend} options={HTML5toTouch}>
       <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-center p-4 rounded-lg shadow-sm border">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-center p-4 rounded-lg border">
           <div className="flex items-center gap-2">
             {isLocked || isConfirmed ? (
-              <div className="flex items-center text-amber-600 font-medium px-3 py-1 bg-amber-100 rounded-full border border-amber-200">
-                <Lock className="w-4 h-4 mr-2" />
+              <Badge
+                variant="outline"
+                className="border-warning bg-warning/30 text-warning gap-2 px-2 py-4"
+              >
+                <Lock />
                 Mes Cerrado
-              </div>
+              </Badge>
             ) : (
               <div className="flex flex-col">
                 <span className="text-sm">
@@ -215,7 +202,7 @@ export default function AssignmentBoard({
                     : "Sin cambios pendientes"}
                 </span>
                 {!isValid && (
-                  <span className="text-xs text-error font-medium">
+                  <span className="text-xs text-destructive font-medium">
                     Cantidad errónea en:{" "}
                     {invalidCategories.map((c) => c.name).join(", ")}
                   </span>
@@ -227,59 +214,36 @@ export default function AssignmentBoard({
           {!isLocked && !isConfirmed && (
             <div className="flex flex-col md:flex-row gap-2 md:items-center">
               <label className="flex items-center gap-2 text-sm">
-                <span>Fusionar 4ª y 5ª categoría</span>
+                <span className="text-right">Fusionar 4ª y 5ª categoría</span>
                 <Checkbox
                   checked={!useFifthCategory}
                   onCheckedChange={handleToggleFifthCategory}
                 />
               </label>
+
               <Button
-                onClick={() => {
-                  trigger([
-                    { duration: 30 },
-                    { delay: 60, duration: 40, intensity: 1 },
-                  ]);
-                  onSave();
-                }}
+                variant="secondary"
+                onClick={onSave}
                 disabled={!hasChanges || isSaving}
-                className={cn(
-                  "px-4 py-2 text-sm font-medium rounded-md transition-colors",
-                  hasChanges
-                    ? "hover:cursor-pointer"
-                    : "cursor-not-allowed opacity-50",
-                  isSaving && "opacity-70 cursor-wait",
-                )}
               >
                 {isSaving ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="animate-spin" />
                 ) : (
                   "Guardar Borrador"
                 )}
               </Button>
               <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    disabled={isSaving || !isValid}
-                    onClick={() =>
-                      trigger([
-                        { duration: 30 },
-                        { delay: 60, duration: 40, intensity: 1 },
-                      ])
-                    }
-                    className={cn(
-                      "px-4 py-2 text-sm font-medium rounded-md bg-success text-white shadow-sm flex items-center gap-2",
-                      !isValid
-                        ? "opacity-50 cursor-not-allowed"
-                        : "hover:bg-success/80 hover:cursor-pointer",
-                    )}
-                  >
-                    {isSaving ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      "Confirmar y Cerrar"
-                    )}
-                  </Button>
-                </AlertDialogTrigger>
+                <AlertDialogTrigger
+                  render={
+                    <Button disabled={isSaving || !isValid}>
+                      {isSaving ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        "Confirmar y Cerrar"
+                      )}
+                    </Button>
+                  }
+                ></AlertDialogTrigger>
 
                 <AlertDialogContent>
                   <AlertDialogHeader>
@@ -297,7 +261,6 @@ export default function AssignmentBoard({
                     <AlertDialogAction
                       onClick={onConfirm}
                       disabled={isSaving || !isValid}
-                      variant="secondary"
                     >
                       {isSaving ? "Guardando..." : "Sí, confirmar"}
                     </AlertDialogAction>
@@ -308,13 +271,14 @@ export default function AssignmentBoard({
           )}
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4 items-start">
+        <div className="flex flex-col md:flex-row gap-4 items-stretch">
           <UnassignedColumn
             players={data.players.filter(
-              (p) => !data.assignments.some((a) => a.jugador_id === p.id),
+              (p) => !data.assignments.some((a) => a.player_id === p.id),
             )}
             onDrop={(item: DragItem) => handleUnassign(item.id)}
             disabled={dndDisabled}
+            heightRem={columnsHeightRem}
           />
 
           <div className="flex-1 w-full md:w-auto">
@@ -329,7 +293,7 @@ export default function AssignmentBoard({
                   assignedPlayers={data.players.filter((p) =>
                     data.assignments.find(
                       (a) =>
-                        a.jugador_id === p.id && a.categoria_id === category.id,
+                        a.player_id === p.id && a.category_id === category.id,
                     ),
                   )}
                   assignments={data.assignments}
@@ -342,122 +306,5 @@ export default function AssignmentBoard({
         </div>
       </div>
     </DndProvider>
-  );
-}
-
-function UnassignedColumn({
-  players,
-  onDrop,
-  disabled,
-}: {
-  players: Player[];
-  onDrop: (item: DragItem) => void;
-  disabled: boolean;
-}) {
-  const [{ isOver, canDrop }, drop] = useDrop(() => ({
-    accept: "PLAYER",
-    canDrop: () => !disabled,
-    drop: (item: DragItem) => onDrop(item),
-    collect: (monitor: DropTargetMonitor) => ({
-      isOver: monitor.isOver(),
-      canDrop: monitor.canDrop(),
-    }),
-  }));
-
-  const dropRef = (node: HTMLDivElement | null) => {
-    if (node) drop(node);
-  };
-
-  return (
-    <div
-      ref={dropRef}
-      className={cn(
-        "w-full md:w-64 flex flex-col border rounded-lg transition-colors top-20 h-screen overflow-y-auto",
-        isOver && canDrop ? "bg-primary/10" : "",
-        disabled && "cursor-not-allowed opacity-75",
-      )}
-    >
-      <div className="p-3 border-b font-semibold">
-        Sin Asignar ({players.length})
-      </div>
-      <div className="flex-1 overflow-y-auto p-2 space-y-2 custom-scroll">
-        {players.map((player) => (
-          <PlayerCard key={player.id} player={player} isDraggable={!disabled} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function CategoryColumn({
-  category,
-  capacityLabel,
-  assignedPlayers,
-  assignments,
-  onDrop,
-  disabled,
-}: {
-  category: Category;
-  capacityLabel: string;
-  assignedPlayers: Player[];
-  assignments: Assignment[];
-  onDrop: (item: DragItem) => void;
-  disabled: boolean;
-}) {
-  const [{ isOver, canDrop }, drop] = useDrop(() => ({
-    accept: "PLAYER",
-    canDrop: () => !disabled,
-    drop: (item: DragItem) => onDrop(item),
-    collect: (monitor: DropTargetMonitor) => ({
-      isOver: monitor.isOver(),
-      canDrop: monitor.canDrop(),
-    }),
-  }));
-
-  const dropRef = (node: HTMLDivElement | null) => {
-    if (node) drop(node);
-  };
-
-  return (
-    <div
-      ref={dropRef}
-      className={cn(
-        "flex flex-col border rounded-lg h-112.5 shadow-sm transition-colors",
-        isOver && canDrop ? "ring-2 ring-primary" : "",
-        disabled && "opacity-75 cursor-not-allowed",
-      )}
-    >
-      <div className="p-3 border-b font-semibold flex justify-between items-center">
-        <span>{category.name}</span>
-        <span className="text-xs px-2 py-1 rounded-full">
-          {assignedPlayers.length}/{capacityLabel}
-        </span>
-      </div>
-      <div className="flex-1 overflow-y-auto p-2 space-y-2 custom-scroll">
-        {assignedPlayers.map((player) => {
-          const assignment = assignments.find(
-            (a) => a.jugador_id === player.id && a.categoria_id === category.id,
-          );
-          return (
-            <PlayerCard
-              key={player.id}
-              player={player}
-              assignmentId={assignment?.id}
-              isDraggable={!disabled}
-            />
-          );
-        })}
-        {Array.from({ length: Math.max(0, 8 - assignedPlayers.length) }).map(
-          (_, i) => (
-            <div
-              key={`empty-${i}`}
-              className="h-10 border border-dashed rounded-md items-center justify-center flex text-xs"
-            >
-              {disabled ? "—" : "Cupo libre"}
-            </div>
-          ),
-        )}
-      </div>
-    </div>
   );
 }
