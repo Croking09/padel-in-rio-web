@@ -18,6 +18,10 @@ export default function AuthListener() {
       if (!initialized.current) {
         initialized.current = true;
         lastUserId.current = session?.user?.id ?? null;
+
+        if (lastUserId.current) {
+          router.refresh();
+        }
         return;
       }
 
