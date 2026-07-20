@@ -23,6 +23,7 @@ export async function confirmMonth(monthId: number) {
 
   if (result.success) {
     updateTag("player-assignment");
+    updateTag("months");
   }
 
   return result;

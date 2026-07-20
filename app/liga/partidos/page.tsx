@@ -76,7 +76,10 @@ export default async function Page({
         ) : (
           <div className="space-y-8">
             {Object.entries(groupedMatches)
-              .sort(([a], [b]) => Number(a) - Number(b))
+              .sort(
+                ([, dayMatchesA], [, dayMatchesB]) =>
+                  dayMatchesA![0]!.matchday - dayMatchesB![0]!.matchday,
+              )
               .map(([day, dayMatches]) => {
                 const groupedByCategory = Object.groupBy(
                   dayMatches!,
@@ -95,8 +98,13 @@ export default async function Page({
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {Object.entries(groupedByCategory).map(
-                        ([category, categoryMatches]) => (
+                      {Object.entries(groupedByCategory)
+                        .sort(
+                          ([, categoryMatchesA], [, categoryMatchesB]) =>
+                            categoryMatchesA![0]!.category.order -
+                            categoryMatchesB![0]!.category.order,
+                        )
+                        .map(([category, categoryMatches]) => (
                           <Card
                             key={category}
                             className="flex flex-col overflow-hidden py-0 gap-0"
@@ -118,8 +126,7 @@ export default async function Page({
                               ))}
                             </CardContent>
                           </Card>
-                        ),
-                      )}
+                        ))}
                     </div>
                   </div>
                 );
