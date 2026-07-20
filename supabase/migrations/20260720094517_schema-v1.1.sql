@@ -1,681 +1,5 @@
 create type "public"."month_status" as enum ('draft', 'locked', 'confirmed');
 
-drop policy "Admin can do anything" on "public"."Bonus";
-
-drop policy "Enable read access for all users" on "public"."Bonus";
-
-drop policy "Enable read access for all users" on "public"."Categorias";
-
-drop policy "Enable insert for authenticated users only" on "public"."Inscripciones";
-
-drop policy "Only if not manually closed" on "public"."Inscripciones";
-
-drop policy "Only within date" on "public"."Inscripciones";
-
-drop policy "Enable read access for all users" on "public"."Jornadas";
-
-drop policy "Enable read access for all users" on "public"."Jugador_Categoria_Mes";
-
-drop policy "Admin can do anything" on "public"."Meses";
-
-drop policy "Enable read access for all users" on "public"."Meses";
-
-drop policy "Enable read access for all users" on "public"."Participacion";
-
-drop policy "Enable read access for all users" on "public"."Partidos";
-
-drop policy "Enable read access for all users" on "public"."Sets";
-
-drop policy "Everyone can SELECT" on "public"."Socios";
-
-drop policy "Anyone can read" on "public"."Temporadas";
-
-drop policy "Only admin can write" on "public"."Temporadas";
-
-drop policy "Admin can do ANYTHING" on "public"."Torneos";
-
-drop policy "Everyone can read" on "public"."Torneos";
-
-revoke delete on table "public"."Bonus" from "anon";
-
-revoke insert on table "public"."Bonus" from "anon";
-
-revoke references on table "public"."Bonus" from "anon";
-
-revoke select on table "public"."Bonus" from "anon";
-
-revoke trigger on table "public"."Bonus" from "anon";
-
-revoke truncate on table "public"."Bonus" from "anon";
-
-revoke update on table "public"."Bonus" from "anon";
-
-revoke delete on table "public"."Bonus" from "authenticated";
-
-revoke insert on table "public"."Bonus" from "authenticated";
-
-revoke references on table "public"."Bonus" from "authenticated";
-
-revoke select on table "public"."Bonus" from "authenticated";
-
-revoke trigger on table "public"."Bonus" from "authenticated";
-
-revoke truncate on table "public"."Bonus" from "authenticated";
-
-revoke update on table "public"."Bonus" from "authenticated";
-
-revoke delete on table "public"."Bonus" from "service_role";
-
-revoke insert on table "public"."Bonus" from "service_role";
-
-revoke references on table "public"."Bonus" from "service_role";
-
-revoke select on table "public"."Bonus" from "service_role";
-
-revoke trigger on table "public"."Bonus" from "service_role";
-
-revoke truncate on table "public"."Bonus" from "service_role";
-
-revoke update on table "public"."Bonus" from "service_role";
-
-revoke delete on table "public"."Categorias" from "anon";
-
-revoke insert on table "public"."Categorias" from "anon";
-
-revoke references on table "public"."Categorias" from "anon";
-
-revoke select on table "public"."Categorias" from "anon";
-
-revoke trigger on table "public"."Categorias" from "anon";
-
-revoke truncate on table "public"."Categorias" from "anon";
-
-revoke update on table "public"."Categorias" from "anon";
-
-revoke delete on table "public"."Categorias" from "authenticated";
-
-revoke insert on table "public"."Categorias" from "authenticated";
-
-revoke references on table "public"."Categorias" from "authenticated";
-
-revoke select on table "public"."Categorias" from "authenticated";
-
-revoke trigger on table "public"."Categorias" from "authenticated";
-
-revoke truncate on table "public"."Categorias" from "authenticated";
-
-revoke update on table "public"."Categorias" from "authenticated";
-
-revoke delete on table "public"."Categorias" from "service_role";
-
-revoke insert on table "public"."Categorias" from "service_role";
-
-revoke references on table "public"."Categorias" from "service_role";
-
-revoke select on table "public"."Categorias" from "service_role";
-
-revoke trigger on table "public"."Categorias" from "service_role";
-
-revoke truncate on table "public"."Categorias" from "service_role";
-
-revoke update on table "public"."Categorias" from "service_role";
-
-revoke delete on table "public"."Inscripciones" from "anon";
-
-revoke insert on table "public"."Inscripciones" from "anon";
-
-revoke references on table "public"."Inscripciones" from "anon";
-
-revoke select on table "public"."Inscripciones" from "anon";
-
-revoke trigger on table "public"."Inscripciones" from "anon";
-
-revoke truncate on table "public"."Inscripciones" from "anon";
-
-revoke update on table "public"."Inscripciones" from "anon";
-
-revoke delete on table "public"."Inscripciones" from "authenticated";
-
-revoke insert on table "public"."Inscripciones" from "authenticated";
-
-revoke references on table "public"."Inscripciones" from "authenticated";
-
-revoke select on table "public"."Inscripciones" from "authenticated";
-
-revoke trigger on table "public"."Inscripciones" from "authenticated";
-
-revoke truncate on table "public"."Inscripciones" from "authenticated";
-
-revoke update on table "public"."Inscripciones" from "authenticated";
-
-revoke delete on table "public"."Inscripciones" from "service_role";
-
-revoke insert on table "public"."Inscripciones" from "service_role";
-
-revoke references on table "public"."Inscripciones" from "service_role";
-
-revoke select on table "public"."Inscripciones" from "service_role";
-
-revoke trigger on table "public"."Inscripciones" from "service_role";
-
-revoke truncate on table "public"."Inscripciones" from "service_role";
-
-revoke update on table "public"."Inscripciones" from "service_role";
-
-revoke delete on table "public"."Jornadas" from "anon";
-
-revoke insert on table "public"."Jornadas" from "anon";
-
-revoke references on table "public"."Jornadas" from "anon";
-
-revoke select on table "public"."Jornadas" from "anon";
-
-revoke trigger on table "public"."Jornadas" from "anon";
-
-revoke truncate on table "public"."Jornadas" from "anon";
-
-revoke update on table "public"."Jornadas" from "anon";
-
-revoke delete on table "public"."Jornadas" from "authenticated";
-
-revoke insert on table "public"."Jornadas" from "authenticated";
-
-revoke references on table "public"."Jornadas" from "authenticated";
-
-revoke select on table "public"."Jornadas" from "authenticated";
-
-revoke trigger on table "public"."Jornadas" from "authenticated";
-
-revoke truncate on table "public"."Jornadas" from "authenticated";
-
-revoke update on table "public"."Jornadas" from "authenticated";
-
-revoke delete on table "public"."Jornadas" from "service_role";
-
-revoke insert on table "public"."Jornadas" from "service_role";
-
-revoke references on table "public"."Jornadas" from "service_role";
-
-revoke select on table "public"."Jornadas" from "service_role";
-
-revoke trigger on table "public"."Jornadas" from "service_role";
-
-revoke truncate on table "public"."Jornadas" from "service_role";
-
-revoke update on table "public"."Jornadas" from "service_role";
-
-revoke delete on table "public"."Jugador_Categoria_Mes" from "anon";
-
-revoke insert on table "public"."Jugador_Categoria_Mes" from "anon";
-
-revoke references on table "public"."Jugador_Categoria_Mes" from "anon";
-
-revoke select on table "public"."Jugador_Categoria_Mes" from "anon";
-
-revoke trigger on table "public"."Jugador_Categoria_Mes" from "anon";
-
-revoke truncate on table "public"."Jugador_Categoria_Mes" from "anon";
-
-revoke update on table "public"."Jugador_Categoria_Mes" from "anon";
-
-revoke delete on table "public"."Jugador_Categoria_Mes" from "authenticated";
-
-revoke insert on table "public"."Jugador_Categoria_Mes" from "authenticated";
-
-revoke references on table "public"."Jugador_Categoria_Mes" from "authenticated";
-
-revoke select on table "public"."Jugador_Categoria_Mes" from "authenticated";
-
-revoke trigger on table "public"."Jugador_Categoria_Mes" from "authenticated";
-
-revoke truncate on table "public"."Jugador_Categoria_Mes" from "authenticated";
-
-revoke update on table "public"."Jugador_Categoria_Mes" from "authenticated";
-
-revoke delete on table "public"."Jugador_Categoria_Mes" from "service_role";
-
-revoke insert on table "public"."Jugador_Categoria_Mes" from "service_role";
-
-revoke references on table "public"."Jugador_Categoria_Mes" from "service_role";
-
-revoke select on table "public"."Jugador_Categoria_Mes" from "service_role";
-
-revoke trigger on table "public"."Jugador_Categoria_Mes" from "service_role";
-
-revoke truncate on table "public"."Jugador_Categoria_Mes" from "service_role";
-
-revoke update on table "public"."Jugador_Categoria_Mes" from "service_role";
-
-revoke delete on table "public"."Meses" from "anon";
-
-revoke insert on table "public"."Meses" from "anon";
-
-revoke references on table "public"."Meses" from "anon";
-
-revoke select on table "public"."Meses" from "anon";
-
-revoke trigger on table "public"."Meses" from "anon";
-
-revoke truncate on table "public"."Meses" from "anon";
-
-revoke update on table "public"."Meses" from "anon";
-
-revoke delete on table "public"."Meses" from "authenticated";
-
-revoke insert on table "public"."Meses" from "authenticated";
-
-revoke references on table "public"."Meses" from "authenticated";
-
-revoke select on table "public"."Meses" from "authenticated";
-
-revoke trigger on table "public"."Meses" from "authenticated";
-
-revoke truncate on table "public"."Meses" from "authenticated";
-
-revoke update on table "public"."Meses" from "authenticated";
-
-revoke delete on table "public"."Meses" from "service_role";
-
-revoke insert on table "public"."Meses" from "service_role";
-
-revoke references on table "public"."Meses" from "service_role";
-
-revoke select on table "public"."Meses" from "service_role";
-
-revoke trigger on table "public"."Meses" from "service_role";
-
-revoke truncate on table "public"."Meses" from "service_role";
-
-revoke update on table "public"."Meses" from "service_role";
-
-revoke delete on table "public"."Participacion" from "anon";
-
-revoke insert on table "public"."Participacion" from "anon";
-
-revoke references on table "public"."Participacion" from "anon";
-
-revoke select on table "public"."Participacion" from "anon";
-
-revoke trigger on table "public"."Participacion" from "anon";
-
-revoke truncate on table "public"."Participacion" from "anon";
-
-revoke update on table "public"."Participacion" from "anon";
-
-revoke delete on table "public"."Participacion" from "authenticated";
-
-revoke insert on table "public"."Participacion" from "authenticated";
-
-revoke references on table "public"."Participacion" from "authenticated";
-
-revoke select on table "public"."Participacion" from "authenticated";
-
-revoke trigger on table "public"."Participacion" from "authenticated";
-
-revoke truncate on table "public"."Participacion" from "authenticated";
-
-revoke update on table "public"."Participacion" from "authenticated";
-
-revoke delete on table "public"."Participacion" from "service_role";
-
-revoke insert on table "public"."Participacion" from "service_role";
-
-revoke references on table "public"."Participacion" from "service_role";
-
-revoke select on table "public"."Participacion" from "service_role";
-
-revoke trigger on table "public"."Participacion" from "service_role";
-
-revoke truncate on table "public"."Participacion" from "service_role";
-
-revoke update on table "public"."Participacion" from "service_role";
-
-revoke delete on table "public"."Partidos" from "anon";
-
-revoke insert on table "public"."Partidos" from "anon";
-
-revoke references on table "public"."Partidos" from "anon";
-
-revoke select on table "public"."Partidos" from "anon";
-
-revoke trigger on table "public"."Partidos" from "anon";
-
-revoke truncate on table "public"."Partidos" from "anon";
-
-revoke update on table "public"."Partidos" from "anon";
-
-revoke delete on table "public"."Partidos" from "authenticated";
-
-revoke insert on table "public"."Partidos" from "authenticated";
-
-revoke references on table "public"."Partidos" from "authenticated";
-
-revoke select on table "public"."Partidos" from "authenticated";
-
-revoke trigger on table "public"."Partidos" from "authenticated";
-
-revoke truncate on table "public"."Partidos" from "authenticated";
-
-revoke update on table "public"."Partidos" from "authenticated";
-
-revoke delete on table "public"."Partidos" from "service_role";
-
-revoke insert on table "public"."Partidos" from "service_role";
-
-revoke references on table "public"."Partidos" from "service_role";
-
-revoke select on table "public"."Partidos" from "service_role";
-
-revoke trigger on table "public"."Partidos" from "service_role";
-
-revoke truncate on table "public"."Partidos" from "service_role";
-
-revoke update on table "public"."Partidos" from "service_role";
-
-revoke delete on table "public"."Sets" from "anon";
-
-revoke insert on table "public"."Sets" from "anon";
-
-revoke references on table "public"."Sets" from "anon";
-
-revoke select on table "public"."Sets" from "anon";
-
-revoke trigger on table "public"."Sets" from "anon";
-
-revoke truncate on table "public"."Sets" from "anon";
-
-revoke update on table "public"."Sets" from "anon";
-
-revoke delete on table "public"."Sets" from "authenticated";
-
-revoke insert on table "public"."Sets" from "authenticated";
-
-revoke references on table "public"."Sets" from "authenticated";
-
-revoke select on table "public"."Sets" from "authenticated";
-
-revoke trigger on table "public"."Sets" from "authenticated";
-
-revoke truncate on table "public"."Sets" from "authenticated";
-
-revoke update on table "public"."Sets" from "authenticated";
-
-revoke delete on table "public"."Sets" from "service_role";
-
-revoke insert on table "public"."Sets" from "service_role";
-
-revoke references on table "public"."Sets" from "service_role";
-
-revoke select on table "public"."Sets" from "service_role";
-
-revoke trigger on table "public"."Sets" from "service_role";
-
-revoke truncate on table "public"."Sets" from "service_role";
-
-revoke update on table "public"."Sets" from "service_role";
-
-revoke delete on table "public"."Socios" from "anon";
-
-revoke insert on table "public"."Socios" from "anon";
-
-revoke references on table "public"."Socios" from "anon";
-
-revoke select on table "public"."Socios" from "anon";
-
-revoke trigger on table "public"."Socios" from "anon";
-
-revoke truncate on table "public"."Socios" from "anon";
-
-revoke update on table "public"."Socios" from "anon";
-
-revoke delete on table "public"."Socios" from "authenticated";
-
-revoke insert on table "public"."Socios" from "authenticated";
-
-revoke references on table "public"."Socios" from "authenticated";
-
-revoke select on table "public"."Socios" from "authenticated";
-
-revoke trigger on table "public"."Socios" from "authenticated";
-
-revoke truncate on table "public"."Socios" from "authenticated";
-
-revoke update on table "public"."Socios" from "authenticated";
-
-revoke delete on table "public"."Socios" from "service_role";
-
-revoke insert on table "public"."Socios" from "service_role";
-
-revoke references on table "public"."Socios" from "service_role";
-
-revoke select on table "public"."Socios" from "service_role";
-
-revoke trigger on table "public"."Socios" from "service_role";
-
-revoke truncate on table "public"."Socios" from "service_role";
-
-revoke update on table "public"."Socios" from "service_role";
-
-revoke delete on table "public"."Temporadas" from "anon";
-
-revoke insert on table "public"."Temporadas" from "anon";
-
-revoke references on table "public"."Temporadas" from "anon";
-
-revoke select on table "public"."Temporadas" from "anon";
-
-revoke trigger on table "public"."Temporadas" from "anon";
-
-revoke truncate on table "public"."Temporadas" from "anon";
-
-revoke update on table "public"."Temporadas" from "anon";
-
-revoke delete on table "public"."Temporadas" from "authenticated";
-
-revoke insert on table "public"."Temporadas" from "authenticated";
-
-revoke references on table "public"."Temporadas" from "authenticated";
-
-revoke select on table "public"."Temporadas" from "authenticated";
-
-revoke trigger on table "public"."Temporadas" from "authenticated";
-
-revoke truncate on table "public"."Temporadas" from "authenticated";
-
-revoke update on table "public"."Temporadas" from "authenticated";
-
-revoke delete on table "public"."Temporadas" from "service_role";
-
-revoke insert on table "public"."Temporadas" from "service_role";
-
-revoke references on table "public"."Temporadas" from "service_role";
-
-revoke select on table "public"."Temporadas" from "service_role";
-
-revoke trigger on table "public"."Temporadas" from "service_role";
-
-revoke truncate on table "public"."Temporadas" from "service_role";
-
-revoke update on table "public"."Temporadas" from "service_role";
-
-revoke delete on table "public"."Torneos" from "anon";
-
-revoke insert on table "public"."Torneos" from "anon";
-
-revoke references on table "public"."Torneos" from "anon";
-
-revoke select on table "public"."Torneos" from "anon";
-
-revoke trigger on table "public"."Torneos" from "anon";
-
-revoke truncate on table "public"."Torneos" from "anon";
-
-revoke update on table "public"."Torneos" from "anon";
-
-revoke delete on table "public"."Torneos" from "authenticated";
-
-revoke insert on table "public"."Torneos" from "authenticated";
-
-revoke references on table "public"."Torneos" from "authenticated";
-
-revoke select on table "public"."Torneos" from "authenticated";
-
-revoke trigger on table "public"."Torneos" from "authenticated";
-
-revoke truncate on table "public"."Torneos" from "authenticated";
-
-revoke update on table "public"."Torneos" from "authenticated";
-
-revoke delete on table "public"."Torneos" from "service_role";
-
-revoke insert on table "public"."Torneos" from "service_role";
-
-revoke references on table "public"."Torneos" from "service_role";
-
-revoke select on table "public"."Torneos" from "service_role";
-
-revoke trigger on table "public"."Torneos" from "service_role";
-
-revoke truncate on table "public"."Torneos" from "service_role";
-
-revoke update on table "public"."Torneos" from "service_role";
-
-alter table "public"."Bonus" drop constraint "Bonus_mes_id_fkey";
-
-alter table "public"."Bonus" drop constraint "Bonus_player_id_fkey";
-
-alter table "public"."Inscripciones" drop constraint "inscripciones_torneo_id_fkey";
-
-alter table "public"."Inscripciones" drop constraint "inscripciones_torneo_user_unique";
-
-alter table "public"."Inscripciones" drop constraint "inscripciones_user_id_fkey";
-
-alter table "public"."Jornadas" drop constraint "Jornadas_mes_id_fkey";
-
-alter table "public"."Jornadas" drop constraint "jornadas_mes_number_unique";
-
-alter table "public"."Jugador_Categoria_Mes" drop constraint "Jugador_Categoria_Mes_categoria_id_fkey";
-
-alter table "public"."Jugador_Categoria_Mes" drop constraint "Jugador_Categoria_Mes_jugador_id_fkey";
-
-alter table "public"."Jugador_Categoria_Mes" drop constraint "Jugador_Categoria_Mes_mes_id_fkey";
-
-alter table "public"."Jugador_Categoria_Mes" drop constraint "jugador_categoria_mes_unique";
-
-alter table "public"."Jugador_Categoria_Mes" drop constraint "unique_category_per_month";
-
-alter table "public"."Meses" drop constraint "Meses_status_check";
-
-alter table "public"."Meses" drop constraint "Meses_temporada_id_fkey";
-
-alter table "public"."Meses" drop constraint "meses_month_year_temporada_unique";
-
-alter table "public"."Meses" drop constraint "unique_month";
-
-alter table "public"."Participacion" drop constraint "participacion_jugador_id_fkey";
-
-alter table "public"."Participacion" drop constraint "participacion_partido_id_fkey";
-
-alter table "public"."Participacion" drop constraint "participacion_sustituto_id_fkey";
-
-alter table "public"."Partidos" drop constraint "Partidos_categoria_id_fkey";
-
-alter table "public"."Partidos" drop constraint "Partidos_jornada_id_fkey";
-
-alter table "public"."Sets" drop constraint "Sets_pareja1_jugador1_id_fkey";
-
-alter table "public"."Sets" drop constraint "Sets_pareja1_jugador2_id_fkey";
-
-alter table "public"."Sets" drop constraint "Sets_pareja2_jugador1_id_fkey";
-
-alter table "public"."Sets" drop constraint "Sets_pareja2_jugador2_id_fkey";
-
-alter table "public"."Sets" drop constraint "Sets_partido_id_fkey";
-
-alter table "public"."Bonus" drop constraint "Bonus_pkey";
-
-alter table "public"."Categorias" drop constraint "Categorias_pkey";
-
-alter table "public"."Inscripciones" drop constraint "inscripciones_pkey";
-
-alter table "public"."Jornadas" drop constraint "Jornadas_pkey";
-
-alter table "public"."Jugador_Categoria_Mes" drop constraint "Jugador_Categoria_Mes_pkey";
-
-alter table "public"."Meses" drop constraint "Meses_pkey";
-
-alter table "public"."Participacion" drop constraint "participacion_pkey";
-
-alter table "public"."Partidos" drop constraint "Partidos_pkey";
-
-alter table "public"."Sets" drop constraint "Sets_pkey";
-
-alter table "public"."Socios" drop constraint "Socios_pkey";
-
-alter table "public"."Temporadas" drop constraint "Temporadas_pkey";
-
-alter table "public"."Torneos" drop constraint "Torneos_pkey";
-
-drop index if exists "public"."Bonus_pkey";
-
-drop index if exists "public"."Categorias_pkey";
-
-drop index if exists "public"."Jornadas_pkey";
-
-drop index if exists "public"."Jugador_Categoria_Mes_pkey";
-
-drop index if exists "public"."Meses_pkey";
-
-drop index if exists "public"."Partidos_pkey";
-
-drop index if exists "public"."Sets_pkey";
-
-drop index if exists "public"."Socios_pkey";
-
-drop index if exists "public"."Temporadas_pkey";
-
-drop index if exists "public"."Torneos_pkey";
-
-drop index if exists "public"."inscripciones_pkey";
-
-drop index if exists "public"."inscripciones_torneo_user_unique";
-
-drop index if exists "public"."jornadas_mes_number_unique";
-
-drop index if exists "public"."jugador_categoria_mes_unique";
-
-drop index if exists "public"."meses_month_year_temporada_unique";
-
-drop index if exists "public"."participacion_pkey";
-
-drop index if exists "public"."unique_category_per_month";
-
-drop index if exists "public"."unique_month";
-
-drop table "public"."Bonus";
-
-drop table "public"."Categorias";
-
-drop table "public"."Inscripciones";
-
-drop table "public"."Jornadas";
-
-drop table "public"."Jugador_Categoria_Mes";
-
-drop table "public"."Meses";
-
-drop table "public"."Participacion";
-
-drop table "public"."Partidos";
-
-drop table "public"."Sets";
-
-drop table "public"."Socios";
-
-drop table "public"."Temporadas";
-
-drop table "public"."Torneos";
-
 
   create table "public"."bonuses" (
     "id" bigint generated by default as identity not null,
@@ -890,7 +214,7 @@ alter table "public"."bonuses" validate constraint "bonuses_player_id_fkey";
 
 alter table "public"."inscriptions" add constraint "inscripciones_torneo_user_unique" UNIQUE using index "inscripciones_torneo_user_unique";
 
-alter table "public"."inscriptions" add constraint "inscriptions_tournament_id_fkey" FOREIGN KEY (tournament_id) REFERENCES public.tournaments(id) not valid;
+alter table "public"."inscriptions" add constraint "inscriptions_tournament_id_fkey" FOREIGN KEY (tournament_id) REFERENCES public.tournaments(id) ON DELETE CASCADE not valid;
 
 alter table "public"."inscriptions" validate constraint "inscriptions_tournament_id_fkey";
 
@@ -922,7 +246,7 @@ alter table "public"."matches" validate constraint "matches_matchday_id_fkey";
 
 alter table "public"."months" add constraint "meses_month_year_temporada_unique" UNIQUE using index "meses_month_year_temporada_unique";
 
-alter table "public"."months" add constraint "months_season_id_fkey" FOREIGN KEY (season_id) REFERENCES public.seasons(id) not valid;
+alter table "public"."months" add constraint "months_season_id_fkey" FOREIGN KEY (season_id) REFERENCES public.seasons(id) ON DELETE CASCADE not valid;
 
 alter table "public"."months" validate constraint "months_season_id_fkey";
 
@@ -963,6 +287,499 @@ alter table "public"."sets" validate constraint "sets_pair2_player1_id_fkey";
 alter table "public"."sets" add constraint "sets_pair2_player2_id_fkey" FOREIGN KEY (pair2_player2_id) REFERENCES public.members(id) not valid;
 
 alter table "public"."sets" validate constraint "sets_pair2_player2_id_fkey";
+
+set check_function_bodies = off;
+
+CREATE OR REPLACE FUNCTION public.create_season_with_months(p_name text, p_start_date date, p_months jsonb)
+ RETURNS void
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+  v_id INT;
+BEGIN
+  INSERT INTO seasons (name, start_date)
+  VALUES (p_name, p_start_date)
+  RETURNING id INTO v_id;
+
+  INSERT INTO months (season_id, month, year)
+  SELECT v_id, (m->>'month')::int, (m->>'year')::int
+  FROM jsonb_array_elements(p_months) AS m;
+END;
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.generate_month_matches(p_month_id bigint, p_matches jsonb)
+ RETURNS void
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+  m jsonb;
+
+  matchday1_id bigint;
+  matchday2_id bigint;
+
+  match_id bigint;
+BEGIN
+  WITH matchdays_upsert AS (
+    INSERT INTO matchdays (month_id, "order")
+    VALUES (p_month_id, 1), (p_month_id, 2)
+    ON CONFLICT (month_id, "order")
+    DO UPDATE SET month_id = EXCLUDED.month_id
+    RETURNING id, "order"
+  )
+  SELECT
+    MAX(id) FILTER (WHERE "order" = 1),
+    MAX(id) FILTER (WHERE "order" = 2)
+  INTO matchday1_id, matchday2_id
+  FROM matchdays_upsert;
+
+  IF matchday1_id IS NULL OR matchday2_id IS NULL THEN
+    RAISE EXCEPTION 'No se pudieron crear las jornadas';
+  END IF;
+
+  FOR m IN
+    SELECT *
+    FROM jsonb_array_elements(p_matches)
+  LOOP
+
+    INSERT INTO matches (matchday_id, category_id)
+    VALUES (
+      CASE (m->>'matchday')::int
+        WHEN 1 THEN matchday1_id
+        ELSE matchday2_id
+      END,
+      (m->>'category_id')::bigint
+    )
+    RETURNING id INTO match_id;
+
+    INSERT INTO match_participants (
+      match_id,
+      player_id,
+      substitute_id
+    )
+    SELECT
+      match_id,
+      jsonb_array_elements_text(m->'players')::bigint,
+      NULL;
+
+  END LOOP;
+
+  UPDATE months
+  SET status = 'confirmed'
+  WHERE id = p_month_id;
+
+END;
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.get_ascensor(p_month_id integer)
+ RETURNS TABLE(category_id integer, category_name text, category_order integer, player_id integer, full_name text, nickname text, points integer, diff integer, games_for integer, matches_played integer)
+ LANGUAGE sql
+ STABLE
+AS $function$
+WITH sets_base AS (
+  SELECT
+    s.*,
+    j.month_id,
+    m.category_id,
+    c.points_per_set,
+
+    CASE
+      WHEN p1.substitute_id IS NOT NULL THEN NULL
+      ELSE s.pair1_player1_id
+    END AS real_p1_j1,
+
+    CASE
+      WHEN p2.substitute_id IS NOT NULL THEN NULL
+      ELSE s.pair1_player2_id
+    END AS real_p1_j2,
+
+    CASE
+      WHEN p3.substitute_id IS NOT NULL THEN NULL
+      ELSE s.pair2_player1_id
+    END AS real_p2_j1,
+
+    CASE
+      WHEN p4.substitute_id IS NOT NULL THEN NULL
+      ELSE s.pair2_player2_id
+    END AS real_p2_j2
+
+  FROM public.sets s
+  JOIN public.matches m
+    ON m.id = s.match_id
+
+  JOIN public.matchdays j
+    ON j.id = m.matchday_id
+
+  JOIN public.categories c
+    ON c.id = m.category_id
+
+  LEFT JOIN public.match_participants p1
+    ON p1.match_id = s.match_id
+    AND p1.player_id = s.pair1_player1_id
+
+  LEFT JOIN public.match_participants p2
+    ON p2.match_id = s.match_id
+    AND p2.player_id = s.pair1_player2_id
+
+  LEFT JOIN public.match_participants p3
+    ON p3.match_id = s.match_id
+    AND p3.player_id = s.pair2_player1_id
+
+  LEFT JOIN public.match_participants p4
+    ON p4.match_id = s.match_id
+    AND p4.player_id = s.pair2_player2_id
+),
+
+expanded_sets AS (
+  SELECT
+    match_id,
+    month_id,
+    category_id,
+    points_per_set,
+    real_p1_j1 AS player_id,
+    pair1_score AS gf,
+    pair2_score AS ga,
+    (pair1_score > pair2_score) AS win
+  FROM sets_base
+
+  UNION ALL
+
+  SELECT
+    match_id,
+    month_id,
+    category_id,
+    points_per_set,
+    real_p1_j2,
+    pair1_score,
+    pair2_score,
+    (pair1_score > pair2_score)
+  FROM sets_base
+
+  UNION ALL
+
+  SELECT
+    match_id,
+    month_id,
+    category_id,
+    points_per_set,
+    real_p2_j1,
+    pair2_score,
+    pair1_score,
+    (pair2_score > pair1_score)
+  FROM sets_base
+
+  UNION ALL
+
+  SELECT
+    match_id,
+    month_id,
+    category_id,
+    points_per_set,
+    real_p2_j2,
+    pair2_score,
+    pair1_score,
+    (pair2_score > pair1_score)
+  FROM sets_base
+),
+
+classification AS (
+  SELECT
+    category_id,
+    player_id,
+
+    SUM(CASE WHEN win THEN points_per_set ELSE 0 END)
+      + COUNT(DISTINCT match_id) * 5 AS points,
+
+    SUM(gf - ga) AS diff,
+    SUM(gf) AS games_for,
+
+    COUNT(DISTINCT match_id) AS matches_played
+
+  FROM expanded_sets
+  WHERE month_id = p_month_id
+    AND player_id IS NOT NULL
+  GROUP BY category_id, player_id
+),
+
+players_in_categories AS (
+  SELECT
+    jcm.category_id AS category_id,
+    jcm.player_id AS player_id,
+    s.nickname,
+    s.full_name
+  FROM public.player_category_assignments jcm
+  JOIN public.members s
+    ON s.id = jcm.player_id
+  WHERE jcm.month_id = p_month_id
+)
+
+SELECT
+  cat.id AS category_id,
+  cat.name AS category_name,
+  cat.order AS category_order,
+  p.player_id,
+  p.full_name,
+  p.nickname,
+  COALESCE(c.points, 0) AS points,
+  COALESCE(c.diff, 0) AS diff,
+  COALESCE(c.games_for, 0) AS games_for,
+  COALESCE(c.matches_played, 0) AS matches_played
+FROM players_in_categories p
+JOIN public.categories cat
+  ON cat.id = p.category_id
+LEFT JOIN classification c
+  ON c.category_id = p.category_id
+  AND c.player_id = p.player_id
+ORDER BY
+  cat.order,
+  points DESC,
+  diff DESC,
+  games_for DESC;
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.get_general_classification(p_season_id integer)
+ RETURNS TABLE(player_id integer, full_name text, nickname text, points integer, diff integer, games_for integer, matches_played integer)
+ LANGUAGE sql
+ STABLE
+AS $function$
+
+WITH sets_base AS (
+  SELECT
+    s.*,
+    m.category_id,
+    c.points_per_set,
+    mo.season_id,
+
+    CASE
+      WHEN p1.substitute_id IS NOT NULL THEN NULL
+      ELSE s.pair1_player1_id
+    END AS real_p1_j1,
+
+    CASE
+      WHEN p2.substitute_id IS NOT NULL THEN NULL
+      ELSE s.pair1_player2_id
+    END AS real_p1_j2,
+
+    CASE
+      WHEN p3.substitute_id IS NOT NULL THEN NULL
+      ELSE s.pair2_player1_id
+    END AS real_p2_j1,
+
+    CASE
+      WHEN p4.substitute_id IS NOT NULL THEN NULL
+      ELSE s.pair2_player2_id
+    END AS real_p2_j2
+
+  FROM public.sets s
+  JOIN public.matches m
+    ON m.id = s.match_id
+  JOIN public.matchdays j
+    ON j.id = m.matchday_id
+  JOIN public.months mo
+    ON mo.id = j.month_id
+  JOIN public.categories c
+    ON c.id = m.category_id
+
+  LEFT JOIN public.match_participants p1
+    ON p1.match_id = s.match_id
+    AND p1.player_id = s.pair1_player1_id
+
+  LEFT JOIN public.match_participants p2
+    ON p2.match_id = s.match_id
+    AND p2.player_id = s.pair1_player2_id
+
+  LEFT JOIN public.match_participants p3
+    ON p3.match_id = s.match_id
+    AND p3.player_id = s.pair2_player1_id
+
+  LEFT JOIN public.match_participants p4
+    ON p4.match_id = s.match_id
+    AND p4.player_id = s.pair2_player2_id
+
+  WHERE mo.season_id = p_season_id
+),
+
+expanded_sets AS (
+  SELECT
+    match_id,
+    category_id,
+    points_per_set,
+    real_p1_j1 AS player_id,
+    pair1_score AS gf,
+    pair2_score AS ga,
+    (pair1_score > pair2_score) AS win
+  FROM sets_base
+
+  UNION ALL
+
+  SELECT
+    match_id,
+    category_id,
+    points_per_set,
+    real_p1_j2,
+    pair1_score,
+    pair2_score,
+    (pair1_score > pair2_score)
+  FROM sets_base
+
+  UNION ALL
+
+  SELECT
+    match_id,
+    category_id,
+    points_per_set,
+    real_p2_j1,
+    pair2_score,
+    pair1_score,
+    (pair2_score > pair1_score)
+  FROM sets_base
+
+  UNION ALL
+
+  SELECT
+    match_id,
+    category_id,
+    points_per_set,
+    real_p2_j2,
+    pair2_score,
+    pair1_score,
+    (pair2_score > pair1_score)
+  FROM sets_base
+),
+
+classification AS (
+  SELECT
+    player_id,
+    SUM(CASE WHEN win THEN points_per_set ELSE 0 END)
+      + COUNT(DISTINCT match_id) * 5 AS base_points,
+    SUM(gf - ga) AS diff,
+    SUM(gf) AS games_for,
+    COUNT(DISTINCT match_id) AS matches_played
+  FROM expanded_sets
+  WHERE player_id IS NOT NULL
+  GROUP BY player_id
+),
+
+bonus AS (
+  SELECT
+    b.player_id,
+    SUM(b.quantity) AS bonus_points
+  FROM public.bonuses b
+  WHERE b.month_id IN (
+    SELECT mo.id
+    FROM public.months mo
+    WHERE mo.season_id = p_season_id
+  )
+  GROUP BY b.player_id
+)
+
+SELECT
+  c.player_id,
+  s.full_name,
+  s.nickname,
+  (c.base_points + COALESCE(b.bonus_points, 0)) AS points,
+  c.diff,
+  c.games_for,
+  c.matches_played
+
+FROM classification c
+JOIN public.members s
+  ON s.id = c.player_id
+
+LEFT JOIN bonus b
+  ON b.player_id = c.player_id
+
+ORDER BY
+  (c.base_points + COALESCE(b.bonus_points, 0)) DESC,
+  c.diff DESC,
+  c.games_for DESC;
+
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.register_match_results(p_match_id integer, p_sets jsonb, p_participation jsonb)
+ RETURNS void
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+  DELETE FROM public.sets
+  WHERE match_id = p_match_id;
+
+  INSERT INTO public.sets (
+    match_id,
+    "order",
+    pair1_player1_id,
+    pair1_player2_id,
+    pair2_player1_id,
+    pair2_player2_id,
+    pair1_score,
+    pair2_score
+  )
+  SELECT
+    p_match_id,
+    (s->>'order')::int,
+    (s->>'pair1_player1_id')::int,
+    (s->>'pair1_player2_id')::int,
+    (s->>'pair2_player1_id')::int,
+    (s->>'pair2_player2_id')::int,
+    (s->>'pair1_score')::int,
+    (s->>'pair2_score')::int
+  FROM jsonb_array_elements(p_sets) AS s;
+
+  UPDATE public.match_participants
+  SET substitute_id = NULL
+  WHERE match_id = p_match_id;
+
+  UPDATE public.match_participants AS mp
+  SET substitute_id = data.substitute_id
+  FROM (
+    SELECT
+      (p->>'player_id')::int AS player_id,
+      (p->>'substitute_id')::int AS substitute_id
+    FROM jsonb_array_elements(p_participation) AS p
+  ) AS data
+  WHERE mp.match_id = p_match_id
+    AND mp.player_id = data.player_id;
+
+END;
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.save_month_assignments(p_month_id bigint, p_assignments jsonb)
+ RETURNS void
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+  v_status text;
+BEGIN
+
+  SELECT status INTO v_status
+  FROM months
+  WHERE id = p_month_id;
+
+  IF v_status IS NULL THEN
+    RAISE EXCEPTION 'Mes no encontrado';
+  END IF;
+
+  IF v_status = 'locked' THEN
+    RAISE EXCEPTION 'El mes está cerrado y no se puede editar.';
+  END IF;
+
+  DELETE FROM player_category_assignments
+  WHERE month_id = p_month_id;
+
+  INSERT INTO player_category_assignments (month_id, player_id, category_id)
+  SELECT
+    p_month_id,
+    (a->>'player_id')::bigint,
+    (a->>'category_id')::bigint
+  FROM jsonb_array_elements(p_assignments) AS a;
+
+END;
+$function$
+;
 
 grant delete on table "public"."bonuses" to "anon";
 
@@ -1527,12 +1344,30 @@ with check ((EXISTS ( SELECT 1
 
 
 
+  create policy "Admins can do ANYTHING"
+  on "public"."match_participants"
+  as permissive
+  for all
+  to public
+using (((((auth.jwt() -> 'app_metadata'::text) ->> 'admin'::text))::boolean = true));
+
+
+
   create policy "Enable read access for all users"
   on "public"."match_participants"
   as permissive
   for select
   to public
 using (true);
+
+
+
+  create policy "Admins can do ANYTHING"
+  on "public"."matchdays"
+  as permissive
+  for all
+  to public
+using (((((auth.jwt() -> 'app_metadata'::text) ->> 'admin'::text))::boolean = true));
 
 
 
@@ -1545,12 +1380,30 @@ using (true);
 
 
 
+  create policy "Admins can do ANYTHING"
+  on "public"."matches"
+  as permissive
+  for all
+  to public
+using (((((auth.jwt() -> 'app_metadata'::text) ->> 'admin'::text))::boolean = true));
+
+
+
   create policy "Enable read access for all users"
   on "public"."matches"
   as permissive
   for select
   to public
 using (true);
+
+
+
+  create policy "Admins can do ANYTHING"
+  on "public"."members"
+  as permissive
+  for all
+  to public
+using (((((auth.jwt() -> 'app_metadata'::text) ->> 'admin'::text))::boolean = true));
 
 
 
@@ -1581,12 +1434,30 @@ using (true);
 
 
 
+  create policy "Admins can do ANYTHING"
+  on "public"."player_category_assignments"
+  as permissive
+  for all
+  to public
+using (((((auth.jwt() -> 'app_metadata'::text) ->> 'admin'::text))::boolean = true));
+
+
+
   create policy "Enable read access for all users"
   on "public"."player_category_assignments"
   as permissive
   for select
   to public
 using (true);
+
+
+
+  create policy "Admin can do ANYTHING"
+  on "public"."seasons"
+  as permissive
+  for all
+  to public
+using (((((auth.jwt() -> 'app_metadata'::text) ->> 'admin'::text))::boolean = true));
 
 
 
@@ -1599,12 +1470,12 @@ using (true);
 
 
 
-  create policy "Only admin can write"
-  on "public"."seasons"
+  create policy "Admins can do ANYTHING"
+  on "public"."sets"
   as permissive
   for all
   to public
-using ((auth.role() = 'admin'::text));
+using (((((auth.jwt() -> 'app_metadata'::text) ->> 'admin'::text))::boolean = true));
 
 
 
@@ -1633,5 +1504,46 @@ using (((((auth.jwt() -> 'app_metadata'::text) ->> 'admin'::text))::boolean = tr
   to public
 using (true);
 
+insert into storage.buckets (id, name, public)
+values ('torneos', 'torneos', true)
+on conflict (id) do nothing;
+
+  create policy "Admins can do ANYTHING 1g80m2a_0"
+  on "storage"."objects"
+  as permissive
+  for select
+  to public
+using (((bucket_id = 'torneos'::text) AND ((((auth.jwt() -> 'app_metadata'::text) ->> 'admin'::text))::boolean = true)));
+
+
+
+  create policy "Admins can do ANYTHING 1g80m2a_1"
+  on "storage"."objects"
+  as permissive
+  for insert
+  to public
+with check (((bucket_id = 'torneos'::text) AND ((((auth.jwt() -> 'app_metadata'::text) ->> 'admin'::text))::boolean = true)));
+
+
+
+  create policy "Admins can do ANYTHING 1g80m2a_2"
+  on "storage"."objects"
+  as permissive
+  for update
+  to public
+using (((bucket_id = 'torneos'::text) AND ((((auth.jwt() -> 'app_metadata'::text) ->> 'admin'::text))::boolean = true)));
+
+
+
+  create policy "Admins can do ANYTHING 1g80m2a_3"
+  on "storage"."objects"
+  as permissive
+  for delete
+  to public
+using (((bucket_id = 'torneos'::text) AND ((((auth.jwt() -> 'app_metadata'::text) ->> 'admin'::text))::boolean = true)));
+
+insert into storage.buckets (id, name, public)
+values ('documents', 'documents', false)
+on conflict (id) do nothing;
 
 
