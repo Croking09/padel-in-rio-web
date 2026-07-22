@@ -1,11 +1,13 @@
 "use client";
 
+import * as React from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Popover,
@@ -15,10 +17,11 @@ import {
 
 type Props = {
   label: string;
-  value: string;
-  onChange: (value: string) => void;
+  value?: Date;
+  onChange: (value?: Date) => void;
   required?: boolean;
   icon?: React.ReactNode;
+  withTime?: boolean;
 };
 
 export default function DatePicker({
@@ -27,8 +30,50 @@ export default function DatePicker({
   onChange,
   required = false,
   icon,
+  withTime = false,
 }: Props) {
-  const date = value ? new Date(value) : undefined;
+  const handleDateSelect = (selected: Date | undefined) => {
+    if (!selected) {
+      onChange(undefined);
+      return;
+    }
+
+    const newDate = new Date(selected);
+
+    if (value) {
+      newDate.setHours(
+        value.getHours(),
+        value.getMinutes(),
+        value.getSeconds(),
+        0,
+      );
+    } else {
+      newDate.setHours(0, 0, 0, 0);
+    }
+
+    onChange(newDate);
+  };
+
+  const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const time = event.target.value;
+
+    if (!time) {
+      onChange(undefined);
+      return;
+    }
+
+    const [hours, minutes] = time.split(":");
+
+    const newDate = value ? new Date(value) : new Date();
+
+    newDate.setHours(Number(hours), Number(minutes), 0, 0);
+
+    if (isNaN(newDate.getTime())) {
+      return;
+    }
+
+    onChange(newDate);
+  };
 
   return (
     <div className="grid gap-2">
@@ -38,35 +83,47 @@ export default function DatePicker({
         {required && <span className="text-destructive">*</span>}
       </Label>
 
-      <Popover>
-        <PopoverTrigger
-          render={
-            <Button
-              type="button"
-              variant="outline"
-              data-empty={!date}
-              className="justify-start text-left font-normal data-[empty=true]:text-muted-foreground"
+      <div className="flex gap-2">
+        <Popover>
+          <PopoverTrigger
+            render={
+              <Button
+                type="button"
+                variant="outline"
+                data-empty={!value}
+                className="flex-1 justify-start text-left font-normal data-[empty=true]:text-muted-foreground"
+              />
+            }
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+
+            {value ? (
+              format(value, "dd/MM/yyyy", { locale: es })
+            ) : (
+              <span>Selecciona una fecha</span>
+            )}
+          </PopoverTrigger>
+
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={value}
+              onSelect={handleDateSelect}
+              locale={es}
             />
-          }
-        >
-          <CalendarIcon className="mr-2 h-4 w-4" />
+          </PopoverContent>
+        </Popover>
 
-          {date ? (
-            format(date, "dd/MM/yyyy", { locale: es })
-          ) : (
-            <span>Selecciona una fecha</span>
-          )}
-        </PopoverTrigger>
-
-        <PopoverContent className="w-auto p-0">
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={(d) => onChange(d ? format(d, "yyyy-MM-dd") : "")}
-            locale={es}
+        {withTime && (
+          <Input
+            type="time"
+            step="60"
+            className="w-fit appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+            value={value ? format(value, "HH:mm") : ""}
+            onChange={handleTimeChange}
           />
-        </PopoverContent>
-      </Popover>
+        )}
+      </div>
     </div>
   );
 }
