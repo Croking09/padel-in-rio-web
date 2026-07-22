@@ -2,6 +2,7 @@
 
 import { buttonVariants, Button } from "@/components/ui/button";
 import Link from "next/link";
+import { UserRoundPen } from "lucide-react";
 
 interface Props {
   tournamentId: number;
@@ -29,9 +30,10 @@ export default function InscriptionButton({
     </Button>
   ) : (
     <Link
-      href={`/torneos/inscripcion/${tournamentId}`}
+      href={`/torneos/${tournamentId}/inscripcion`}
       className={buttonVariants({ variant: "default", size: "default" })}
     >
+      <UserRoundPen />
       Inscribirse
     </Link>
   );

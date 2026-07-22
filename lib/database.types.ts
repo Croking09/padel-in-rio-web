@@ -412,6 +412,44 @@ export type Database = {
           },
         ]
       }
+      tournament_matches: {
+        Row: {
+          category: string | null
+          id: number
+          pair1: string[]
+          pair2: string[]
+          result: number[] | null
+          scheduled_datetime: string
+          tournament_id: number
+        }
+        Insert: {
+          category?: string | null
+          id?: number
+          pair1: string[]
+          pair2: string[]
+          result?: number[] | null
+          scheduled_datetime: string
+          tournament_id: number
+        }
+        Update: {
+          category?: string | null
+          id?: number
+          pair1?: string[]
+          pair2?: string[]
+          result?: number[] | null
+          scheduled_datetime?: string
+          tournament_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tournament_matches_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tournaments: {
         Row: {
           categories: string[] | null

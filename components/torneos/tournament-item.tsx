@@ -1,12 +1,13 @@
-import InscriptionButton from "./inscription-button";
 import ToggleInscriptionsButton from "./admin/toggle-inscriptions-button";
 import DeleteTournamentButton from "./admin/delete-tournament-button";
 import Link from "next/link";
-import { Eye } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
+import { Eye, UserRoundPen } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import TournamentImage from "@/components/torneos/tournament-image";
 import { format, parseISO } from "date-fns";
 import { TournamentWithImage } from "@/lib/types/tournament";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { Swords } from "lucide-react";
 
 export default function TournamentItem({
   tournament,
@@ -17,6 +18,15 @@ export default function TournamentItem({
   showAdminControls: boolean;
   isRegistered: boolean;
 }) {
+  const now = new Date();
+  const today = format(now, "yyyy-MM-dd");
+
+  const tournamentStarted = tournament.start_date <= today;
+
+  const inscriptionsClosed =
+    tournament.manually_closed ||
+    new Date(tournament.inscription_end_date) < now;
+
   return (
     <li className="flex flex-col lg:flex-row gap-4 overflow-hidden">
       <div className="relative w-full h-130 md:h-90 md:w-100">
@@ -37,36 +47,58 @@ export default function TournamentItem({
         <p className="py-2">{tournament.description}</p>
 
         <div className="flex flex-col gap-2 w-full max-w-50 items-stretch">
+          {tournamentStarted && (
+            <Link
+              href={`/torneos/${tournament.id}/partidos`}
+              className={buttonVariants({
+                variant: "default",
+                size: "default",
+              })}
+            >
+              <Swords />
+              Partidos
+            </Link>
+          )}
+
           {!showAdminControls &&
             (isRegistered ? (
               <p className="text-success font-medium">Ya te has inscrito</p>
+            ) : tournamentStarted ? null : inscriptionsClosed ? (
+              <Button className="w-fit font-bold" disabled>
+                Inscripciones cerradas
+              </Button>
             ) : (
-              <InscriptionButton
-                tournamentId={tournament.id}
-                startDate={tournament.start_date}
-                inscriptionEndDate={tournament.inscription_end_date}
-                manuallyClosed={tournament.manually_closed}
-              />
+              <Link
+                href={`/torneos/${tournament.id}/inscripcion`}
+                className={buttonVariants({
+                  variant: "default",
+                  size: "default",
+                })}
+              >
+                <UserRoundPen />
+                Inscribirse
+              </Link>
             ))}
 
           {showAdminControls && (
             <>
-              <Link
-                href={`/admin/torneos/${tournament.id}/inscripciones`}
-                className={buttonVariants({
-                  variant: "default",
-                  size: "default",
-                  className: "w-full flex justify-center items-center gap-2",
-                })}
-              >
-                <Eye className="h-4 w-4" />
-                Ver inscripciones
-              </Link>
-
-              <ToggleInscriptionsButton
-                tournamentId={tournament.id}
-                isClosed={tournament.manually_closed}
-              />
+              <ButtonGroup className="w-full">
+                <Link
+                  data-slot="button"
+                  href={`/admin/torneos/${tournament.id}/inscripciones`}
+                  className={buttonVariants({
+                    variant: "secondary",
+                    size: "default",
+                  })}
+                >
+                  <Eye />
+                  Ver inscripciones
+                </Link>
+                <ToggleInscriptionsButton
+                  tournamentId={tournament.id}
+                  isClosed={tournament.manually_closed}
+                />
+              </ButtonGroup>
 
               <DeleteTournamentButton tournamentId={tournament.id} />
             </>

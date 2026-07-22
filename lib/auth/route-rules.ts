@@ -20,7 +20,7 @@ export function isAdminPath(pathname: string): boolean {
 }
 
 // Solo las rutas que EXIGEN sesión (aparte de /admin, gestionado aparte)
-const PROTECTED_PATH_REGEXES: RegExp[] = [/^\/torneos\/inscripcion\/[^/]+$/];
+const PROTECTED_PATH_REGEXES: RegExp[] = [/^\/torneos\/[^/]+\/inscripcion$/];
 
 export function isProtectedPath(pathname: string): boolean {
   return PROTECTED_PATH_REGEXES.some((re) => re.test(pathname));
