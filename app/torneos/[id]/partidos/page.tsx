@@ -1,7 +1,7 @@
 import { getTournamentById } from "@/app/actions/tournament-actions";
 import { getMatchesByTournament } from "@/app/actions/tournament-match-actions";
 import CreateMatch from "@/components/torneos/matches/create-match";
-import MatchCard from "@/components/torneos/matches/match-card";
+import MatchList from "@/components/torneos/matches/match-list";
 import {
   Empty,
   EmptyHeader,
@@ -28,7 +28,7 @@ export default async function Page({
 
   return (
     <>
-      <div className="flex flex-col md:grid md:grid-cols-3 items-center py-8 px-4 md:px-8 lg:px-24">
+      <div className="flex flex-col md:grid md:grid-cols-3 items-center pt-8 px-4 md:px-8 lg:px-24">
         <div />
 
         <h1 className="text-4xl font-bold text-center pb-4 md:pb-0">
@@ -54,11 +54,7 @@ export default async function Page({
             </EmptyHeader>
           </Empty>
         ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {matches.map((match) => (
-              <MatchCard key={match.id} match={match} />
-            ))}
-          </div>
+          <MatchList categories={tournament.categories} matches={matches} />
         )}
       </div>
     </>
