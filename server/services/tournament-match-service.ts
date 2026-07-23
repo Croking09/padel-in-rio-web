@@ -48,4 +48,12 @@ export const tournamentMatchService = {
 
     return { success: true as const };
   },
+
+  async getByTournament(tournamentId: number) {
+    try {
+      return tournamentMatchRepository.getByTournament(tournamentId);
+    } catch {
+      return [];
+    }
+  },
 };
