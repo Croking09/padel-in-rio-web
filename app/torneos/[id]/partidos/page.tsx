@@ -25,8 +25,7 @@ export default async function Page({
 
         <div className="justify-self-end">
           <CreateMatch
-            tournamentId={tournament.id}
-            categories={tournament.categories}
+            tournament={tournament}
           />
         </div>
       </div>

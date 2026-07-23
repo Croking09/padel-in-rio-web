@@ -28,16 +28,16 @@ import {
   SelectGroup,
   SelectItem,
 } from "@/components/ui/select";
+import { TournamentRow } from "@/lib/types/tournament";
+import { endOfDay, isAfter, isBefore, startOfDay } from "date-fns";
 import { PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 export default function CreateMatch({
-  tournamentId,
-  categories,
+  tournament,
 }: {
-  tournamentId: number;
-  categories: string[] | null;
+  tournament: TournamentRow;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -49,10 +49,12 @@ export default function CreateMatch({
   const [scheduledTime, setScheduledTime] = useState<Date>();
   const [category, setCategory] = useState<string | null>(null);
 
+  const [isPending, startTransition] = useTransition();
+
   const [errors, setErrors] = useState({
     pair1: false,
     pair2: false,
-    scheduledTime: false,
+    scheduledTime: null as string | null,
     category: false,
   });
 
@@ -68,54 +70,73 @@ export default function CreateMatch({
     setErrors({
       pair1: false,
       pair2: false,
-      scheduledTime: false,
+      scheduledTime: null,
       category: false,
     });
   };
 
   const clearError = (field: keyof typeof errors) => {
-    setErrors((prev) => ({ ...prev, [field]: false }));
+    setErrors((prev) => ({
+      ...prev,
+      [field]: field === "scheduledTime" ? null : false,
+    }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const newErrors = {
-      pair1: !pair1Player1 || !pair1Player2,
-      pair2: !pair2Player1 || !pair2Player2,
-      scheduledTime: !scheduledTime,
-      category: categories ? !category : false,
-    };
+    startTransition(async () => {
+      const startDate = startOfDay(new Date(tournament.start_date));
+      const endDate = endOfDay(new Date(tournament.end_date));
 
-    setErrors(newErrors);
+      let scheduledTimeError: string | null = null;
 
-    if (Object.values(newErrors).some(Boolean)) {
-      return;
-    }
+      if (!scheduledTime) {
+        scheduledTimeError = "Selecciona la fecha y hora del partido.";
+      } else if (
+        isBefore(scheduledTime, startDate) ||
+        isAfter(scheduledTime, endDate)
+      ) {
+        scheduledTimeError =
+          "La fecha y hora debe estar dentro de las fechas del torneo.";
+      }
 
-    // console.log({
-    //   tournamentId,
-    //   pair1: [pair1Player1, pair1Player2],
-    //   pair2: [pair2Player1, pair2Player2],
-    //   scheduledTime,
-    //   category,
-    // });
-    const result = await createMatch({
-      category,
-      pair1: [pair1Player1, pair1Player2],
-      pair2: [pair2Player1, pair2Player2],
-      scheduled_datetime: scheduledTime!.toISOString(),
-      tournament_id: tournamentId,
+      const newErrors = {
+        pair1: !pair1Player1 || !pair1Player2,
+        pair2: !pair2Player1 || !pair2Player2,
+        scheduledTime: scheduledTimeError,
+        category: tournament.categories ? !category : false,
+      };
+
+      setErrors(newErrors);
+
+      if (
+        newErrors.pair1 ||
+        newErrors.pair2 ||
+        newErrors.scheduledTime ||
+        newErrors.category
+      ) {
+        return;
+      }
+
+      const result = await createMatch({
+        category,
+        pair1: [pair1Player1, pair1Player2],
+        pair2: [pair2Player1, pair2Player2],
+        scheduled_datetime: scheduledTime!.toISOString(),
+        tournament_id: tournament.id,
+      });
+
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success("Partido creado con éxito");
+      resetForm();
+      setOpen(false);
     });
-
-    if (!result.success) {
-      toast.error(result.error);
-      return;
-    }
-
-    toast.success("Partido creado con éxito");
-    setOpen(false);
-  };
+  }
 
   return (
     <Dialog
@@ -214,7 +235,7 @@ export default function CreateMatch({
           <FieldSeparator />
 
           <FieldGroup>
-            <Field data-invalid={errors.scheduledTime}>
+            <Field data-invalid={!!errors.scheduledTime}>
               <DatePicker
                 label="Fecha y hora"
                 value={scheduledTime}
@@ -227,11 +248,11 @@ export default function CreateMatch({
               />
 
               {errors.scheduledTime && (
-                <FieldError>Selecciona la fecha y hora del partido.</FieldError>
+                <FieldError>{errors.scheduledTime}</FieldError>
               )}
             </Field>
 
-            {categories && (
+            {tournament.categories && (
               <Field data-invalid={errors.category}>
                 <FieldLabel htmlFor="category">
                   Categoría<span className="text-destructive">*</span>
@@ -250,7 +271,7 @@ export default function CreateMatch({
 
                   <SelectContent>
                     <SelectGroup>
-                      {categories.map((category) => (
+                      {tournament.categories.map((category) => (
                         <SelectItem key={category} value={category}>
                           {category}
                         </SelectItem>
@@ -271,7 +292,9 @@ export default function CreateMatch({
               render={<Button variant="secondary">Cancelar</Button>}
             />
 
-            <Button type="submit">Crear</Button>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Creando..." : "Crear"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
