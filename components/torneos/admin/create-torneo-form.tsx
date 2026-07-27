@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 import { toast } from "sonner";
 import {
   Upload,
@@ -30,9 +31,10 @@ import { createClient } from "@/lib/supabase/client";
 export default function CreateTournamentForm() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [inscriptionEndDate, setInscriptionEndDate] = useState("");
+
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
+  const [inscriptionEndDate, setInscriptionEndDate] = useState<Date>();
 
   const [categories, setCategories] = useState<string[]>([]);
   const [newCategory, setNewCategory] = useState("");
@@ -58,11 +60,14 @@ export default function CreateTournamentForm() {
   const resetForm = () => {
     setName("");
     setDescription("");
-    setStartDate("");
-    setEndDate("");
-    setInscriptionEndDate("");
+
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setInscriptionEndDate(undefined);
+
     setCategories([]);
     setNewCategory("");
+
     setFileName("");
     setImageFile(null);
   };
@@ -79,6 +84,7 @@ export default function CreateTournamentForm() {
       );
       return;
     }
+
     if (startDate && endDate && startDate >= endDate) {
       toast.error("La fecha de inicio debe ser anterior a la fecha de fin.");
       return;
@@ -109,10 +115,10 @@ export default function CreateTournamentForm() {
       const response = await createTournament({
         name,
         description: description || null,
-        start_date: startDate ? new Date(startDate).toISOString() : "",
-        end_date: endDate ? new Date(endDate).toISOString() : "",
+        start_date: startDate ? format(startDate, "yyyy-MM-dd") : "",
+        end_date: endDate ? format(endDate, "yyyy-MM-dd") : "",
         inscription_end_date: inscriptionEndDate
-          ? new Date(inscriptionEndDate).toISOString()
+          ? format(inscriptionEndDate, "yyyy-MM-dd")
           : "",
         categories: categories.length > 0 ? categories : null,
         img_path: imgPath,

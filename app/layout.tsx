@@ -7,6 +7,7 @@ import BottomTabBar from "@/components/common/bottomBar";
 import Footer from "@/components/common/footer";
 import { Toaster } from "@/components/ui/sonner";
 import AuthListener from "@/components/auth/auth-listener";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -82,15 +83,17 @@ export default function RootLayout({
       <body
         className={`${montserrat.className} antialiased min-h-dvh flex flex-col`}
       >
-        <AuthListener />
-        <Toaster richColors position="top-right" />
+        <TooltipProvider>
+          <AuthListener />
+          <Toaster richColors position="top-right" />
 
-        <Header />
+          <Header />
 
-        <main className="flex-1">{children}</main>
+          <main className="flex-1">{children}</main>
 
-        <BottomTabBar />
-        <Footer />
+          <BottomTabBar />
+          <Footer />
+        </TooltipProvider>
       </body>
     </html>
   );
