@@ -4,13 +4,16 @@ import { useMemo, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TournamentMatchRow } from "@/lib/types/tournament-match";
 import MatchCard from "@/components/torneos/matches/match-card";
+import { TournamentRow } from "@/lib/types/tournament";
 
 export default function MatchList({
-  categories,
+  tournament,
   matches,
+  showAdminControls,
 }: {
-  categories: string[] | null;
+  tournament: TournamentRow;
   matches: TournamentMatchRow[];
+  showAdminControls: boolean;
 }) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -22,7 +25,7 @@ export default function MatchList({
 
   return (
     <>
-      {categories && (
+      {tournament.categories && (
         <Tabs
           value={selectedCategory}
           onValueChange={setSelectedCategory}
@@ -31,7 +34,7 @@ export default function MatchList({
           <TabsList variant="line">
             <TabsTrigger value={null}>Todas</TabsTrigger>
 
-            {categories.map((category) => (
+            {tournament.categories.map((category) => (
               <TabsTrigger key={category} value={category}>
                 {category}
               </TabsTrigger>
@@ -42,7 +45,12 @@ export default function MatchList({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {filteredMatches.map((match) => (
-          <MatchCard key={match.id} match={match} />
+          <MatchCard
+            key={match.id}
+            tournament={tournament}
+            match={match}
+            showAdminControls={showAdminControls}
+          />
         ))}
       </div>
     </>

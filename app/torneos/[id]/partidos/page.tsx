@@ -9,6 +9,8 @@ import {
   EmptyTitle,
   EmptyDescription,
 } from "@/components/ui/empty";
+import { isAdmin } from "@/lib/auth/permissions";
+import { authServerService } from "@/lib/auth/services/server-service";
 import { Swords } from "lucide-react";
 import { redirect } from "next/navigation";
 
@@ -17,6 +19,9 @@ export default async function Page({
 }: {
   params: Promise<{ id: number }>;
 }) {
+  const user = await authServerService.getCurrentUser();
+  const showAdminControls = isAdmin(user);
+
   const { id } = await params;
   const tournament = await getTournamentById(id);
 
@@ -35,9 +40,13 @@ export default async function Page({
           {tournament.name}
         </h1>
 
-        <div className="justify-self-end">
-          <CreateMatch tournament={tournament} />
-        </div>
+        {showAdminControls ? (
+          <div className="justify-self-end">
+            <CreateMatch tournament={tournament} />
+          </div>
+        ) : (
+          <div />
+        )}
       </div>
 
       <div className="mx-auto w-full px-4 pb-8 md:px-8 lg:px-24">
@@ -54,7 +63,11 @@ export default async function Page({
             </EmptyHeader>
           </Empty>
         ) : (
-          <MatchList categories={tournament.categories} matches={matches} />
+          <MatchList
+            tournament={tournament}
+            matches={matches}
+            showAdminControls={showAdminControls}
+          />
         )}
       </div>
     </>

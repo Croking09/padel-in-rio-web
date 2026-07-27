@@ -1,6 +1,9 @@
 "use server";
 
-import { TournamentMatchInsert } from "@/lib/types/tournament-match";
+import {
+  TournamentMatchInsert,
+  TournamentMatchUpdate,
+} from "@/lib/types/tournament-match";
 import { tournamentMatchService } from "@/server/services/tournament-match-service";
 import { cacheLife, cacheTag, updateTag } from "next/cache";
 
@@ -18,4 +21,21 @@ export async function getMatchesByTournament(tournamentId: number) {
   cacheLife("days");
   cacheTag("tournament-matches");
   return tournamentMatchService.getByTournament(tournamentId);
+}
+
+export async function updateMatch(
+  matchId: number,
+  tournamentId: number,
+  input: TournamentMatchUpdate,
+) {
+  const result = await tournamentMatchService.update(
+    matchId,
+    tournamentId,
+    input,
+  );
+
+  if (result.success) {
+    updateTag("tournament-matches");
+  }
+  return result;
 }

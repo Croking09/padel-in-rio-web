@@ -8,11 +8,23 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
+  CardFooter,
 } from "@/components/ui/card";
 import { TournamentMatchRow } from "@/lib/types/tournament-match";
 import { capitalize } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import EditMatch from "@/components/torneos/matches/edit-match";
+import { TournamentRow } from "@/lib/types/tournament";
 
-export default function MatchCard({ match }: { match: TournamentMatchRow }) {
+export default function MatchCard({
+  match,
+  tournament,
+  showAdminControls,
+}: {
+  match: TournamentMatchRow;
+  tournament: TournamentRow;
+  showAdminControls: boolean;
+}) {
   const result = match.result ?? [];
 
   return (
@@ -62,6 +74,13 @@ export default function MatchCard({ match }: { match: TournamentMatchRow }) {
           </div>
         </div>
       </CardContent>
+
+      {showAdminControls && (
+        <CardFooter className="justify-end gap-2 pt-4">
+          <EditMatch tournament={tournament} match={match} />
+          <Button>Añadir resultado</Button> {/* Just a placeholder */}
+        </CardFooter>
+      )}
     </Card>
   );
 }

@@ -9,3 +9,8 @@ export type TournamentMatchInsert = Omit<
   Database["public"]["Tables"]["tournament_matches"]["Insert"],
   "result"
 > & { result?: number[][] | null };
+
+export type TournamentMatchUpdate = Omit<
+  Database["public"]["Tables"]["tournament_matches"]["Update"],
+  "result"
+> & { result?: number[][] | null };
