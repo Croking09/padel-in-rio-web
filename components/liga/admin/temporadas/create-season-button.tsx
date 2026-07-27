@@ -1,28 +1,32 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { PlusIcon } from "lucide-react";
+import { toast } from "sonner";
+
+import { createSeason } from "@/app/actions/season-actions";
 import { Button } from "@/components/ui/button";
+import DatePicker from "@/components/ui/date-picker";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { PlusIcon } from "lucide-react";
-import { toast } from "sonner";
-import DatePicker from "@/components/ui/date-picker";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import { createSeason } from "@/app/actions/season-actions";
 
-function getNext12Months(startDate: string): { month: number; year: number }[] {
+function getNext12Months(startDate?: Date): { month: number; year: number }[] {
   if (!startDate) return [];
-  const [year, month] = startDate.split("-").map(Number);
+
+  const month = startDate.getMonth() + 1;
+  const year = startDate.getFullYear();
+
   const result = [];
   for (let i = 0; i < 12; i++) {
     const m = ((month - 1 + i) % 12) + 1;
@@ -35,7 +39,7 @@ function getNext12Months(startDate: string): { month: number; year: number }[] {
 export default function CreateSeasonButton() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
-  const [startDate, setStartDate] = useState("");
+  const [startDate, setStartDate] = useState<Date>();
   const [selectedMonths, setSelectedMonths] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
 
@@ -63,17 +67,20 @@ export default function CreateSeasonButton() {
   const handleClose = () => {
     setOpen(false);
     setName("");
-    setStartDate("");
+    setStartDate(undefined);
     setSelectedMonths(new Set());
   };
 
-  const handleStartDateChange = (value: string) => {
+  const handleStartDateChange = (value?: Date) => {
     setStartDate(value);
     setSelectedMonths(new Set());
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!startDate) return;
+
     setLoading(true);
 
     const months = availableMonths.filter((m) =>
@@ -82,7 +89,7 @@ export default function CreateSeasonButton() {
 
     const result = await createSeason({
       name,
-      start_date: startDate,
+      start_date: format(startDate, "yyyy-MM-dd"),
       months,
     });
 
@@ -109,7 +116,7 @@ export default function CreateSeasonButton() {
             Nueva temporada
           </Button>
         }
-      ></DialogTrigger>
+      />
 
       <DialogContent>
         <DialogHeader>
@@ -173,7 +180,8 @@ export default function CreateSeasonButton() {
             <Button type="button" variant="secondary" onClick={handleClose}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading}>
+
+            <Button type="submit" disabled={loading || !startDate}>
               {loading ? "Creando..." : "Crear"}
             </Button>
           </DialogFooter>
