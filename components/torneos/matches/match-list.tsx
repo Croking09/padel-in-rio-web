@@ -32,7 +32,7 @@ export default function MatchList({
           className="pt-4 md:pt-0 pb-4"
         >
           <TabsList variant="line">
-            <TabsTrigger value={null}>Todas</TabsTrigger>
+            <TabsTrigger value={null}>Todos</TabsTrigger>
 
             {tournament.categories.map((category) => (
               <TabsTrigger key={category} value={category}>

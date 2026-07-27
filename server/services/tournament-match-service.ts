@@ -34,8 +34,6 @@ export const tournamentMatchService = {
 
       await tournamentMatchRepository.insert(input);
     } catch (error) {
-      console.log(error);
-
       if (isPgError(error, "42501")) {
         return {
           success: false as const,
@@ -92,8 +90,6 @@ export const tournamentMatchService = {
 
       await tournamentMatchRepository.update(matchId, input);
     } catch (error) {
-      console.log(error);
-
       if (isPgError(error, "42501")) {
         return {
           success: false as const,

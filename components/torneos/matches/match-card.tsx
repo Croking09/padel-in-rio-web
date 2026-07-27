@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/card";
 import { TournamentMatchRow } from "@/lib/types/tournament-match";
 import { capitalize } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import EditMatch from "@/components/torneos/matches/edit-match";
 import { TournamentRow } from "@/lib/types/tournament";
+import ResultForm from "@/components/torneos/matches/result-form";
 
 export default function MatchCard({
   match,
@@ -78,7 +78,12 @@ export default function MatchCard({
       {showAdminControls && (
         <CardFooter className="justify-end gap-2 pt-4">
           <EditMatch tournament={tournament} match={match} />
-          <Button>Añadir resultado</Button> {/* Just a placeholder */}
+          <ResultForm
+            matchId={match.id}
+            tournamentId={tournament.id}
+            pair1={match.pair1}
+            pair2={match.pair2}
+          />
         </CardFooter>
       )}
     </Card>
