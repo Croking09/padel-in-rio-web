@@ -49,7 +49,7 @@ export default function InstallTutorialCarousel() {
         {steps.map((step, index) => (
           <CarouselItem key={index}>
             <div className="flex flex-col items-center">
-              <div className="w-full text-center h-20 flex flex-col justify-center px-2">
+              <div className="w-full text-center min-h-13 shrink-0 flex flex-col justify-center px-2 py-1">
                 <h3 className="font-semibold text-base leading-snug">
                   {step.title}
                 </h3>
@@ -60,7 +60,7 @@ export default function InstallTutorialCarousel() {
                 )}
               </div>
 
-              <div className="w-full h-[42dvh] flex items-center justify-center">
+              <div className="w-full h-[34dvh] max-h-70 min-h-27.5 flex items-center justify-center">
                 <Image
                   src={step.src}
                   alt={step.title}
@@ -76,7 +76,7 @@ export default function InstallTutorialCarousel() {
         ))}
       </CarouselContent>
 
-      <div className="flex items-center justify-between w-full max-w-45 mx-auto mt-5">
+      <div className="flex items-center justify-between w-full max-w-45 mx-auto mt-4">
         <CarouselPrevious className="static translate-y-0 h-10 w-10" />
 
         <div className="flex items-center gap-2">
