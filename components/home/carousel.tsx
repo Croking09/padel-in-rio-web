@@ -41,6 +41,8 @@ export default function Carousel() {
                 alt="Carousel image"
                 fill
                 priority
+                loading="eager"
+                fetchPriority="high"
                 className="object-cover"
                 style={{ objectPosition: "50% 15%" }}
               />
